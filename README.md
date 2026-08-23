@@ -7,14 +7,14 @@ This folder is the editable home for the paper. Codex can edit, build, and inspe
 - `paper/` - LaTeX manuscript, chapters, and figures
 - `notes/` - Obsidian vault (open this folder as the vault)
 - `references/references.bib` - bibliography exported from Zotero
-- `research/pdfs/` - research papers you add locally
+- `research/pdfs/` - local-only research papers (shared through Zotero, not GitHub)
 - `diagrams/` - editable TikZ, Mermaid, Graphviz, and WaveDrom sources
 - `build/pdf/` - finished PDF
 - `build/aux/` - temporary LaTeX files
 - `imports/draft-1/` - safe landing area for the existing Draft 1 files
-- `sources/` - read-only material synced from the ChatGPT project; do not reorganize it
+- `sources/` - local-only, read-only material synced from the ChatGPT project
 
-The currently synced textbook is `sources/archbook.pdf`.
+Research papers and the course textbook are intentionally excluded from GitHub. Group members should obtain shared source material through the private Zotero group library or the course's authorized distribution channel.
 
 ## One-time setup on Windows
 
