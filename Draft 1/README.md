@@ -15,6 +15,7 @@ This folder contains the source modules for the independent milestone report dat
 - `sections/06-semester-schedule.tex` - schedule and Gantt chart
 - `sections/07-sources.tex` - source-status explanation and bibliography
 - `sections/08-next-steps.tex` - immediate actions
+- `figures/textbook-topic-map.tex` - editable TikZ textbook-to-topic mapping
 - `figures/gantt-chart.tex` - editable programmatic Gantt chart
 
 The professor-facing report intentionally contains no tooling/workflow section.

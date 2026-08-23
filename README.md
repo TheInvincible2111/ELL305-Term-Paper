@@ -11,6 +11,7 @@ This folder is the editable home for the paper. Codex can edit, build, and inspe
 - `diagrams/` - editable TikZ, Mermaid, Graphviz, and WaveDrom sources
 - `build/pdf/` - finished PDF
 - `build/aux/` - temporary LaTeX files
+- `submissions/` - verified milestone submission bundles and consolidated sources
 - `imports/draft-1/` - safe landing area for the existing Draft 1 files
 - `sources/` - local-only, read-only material synced from the ChatGPT project
 
@@ -36,6 +37,12 @@ The active output is `build/pdf/ELL305-Draft-1.pdf`. Clean temporary files with:
 
 ```powershell
 .\scripts\clean.ps1
+```
+
+Create the reproducible Draft 1 submission folder and ZIP with:
+
+```powershell
+.\scripts\package-draft1.ps1
 ```
 
 The build uses `latexmk` when Perl is available. With a standard MiKTeX installation and no Perl, it automatically runs the equivalent `pdflatex`, `biber`, and repeat-pass sequence. After compilation, future Codex tasks can render the PDF to images and visually inspect pages for overflow, broken figures, and layout defects once Poppler (`pdftoppm`) is installed.

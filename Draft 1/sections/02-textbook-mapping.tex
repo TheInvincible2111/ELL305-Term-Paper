@@ -5,6 +5,10 @@ The primary textbook is Smruti R. Sarangi's \emph{Basic Computer Architecture}, 
 
 An initial mapping of the proposed work to the course text has been completed. The connections are to Chapters 9--12.
 
+\Cref{fig:textbook-topic-map} summarizes how these textbook foundations lead to the two modern scaling questions examined through the AMD Zen case study.
+
+\input{"../Draft 1/figures/textbook-topic-map.tex"}
+
 \subsubsection{Chapter 9 -- Processor Design}
 
 The chapter provides the basic model of processor organization, including the fetch, execution and memory-access units, data path, and control path. This will serve as the baseline processor model before modern partitioned and chiplet-based implementations are considered.
@@ -15,7 +19,7 @@ The relevant topics include pipelining, performance metrics, advanced processor 
 
 \subsubsection{Chapter 11 -- The Memory System}
 
-This is presently the strongest direct mapping to the cache component of the proposed paper. The chapter introduces temporal and spatial locality, cache hierarchy, cache design, cache misses, hit time, miss penalty, and memory-system optimization. These concepts provide the theoretical basis for studying the motivation and performance implications of increased last-level-cache capacity and 3D V-Cache.
+This chapter provides a direct mapping to the cache component of the proposed paper. It introduces temporal and spatial locality, cache hierarchy, cache design, cache misses, hit time, miss penalty, and memory-system optimization. These concepts provide the theoretical basis for studying the motivation and performance implications of increased last-level-cache capacity and 3D V-Cache.
 
 \subsubsection{Chapter 12 -- Multiprocessor Systems}
 
@@ -40,3 +44,5 @@ The initial chapter-reading plan is shown in \cref{tab:chapter-plan}. The percen
     \bottomrule
   \end{tabular}
 \end{table}
+
+\FloatBarrier

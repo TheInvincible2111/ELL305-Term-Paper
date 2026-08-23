@@ -17,8 +17,14 @@
 \usepackage{fancyhdr}
 \usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
 \usepackage[nameinlink,noabbrev]{cleveref}
 \usepackage[backend=biber,style=ieee,sorting=none]{biblatex}
+
+\AtBeginBibliography{%
+  \sloppy
+  \setlength{\emergencystretch}{3em}%
+}
 
 \addbibresource{../references/references.bib}
 

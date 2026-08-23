@@ -1,0 +1,147 @@
+% Adapted from the user-supplied mapping_diagram.tikz.
+\definecolor{mapnavydark}{RGB}{27,54,93}
+\definecolor{mapsteelblue}{RGB}{58,101,158}
+\definecolor{mapchapfill}{RGB}{234,241,250}
+\definecolor{mapcentralborder}{RGB}{95,99,110}
+\definecolor{mapcentralfill}{RGB}{238,239,242}
+\definecolor{mapchipletborder}{RGB}{31,122,102}
+\definecolor{mapchipletfill}{RGB}{229,245,240}
+\definecolor{mapcacheborder}{RGB}{191,120,25}
+\definecolor{mapcachefill}{RGB}{253,241,222}
+\definecolor{maplinegray}{RGB}{120,123,130}
+
+\begin{figure}[!t]
+  \hyphenpenalty=10000
+  \exhyphenpenalty=10000
+  \centering
+  \begin{tikzpicture}[
+    every node/.style={font=\sffamily},
+    chapbox/.style={
+      rectangle,
+      rounded corners=5pt,
+      draw=mapsteelblue,
+      fill=mapchapfill,
+      line width=1pt,
+      text width=3.3cm,
+      minimum height=2.35cm,
+      align=center,
+      drop shadow={shadow xshift=0.6pt,shadow yshift=-0.8pt,opacity=0.35}
+    },
+    centralbox/.style={
+      rectangle,
+      rounded corners=5pt,
+      draw=mapcentralborder,
+      fill=mapcentralfill,
+      line width=1.2pt,
+      text width=13.9cm,
+      minimum height=1.95cm,
+      align=center,
+      drop shadow={shadow xshift=0.8pt,shadow yshift=-1pt,opacity=0.3}
+    },
+    chipletbox/.style={
+      rectangle,
+      rounded corners=5pt,
+      draw=mapchipletborder,
+      fill=mapchipletfill,
+      line width=1pt,
+      text width=6.55cm,
+      minimum height=1.85cm,
+      align=center,
+      drop shadow={shadow xshift=0.6pt,shadow yshift=-0.8pt,opacity=0.3}
+    },
+    cachebox/.style={
+      rectangle,
+      rounded corners=5pt,
+      draw=mapcacheborder,
+      fill=mapcachefill,
+      line width=1pt,
+      text width=6.55cm,
+      minimum height=1.85cm,
+      align=center,
+      drop shadow={shadow xshift=0.6pt,shadow yshift=-0.8pt,opacity=0.3}
+    },
+    casebox/.style={
+      rectangle,
+      rounded corners=5pt,
+      draw=mapnavydark,
+      fill=mapnavydark,
+      line width=1pt,
+      text width=13.9cm,
+      minimum height=2cm,
+      align=center,
+      text=white,
+      drop shadow={shadow xshift=0.8pt,shadow yshift=-1pt,opacity=0.35}
+    },
+    feedline/.style={
+      -{Stealth[length=2.6mm,width=2.1mm]},
+      line width=0.9pt,
+      draw=maplinegray,
+      rounded corners=2pt
+    },
+    plainline/.style={
+      line width=0.9pt,
+      draw=maplinegray,
+      rounded corners=2pt
+    }
+  ]
+    \node[chapbox] (ch9)
+      {{\footnotesize\bfseries\color{mapsteelblue} CHAPTER 9}\\[2pt]
+       {\bfseries Processor Design}\\[4pt]
+       {\footnotesize Processor organization and execution foundations}};
+
+    \node[chapbox,right=0.28cm of ch9] (ch10)
+      {{\footnotesize\bfseries\color{mapsteelblue} CHAPTER 10}\\[2pt]
+       {\bfseries Principles of Pipelining}\\[4pt]
+       {\footnotesize Performance, pipelining, power, and temperature}};
+
+    \node[chapbox,right=0.28cm of ch10] (ch11)
+      {{\footnotesize\bfseries\color{mapsteelblue} CHAPTER 11}\\[2pt]
+       {\bfseries The Memory System}\\[4pt]
+       {\footnotesize Locality, cache hierarchy, and memory-system behavior}};
+
+    \node[chapbox,right=0.28cm of ch11] (ch12)
+      {{\footnotesize\bfseries\color{mapsteelblue} CHAPTER 12}\\[2pt]
+       {\bfseries Multiprocessor Systems}\\[4pt]
+       {\footnotesize Multicore organization, coherence, and interconnects}};
+
+    \node[fit=(ch9)(ch12),inner sep=0pt] (toprow) {};
+
+    \node[centralbox,below=1.15cm of toprow] (central)
+      {{\bfseries\large Modern Architectural Scaling Questions}\\[6pt]
+       {\footnotesize How can processor resources and cache capacity be increased
+       while managing latency, power, integration, and manufacturing constraints?}};
+
+    \node[coordinate,below=1.7cm of central] (splitanchor) {};
+
+    \node[chipletbox,left=0.3cm of splitanchor] (chiplet)
+      {{\bfseries\color{mapchipletborder} Chiplet Organization}\\[4pt]
+       {\footnotesize Scaling processor resources beyond a large monolithic die}};
+
+    \node[cachebox,right=0.3cm of splitanchor] (cache)
+      {{\bfseries\color{mapcacheborder} 3D-Stacked Cache}\\[4pt]
+       {\footnotesize Scaling cache capacity without proportional planar CPU-die area}};
+
+    \node[fit=(chiplet)(cache),inner sep=0pt] (splitrow) {};
+
+    \node[casebox,below=1.15cm of splitrow] (case)
+      {{\bfseries\Large AMD Zen Processors as the Principal Case Study}\\[6pt]
+       {\footnotesize Textbook principles $\longrightarrow$ modern implementation
+       $\longrightarrow$ benefits and new trade-offs}};
+
+    \foreach \chapter in {ch9,ch10,ch11,ch12}{
+      \draw[feedline] (\chapter.south) -- (\chapter.south |- central.north);
+    }
+
+    \coordinate (midDown) at ($(central.south)+(0,-0.45)$);
+    \draw[plainline] (central.south) -- (midDown);
+    \draw[feedline] (midDown) -| (chiplet.north);
+    \draw[feedline] (midDown) -| (cache.north);
+
+    \coordinate (mergeUp) at ($(case.north)+(0,0.45)$);
+    \draw[plainline] (chiplet.south) |- (mergeUp);
+    \draw[plainline] (cache.south) |- (mergeUp);
+    \draw[feedline] (mergeUp) -- (case.north);
+  \end{tikzpicture}
+  \caption{ELL305 textbook foundations, the two scaling problems, and the AMD Zen case study.}
+  \label{fig:textbook-topic-map}
+\end{figure}
