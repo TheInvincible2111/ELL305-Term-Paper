@@ -1,0 +1,45 @@
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{pgfgantt}
+\usepackage{pdflscape}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage[backend=biber,style=ieee,sorting=none]{biblatex}
+
+\addbibresource{../references/references.bib}
+
+\definecolor{draftblue}{HTML}{244B76}
+\definecolor{draftlight}{HTML}{E8F0F7}
+\definecolor{draftgray}{HTML}{5A6570}
+
+\hypersetup{
+  pdftitle={ELL305 Term Paper - Draft 1},
+  pdfauthor={Ishan},
+  colorlinks=true,
+  linkcolor=draftblue,
+  citecolor=draftblue,
+  urlcolor=draftblue
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65em}
+\setlist[itemize]{topsep=0.2em,itemsep=0.15em,leftmargin=1.6em}
+\renewcommand{\arraystretch}{1.2}
+
+\newcommand{\milestonenote}[1]{%
+  \begin{center}
+  \fcolorbox{draftblue}{draftlight}{%
+    \begin{minipage}{0.9\textwidth}
+    \small #1
+    \end{minipage}}
+  \end{center}}

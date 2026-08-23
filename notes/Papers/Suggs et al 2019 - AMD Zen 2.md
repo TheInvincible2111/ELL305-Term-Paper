@@ -1,0 +1,16 @@
+---
+title: AMD Zen 2
+authors: [David Suggs, Doug Bouvier, Michael Clark, Kevin Lepak, Mahesh Subramony]
+year: 2019
+citation-key: suggs2019zen2
+status: preliminary
+tags: [amd, zen-2, chiplets, draft-1]
+---
+
+# Relevance
+
+Initial primary source for the Zen 2 CCD/IOD organization and Infinity Fabric.
+
+# Reading status
+
+Bibliographic details, summary material, and selected architecture content examined. Full structured reading remains pending.

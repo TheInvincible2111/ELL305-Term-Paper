@@ -1,0 +1,32 @@
+\section{Preliminary Research Directions}
+\label{sec:directions}
+
+The initial survey suggests that the chiplet discussion should not be reduced to the observation that a processor contains several pieces of silicon. The important architectural questions concern \textbf{what is partitioned, why the partition is made, and what costs are introduced by moving communication across die boundaries}.
+
+The chiplet portion of the paper is therefore expected to examine subjects such as:
+
+\begin{itemize}
+  \item Core Complex Dies and I/O Dies;
+  \item Infinity Fabric and die-to-die communication;
+  \item latency and bandwidth;
+  \item process-node specialization;
+  \item manufacturing and die-size considerations;
+  \item scalability with core count;
+  \item interconnect power; and
+  \item cache organization and coherence.
+\end{itemize}
+
+The 3D V-Cache portion has an especially direct connection to Chapter 11. A hierarchical memory system attempts to satisfy a large fraction of memory accesses in relatively small, fast caches. Increasing last-level-cache capacity can reduce expensive accesses to lower levels for workloads that benefit from the additional working-set capacity. However, conventional cache expansion also involves area, latency, power, and implementation costs.
+
+3D V-Cache is therefore interesting as an architectural case study because it modifies part of this trade-off: additional SRAM capacity can be integrated vertically through a stacked cache die.
+
+This leads to several questions for later study:
+
+\begin{itemize}
+  \item Under what workload conditions does additional L3 capacity provide substantial performance improvement?
+  \item How should increased cache capacity be evaluated against access latency and clock frequency?
+  \item Why are some workloads more cache-sensitive than others?
+  \item What thermal and power constraints arise when cache is vertically stacked?
+  \item How does the cache hierarchy interact with the chiplet organization of the processor?
+  \item To what extent are observed performance gains attributable to cache, core microarchitecture, frequency, memory bandwidth, or other factors?
+\end{itemize}

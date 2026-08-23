@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "build/aux": true
+  },
+  "latex-workshop.latex.outDir": "%DIR%/../build/aux",
+  "latex-workshop.latex.autoBuild.run": "never",
+  "latex-workshop.view.pdf.viewer": "tab"
+}
+

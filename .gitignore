@@ -1,0 +1,14 @@
+build/aux/*
+!build/aux/.gitkeep
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+tmp/
+sources/
+research/pdfs/*
+!research/pdfs/README.md
+build/pdf/ELL305-term-paper.pdf
+notes/.obsidian/workspace.json
+notes/.obsidian/workspace-mobile.json
+notes/Term Paper ELL305/
+AGENTS.md
