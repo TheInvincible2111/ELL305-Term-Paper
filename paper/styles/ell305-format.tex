@@ -1,0 +1,73 @@
+% Shared institutional format for all ELL305 milestone drafts and the final paper.
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+\usepackage{microtype}
+\usepackage[a4paper,left=1in,right=1in,top=1in,bottom=0.9in,headheight=16pt]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage[backend=biber,style=ieee,sorting=none]{biblatex}
+
+\addbibresource{../references/references.bib}
+
+\definecolor{draftblue}{HTML}{173A6B}
+\definecolor{draftlight}{HTML}{F0F4FA}
+\definecolor{draftgray}{HTML}{5A6570}
+
+\hypersetup{
+  pdftitle={ELL305 Term Paper - Draft 1},
+  pdfauthor={Ishan Krishna Agrawal, Vaidik Goyal, Moon Saraswat},
+  colorlinks=true,
+  linkcolor=draftblue,
+  citecolor=draftblue,
+  urlcolor=draftblue
+}
+
+\fancypagestyle{ell305}{%
+  \fancyhf{}%
+  \fancyhead[C]{\parbox{\headwidth}{\small ELL305: Computer Architecture\hfill IIT Delhi}}%
+  \fancyfoot[C]{\thepage}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[C]{\parbox{\headwidth}{\small ELL305: Computer Architecture\hfill IIT Delhi}}%
+  \fancyfoot[C]{\thepage}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+\pagestyle{ell305}
+
+\titleformat{\section}
+  {\color{draftblue}\Large\bfseries}{\thesection}{0.75em}{}
+\titleformat{\subsection}
+  {\color{draftblue}\large\bfseries}{\thesubsection}{0.75em}{}
+\titleformat{\subsubsection}
+  {\color{draftblue}\normalsize\bfseries}{\thesubsubsection}{0.75em}{}
+
+\captionsetup{font=small,labelfont=bf,labelsep=colon}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65em}
+\setlist[itemize]{topsep=0.2em,itemsep=0.15em,leftmargin=1.6em}
+\renewcommand{\arraystretch}{1.18}
+
+\newcommand{\progressabstract}[1]{%
+  \begin{center}
+  \fcolorbox{draftblue}{draftlight}{%
+    \begin{minipage}{0.88\textwidth}
+    \small #1
+    \end{minipage}}
+  \end{center}}

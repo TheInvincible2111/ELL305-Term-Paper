@@ -7,5 +7,3 @@
 - October to early November: comparative and quantitative analysis
 - October through November: long-form writing and synthesis
 - November: integration, citation audit, revision, submission preparation
-
-Official dates for Drafts 2 and 3 are not yet recorded here; revise when announced.

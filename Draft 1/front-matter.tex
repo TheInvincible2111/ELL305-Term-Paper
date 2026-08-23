@@ -1,26 +1,53 @@
 \hypersetup{pageanchor=false}
 \begin{titlepage}
+  \thispagestyle{empty}
   \centering
-  \vspace*{2.2cm}
-  {\Large\color{draftgray} ELL305 -- Computer Architecture\par}
-  \vspace{1.2cm}
-  {\Huge\bfseries\color{draftblue} \drafttitle\par}
+  \vspace*{0.3cm}
+  \includegraphics[width=2.7cm]{assets/iit-delhi-logo.png}\par
   \vspace{0.45cm}
-  {\Large \draftsubtitle\par}
-  \vspace{1.5cm}
-  {\large\bfseries Provisional Topic\par}
+  {\Large\bfseries INDIAN INSTITUTE OF TECHNOLOGY DELHI\par}
+  \vspace{0.2cm}
+  {\large\bfseries Department of Electrical Engineering\par}
+  \vspace{0.65cm}
+  {\large ELL305: Computer Architecture\par}
+  \vspace{0.45cm}
+  \rule{0.94\textwidth}{0.7pt}\par
+  \vspace{0.45cm}
+  {\Huge\bfseries \drafttitle\par}
   \vspace{0.3cm}
-  {\Large\itshape \provisionaltopic\par}
+  {\Large \draftsubtitle\par}
+  \vspace{0.45cm}
+  {\large\itshape \provisionaltopic\par}
+  \vspace{0.45cm}
+  \rule{0.94\textwidth}{0.7pt}\par
+  \vspace{0.75cm}
+  {\large\itshape Submitted by\par}
+  \vspace{0.35cm}
+  \small
+  \begin{tabularx}{0.96\textwidth}{>{\raggedright\arraybackslash}X c >{\raggedleft\arraybackslash}X}
+    \textbf{\authorone} & \entryone & \href{mailto:\emailone}{\emailone}\\[0.4em]
+    \textbf{\authortwo} & \entrytwo & \href{mailto:\emailtwo}{\emailtwo}\\[0.4em]
+    \textbf{\authorthree} & \entrythree & \href{mailto:\emailthree}{\emailthree}
+  \end{tabularx}
   \vfill
-  {\large \studentname\par}
-  \vspace{0.25cm}
   {\large \draftdate\par}
 \end{titlepage}
 
-\pagenumbering{roman}
+% The title-page environment suppresses running matter; restore the shared
+% institutional page style for every subsequent page.
+\pagestyle{ell305}
 \hypersetup{pageanchor=true}
-\milestonenote{This submission is an independent milestone progress report. It records the state of the work as of 24 August 2026 and is not intended to be a preliminary version of the final 150-page term paper.}
+\pagenumbering{arabic}
+\setcounter{page}{1}
 
+\begin{center}
+  {\Large\bfseries Abstract\par}
+\end{center}
+
+\progressabstract{This independent milestone report records the work completed on the ELL305 term-paper project as of 24 August 2026. The group has selected a question-driven study of chiplet-based processor organization and 3D-stacked cache, with AMD Zen processors as the principal case study. The topic has been mapped to Chapters 9--12 of the course textbook, and an initial set of five technical sources has been identified and examined at a preliminary level. The report also records the present work-package status and a provisional semester schedule.
+
+\noindent\textbf{Keywords:} processor architecture, chiplets, memory hierarchy, 3D-stacked cache, AMD Zen, ELL305.}
+
+\clearpage
 \tableofcontents
 \clearpage
-\pagenumbering{arabic}

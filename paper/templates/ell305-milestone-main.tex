@@ -1,0 +1,20 @@
+% Reusable entry-point template for future independently managed ELL305 drafts.
+% Copy this file to paper/main.tex only when beginning a new milestone, then
+% replace every "Draft N" path with that milestone's preserved directory.
+\documentclass[12pt,a4paper,twoside]{article}
+
+\input{styles/ell305-format.tex}
+\input{"../Draft N/preamble.tex"}
+\input{"../Draft N/metadata.tex"}
+
+\begin{document}
+\input{"../Draft N/front-matter.tex"}
+\input{"../Draft N/sections/00-work-done.tex"}
+
+% Keep each substantial topic in a separate numbered section file.
+% \input{"../Draft N/sections/01-first-section.tex"}
+% \input{"../Draft N/sections/02-second-section.tex"}
+
+\input{"../Draft N/sections/90-sources.tex"}
+\input{"../Draft N/sections/99-next-steps.tex"}
+\end{document}

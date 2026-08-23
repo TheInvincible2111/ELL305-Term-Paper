@@ -1,0 +1,26 @@
+% Reusable entry-point template for the eventual full ELL305 term paper.
+% This follows the institutional report sequence in the supplied Overleaf
+% archive while preserving the project's seven-part architecture plan.
+\documentclass[12pt,a4paper,twoside]{article}
+
+\input{styles/ell305-format.tex}
+\input{"../Final Paper/preamble.tex"}
+\input{"../Final Paper/metadata.tex"}
+
+\begin{document}
+\input{"../Final Paper/front-matter.tex"} % cover, abstract, and contents
+
+\input{"../Final Paper/sections/01-introduction.tex"}
+\input{"../Final Paper/sections/02-processor-foundations.tex"}
+\input{"../Final Paper/sections/03-memory-hierarchy-and-cache.tex"}
+\input{"../Final Paper/sections/04-monolithic-scaling-limits.tex"}
+\input{"../Final Paper/sections/05-chiplets-and-amd-zen.tex"}
+\input{"../Final Paper/sections/06-stacked-cache-and-v-cache.tex"}
+\input{"../Final Paper/sections/07-method-and-evidence.tex"}
+\input{"../Final Paper/sections/08-results-and-discussion.tex"}
+\input{"../Final Paper/sections/09-synthesis-and-conclusions.tex"}
+
+\appendix
+\input{"../Final Paper/appendices/appendices.tex"}
+\printbibliography[heading=bibintoc,title={References}]
+\end{document}

@@ -1,24 +1,42 @@
-\section{Mapping to the ELL305 Textbook}
+\subsection{Mapping to the ELL305 Textbook}
 \label{sec:textbook}
 
 The primary textbook is Smruti R. Sarangi's \emph{Basic Computer Architecture}, Version 3.09 \cite{sarangi2025basic}.
 
-An initial mapping of the proposed work to the course text has been completed. The strongest connections are to Chapters 9--12.
+An initial mapping of the proposed work to the course text has been completed. The connections are to Chapters 9--12.
 
-\subsection{Chapter 9 -- Processor Design}
+\subsubsection{Chapter 9 -- Processor Design}
 
 The chapter provides the basic model of processor organization, including the fetch, execution and memory-access units, data path, and control path. This will serve as the baseline processor model before modern partitioned and chiplet-based implementations are considered.
 
-\subsection{Chapter 10 -- Principles of Pipelining}
+\subsubsection{Chapter 10 -- Principles of Pipelining}
 
 The relevant topics include pipelining, performance metrics, advanced processor techniques, and power/temperature considerations. These concepts provide a framework for studying processor performance and for understanding why increasing clock frequency alone cannot indefinitely provide performance scaling.
 
-\subsection{Chapter 11 -- The Memory System}
+\subsubsection{Chapter 11 -- The Memory System}
 
 This is presently the strongest direct mapping to the cache component of the proposed paper. The chapter introduces temporal and spatial locality, cache hierarchy, cache design, cache misses, hit time, miss penalty, and memory-system optimization. These concepts provide the theoretical basis for studying the motivation and performance implications of increased last-level-cache capacity and 3D V-Cache.
 
-\subsection{Chapter 12 -- Multiprocessor Systems}
+\subsubsection{Chapter 12 -- Multiprocessor Systems}
 
 The chapter introduces private and shared caches, cache coherence, banked caches, multicore organization, and interconnection networks. These ideas are useful when extending the discussion from a conventional multicore processor toward systems containing multiple compute dies connected through an interconnect fabric.
 
-As advised, I intend to consult Prof. Sumantra Dutta Roy, since the proposed work maps primarily to material contained within Chapters 9--12. No formal consultation has taken place yet. The consultation will be used to confirm the scope and determine how far the term paper should enter topics such as advanced packaging, cache coherence, and die-to-die interconnection.
+As advised, the group has chosen Prof. Sumantra Dutta Roy for consultation because the proposed work maps primarily to material contained within Chapters 9--12. No formal consultation has taken place yet. This consultation will be used for advice on the paper.
+
+The initial chapter-reading plan is shown in \cref{tab:chapter-plan}. The percentages represent orientation progress as of the milestone date, not completed close readings.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Initial textbook reading plan and progress as of 24 August 2026.}
+  \label{tab:chapter-plan}
+  \begin{tabular}{p{0.52\textwidth} c c}
+    \toprule
+    Chapter & Target date & Progress\\
+    \midrule
+    Chapter 9 -- Processor Design & 28 Aug 2026 & 15\%\\
+    Chapter 10 -- Principles of Pipelining & 3 Sep 2026 & 10\%\\
+    Chapter 11 -- The Memory System & 27 Sep 2026 & 10\%\\
+    Chapter 12 -- Multiprocessor Systems & 6 Oct 2026 & 5\%\\
+    \bottomrule
+  \end{tabular}
+\end{table}
