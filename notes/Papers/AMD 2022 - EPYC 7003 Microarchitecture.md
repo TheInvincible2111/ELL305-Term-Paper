@@ -14,3 +14,7 @@ AMD technical overview of Zen 3 core, CCX, CCD, central I/O die, shared L3 cache
 # Reading status
 
 Architecture description and selected figures examined. A page-specific extraction pass remains pending.
+
+# Local source
+
+`../../research/pdfs/AMD-EPYC-7003-Microarchitecture-Overview.pdf`

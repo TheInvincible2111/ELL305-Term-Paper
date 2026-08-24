@@ -1,5 +1,7 @@
 \subsection{Mapping to the ELL305 Textbook}
 \label{sec:textbook}
+\index{Basic Computer Architecture (textbook)}
+\index{textbook mapping}
 
 The primary textbook is Smruti R. Sarangi's \emph{Basic Computer Architecture}, Version 3.09 \cite{sarangi2025basic}.
 
@@ -10,22 +12,31 @@ An initial mapping of the proposed work to the course text has been completed. T
 \input{"../Draft 1/figures/textbook-topic-map.tex"}
 
 \subsubsection{Chapter 9 -- Processor Design}
+\index{processor organization}
 
 The chapter provides the basic model of processor organization, including the fetch, execution and memory-access units, data path, and control path. This will serve as the baseline processor model before modern partitioned and chiplet-based implementations are considered.
 
 \subsubsection{Chapter 10 -- Principles of Pipelining}
+\index{pipelining}
+\index{power and temperature}
 
 The relevant topics include pipelining, performance metrics, advanced processor techniques, and power/temperature considerations. These concepts provide a framework for studying processor performance and for understanding why increasing clock frequency alone cannot indefinitely provide performance scaling.
 
 \subsubsection{Chapter 11 -- The Memory System}
+\index{cache hierarchy}
+\index{last-level cache}
+\index{memory hierarchy}
 
 This chapter provides a direct mapping to the cache component of the proposed paper. It introduces temporal and spatial locality, cache hierarchy, cache design, cache misses, hit time, miss penalty, and memory-system optimization. These concepts provide the theoretical basis for studying the motivation and performance implications of increased last-level-cache capacity and 3D V-Cache.
 
 \subsubsection{Chapter 12 -- Multiprocessor Systems}
+\index{cache coherence}
+\index{interconnects}
+\index{multiprocessor systems}
 
 The chapter introduces private and shared caches, cache coherence, banked caches, multicore organization, and interconnection networks. These ideas are useful when extending the discussion from a conventional multicore processor toward systems containing multiple compute dies connected through an interconnect fabric.
 
-As advised, the group has chosen Prof. Sumantra Dutta Roy for consultation because the proposed work maps primarily to material contained within Chapters 9--12. No formal consultation has taken place yet. This consultation will be used for advice on the paper.
+As advised, Prof. Sumantra Dutta Roy is the faculty advisor selected for consultation because the proposed work maps primarily to material contained within Chapters 9--12. No formal consultation has taken place yet. This consultation will be used for advice on the paper.
 
 The initial chapter-reading plan is shown in \cref{tab:chapter-plan}. The percentages represent orientation progress as of the milestone date, not completed close readings.
 

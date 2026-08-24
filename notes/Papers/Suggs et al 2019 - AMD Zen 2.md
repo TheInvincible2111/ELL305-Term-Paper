@@ -14,3 +14,7 @@ Initial primary source for the Zen 2 CCD/IOD organization and Infinity Fabric.
 # Reading status
 
 Bibliographic details, summary material, and selected architecture content examined. Full structured reading remains pending.
+
+# Local source
+
+`../../research/pdfs/AMD-Zen-2-Hot-Chips-31.pdf`

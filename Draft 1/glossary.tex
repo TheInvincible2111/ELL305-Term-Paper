@@ -1,0 +1,68 @@
+% Draft 1 glossary definitions. The generated glossary is printed from the
+% front-matter module; definitions stay here so later drafts can revise them
+% without changing the shared document style.
+
+\newglossaryentry{amat}{
+  name={AMAT (average memory access time)},
+  description={A weighted average of memory-access latencies that accounts for cache hits, cache misses, and the penalties of accessing lower levels of the memory hierarchy}
+}
+
+\newglossaryentry{cache-coherence}{
+  name={cache coherence},
+  description={The mechanisms and rules used to maintain a consistent view of shared data when multiple caches can hold copies of the same memory location}
+}
+
+\newglossaryentry{cache-hierarchy}{
+  name={cache hierarchy},
+  description={A set of cache levels organised to exploit locality by balancing capacity, access latency, and implementation cost}
+}
+
+\newglossaryentry{ccd}{
+  name={CCD (Core Complex Die)},
+  description={AMD terminology for a compute die containing processor cores and associated cache resources in selected Zen-based processors}
+}
+
+\newglossaryentry{chiplet}{
+  name={chiplet},
+  description={A separately fabricated die designed to operate with one or more other dies as part of a packaged system}
+}
+
+\newglossaryentry{hybrid-bonding}{
+  name={hybrid bonding},
+  description={A fine-pitch die-stacking technique that forms direct mechanical and electrical connections between aligned die surfaces}
+}
+
+\newglossaryentry{infinity-fabric}{
+  name={Infinity Fabric},
+  description={AMD's interconnect architecture for communication among processor components and, in relevant products, among separate dies}
+}
+
+\newglossaryentry{iod}{
+  name={IOD (I/O Die)},
+  description={AMD terminology for a die that centralises input/output, memory-interface, and supporting interconnect functions in selected chiplet-based Zen processors}
+}
+
+\newglossaryentry{llc}{
+  name={LLC (last-level cache)},
+  description={The final cache level checked before a request proceeds to main memory in the cache hierarchy under discussion}
+}
+
+\newglossaryentry{memory-hierarchy}{
+  name={memory hierarchy},
+  description={An organisation of storage levels with different capacities, costs, and access times, arranged to exploit temporal and spatial locality}
+}
+
+\newglossaryentry{monolithic-die}{
+  name={monolithic die},
+  description={A single semiconductor die on which the principal processor resources under discussion are integrated rather than partitioned across multiple dies}
+}
+
+\newglossaryentry{tsv}{
+  name={TSV (through-silicon via)},
+  description={A vertical electrical connection passing through a silicon die to support communication in a stacked-die assembly}
+}
+
+\newglossaryentry{v-cache}{
+  name={3D V-Cache},
+  description={AMD's name for a design that uses three-dimensional die integration to add stacked cache capacity above a processor die}
+}

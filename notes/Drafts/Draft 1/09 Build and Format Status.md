@@ -1,7 +1,7 @@
 ---
 draft: 1
 verified: 2026-08-24
-status: compiled
+status: final-audited
 tags: [draft-1, build, format]
 ---
 
@@ -11,7 +11,7 @@ tags: [draft-1, build, format]
 
 - PDF: `../../../build/pdf/ELL305-Draft-1.pdf`
 - Format: A4
-- Length: 11 pages
+- Length: 19 pages
 - Bibliography: 6 entries exported from Zotero/Better BibTeX
 - Cover: IIT Delhi identity, Department of Electrical Engineering, three group members, and no faculty-consultation block
 - Main milestone heading: **Work Done as of 24 August 2026**
@@ -21,10 +21,10 @@ tags: [draft-1, build, format]
 ## Verification completed
 
 - The active LaTeX project compiled successfully through the normal project build script.
-- The per-user MiKTeX 25.12 installation was repaired and the same script used by the default VS Code build task was verified end to end.
+- MiKTeX is installed system-wide under `C:\Program Files\MiKTeX-25.12`; the build scripts prefer that installation explicitly, refresh its font maps, and use the same project script as the default VS Code build task.
 - The bibliography processor completed without warnings or errors.
-- No LaTeX errors, package warnings, overfull boxes, undefined citations, or undefined references were present in the final log. One benign underfull-vbox notice remains from page balancing at a section transition; visual inspection shows no corresponding defect.
-- All 11 pages of the final PDF were rendered and visually inspected, including the cover, abstract, contents, mapping diagram, tables, bibliography, and landscape Gantt chart.
+- No LaTeX errors, package warnings, overfull or underfull boxes, undefined citations, or undefined references are present in the final log.
+- All 19 pages of the final PDF were rendered and visually inspected, including the mandated front matter, generated lists and glossary, mapping diagram, tables, bibliography, landscape Gantt chart, both appendices, and index.
 
 ## Format decision
 

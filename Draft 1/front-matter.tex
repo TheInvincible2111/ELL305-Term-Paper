@@ -40,6 +40,10 @@
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
+\input{"../Draft 1/front-matter/copyright-assignment.tex"}
+\input{"../Draft 1/front-matter/acknowledgements.tex"}
+
+\clearpage
 \begin{center}
   {\Large\bfseries Abstract\par}
 \end{center}
@@ -50,4 +54,18 @@
 
 \clearpage
 \tableofcontents
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{List of Tables}
+\listoftables
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{List of Figures}
+\listoffigures
+
+\clearpage
+\glsaddall
+\printglossary[title={Glossary}]
 \clearpage

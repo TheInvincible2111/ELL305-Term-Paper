@@ -1,5 +1,7 @@
 build/aux/*
 !build/aux/.gitkeep
+build/single-file-validation/
+build/submission-validation/
 *.synctex.gz
 *.fls
 *.fdb_latexmk

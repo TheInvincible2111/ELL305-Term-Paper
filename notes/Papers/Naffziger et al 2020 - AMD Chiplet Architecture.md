@@ -14,3 +14,7 @@ Primary source for AMD's chiplet motivation, die-size and cost considerations, a
 # Reading status
 
 Abstract, bibliographic record, and selected technical material examined. Full source-by-source reading log remains pending.
+
+# Local source
+
+`../../research/pdfs/AMD-Chiplet-Architecture-ISSCC-2020.pdf`

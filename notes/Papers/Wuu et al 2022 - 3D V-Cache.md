@@ -14,3 +14,7 @@ Primary source for the implementation of AMD's hybrid-bonded stacked SRAM and it
 # Reading status
 
 The official IEEE PDF has been checked in full. It is a two-page presentation-only record: page 1 contains the abstract and page 2 is an empty presentation placeholder. Only the abstract and bibliographic record have therefore been examined. Swaminathan's Hot Chips 33 AMD presentation is now the fuller primary source identified for the first-generation stack and hybrid-bonding details.
+
+# Local source
+
+`../../research/pdfs/AMD-3D-V-Cache-ISSCC-2022-Presentation-Only.pdf`
