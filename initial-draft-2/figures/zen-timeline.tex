@@ -1,0 +1,23 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  ev/.style={draw=draftblue,fill=draftlight,rounded corners=2pt,font=\scriptsize,align=center,text width=2.05cm,minimum height=1.25cm},
+  ev3/.style={ev,fill=todored!12,draw=todored},
+  yr/.style={font=\scriptsize\bfseries,text=draftblue}]
+\draw[-{Stealth},thick,draftgray] (-0.4,0) -- (15.4,0);
+\foreach \x/\y/\t/\s in {
+  0.75/2019/{Zen~2: 7\,nm CCDs + 12\,nm I/O die (Rome, Matisse)}/ev,
+  3.25/2020/{Zen~3: one 8-core complex shares 32\,MB L3}/ev,
+  5.75/2021/{3D V-Cache prototype shown (Hot Chips~33)}/ev3,
+  8.25/2022/{First V-Cache products: Milan-X, Ryzen~7 5800X3D}/ev3,
+  10.75/2023/{Zen~4 V-Cache: 5\,nm CCD, up to 1152\,MB per socket}/ev3,
+  13.25/2024/{Zen~5 V-Cache: cache die moved below the CCD}/ev3}{
+  \fill[draftblue] (\x,0) circle (0.07);
+  \node[yr,below] at (\x,-0.12) {\y};
+  \node[\s,above] at (\x,0.3) {\t};
+  \draw[draftblue] (\x,0.07) -- (\x,0.3);}
+\node[font=\scriptsize,text=draftgray,anchor=west] at (-0.4,-0.75) {Chiplet organisation in blue; stacked cache in red.};
+\end{tikzpicture}
+\caption{The steps of AMD's Zen design studied in this paper, with the year each was disclosed or launched \cite{suggs2019zen2,naffziger2020chiplet,advancedmicrodevicesinc.AMDLaunchesAMD2020,swaminathanAdvancedPackagingEnabling2021,wuu2022vcache,larabelAMDEPYC7773X2022,alam2ndGeneration3D2024,advancedmicrodevicesinc.4thGenAMD2023,advancedmicrodevicesinc.GamingLegendContinues2024}.}
+\label{fig:zen-timeline}
+\end{figure}

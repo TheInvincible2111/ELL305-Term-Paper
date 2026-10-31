@@ -1,0 +1,101 @@
+% Part V -- AMD case study and quantitative analysis (target: about 25 pages)
+% Method: Option A (analysis of published research and benchmarks); no new
+% hardware measurements and no simulator.
+\clearpage
+\part{AMD Case Study and Quantitative Analysis}
+\label{part:case-study}
+\partbudget{25}{generational progression and method drafted; benchmark data collection not started}
+
+\section{From Zen 2 Chiplets to Zen 3 and 3D V-Cache}
+\label{sec:zen-progression}
+
+\input{"../draft-initial/figures/zen-ccd-evolution.tex"}
+
+\Cref{tab:zen-progression} and \cref{fig:zen-ccd-evolution} summarise the changes in cache organisation that matter for this paper, using only AMD's published descriptions.
+
+\begin{table}[htbp]
+  \centering
+  \caption{L3 organisation per compute die across the generations studied (AMD-published figures)}
+  \label{tab:zen-progression}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    & \textbf{Zen 2 CCD} & \textbf{Zen 3 CCD} & \textbf{Zen 3 CCD with 3D V-Cache} \\
+    \midrule
+    Cores per CCD & 8 & 8 & 8 \\
+    CCX organisation & Two 4-core CCXs & One 8-core CCX & One 8-core CCX \\
+    L3 shared by one core & Up to 16 MB (its CCX) & 32 MB & 96 MB \\
+    L3 per CCD & 2 $\times$ 16 MB & 32 MB & 32 MB base + 64 MB stacked \\
+    Private L2 per core & 512 KB & 512 KB & 512 KB \\
+    CCD area & 74 mm$^2$ & 81 mm$^2$ & 81 mm$^2$ + 41 mm$^2$ L3D \\
+    Added L3 latency & --- & --- & +4 cycles \\
+    Sources & \cite{suggs2019zen2,naffziger2020chiplet} & \cite{amd2022epyc7003,wuu2022vcache} & \cite{amd2022epyc7003,wuu2022vcache} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Two steps stand out. Zen~3 did not add L3 capacity per CCD but changed its \emph{sharing}: each core can now use the whole 32\,MB rather than only its own CCX's 16\,MB \cite{amd2022epyc7003,suggs2019zen2}. 3D V-Cache then tripled the capacity seen by each core without changing the CCD's footprint or the sharing structure \cite{amd2022epyc7003,wuu2022vcache}. These two steps give a natural experiment for the effect of L3 capacity, as long as other differences are controlled (\cref{sec:confounds}).
+
+\plannedcontent{Extend the progression to later Zen generations with X3D variants using primary AMD sources only. \verify{collect generation-by-generation L3 sizes, stack orientation and frequency limits from AMD documentation before writing.}}
+
+\section{Comparing Architectural Configurations}
+\label{sec:config-compare}
+\plannedcontent{Table of configuration pairs that differ mainly in L3 capacity (for example, a Zen~3 desktop or server part and its V-Cache counterpart): core count, base and boost clocks, power limit, memory support, L3 per CCD. \todo{All figures from AMD product documentation, with access dates.}}
+
+\section{Method for Analysing Published Evidence}
+\label{sec:evidence-method}
+
+The quantitative analysis uses published research and benchmarks only (\cref{fig:evidence-method}). This is the most manageable option given that the group does not have access to the relevant hardware. Its limitation is dependence on the experimental conditions and measurements that others chose to publish; the analysis can only be as controlled as its sources.
+
+\input{"../draft-initial/figures/evidence-method.tex"}
+
+Each source is recorded with: the processors compared; clock frequencies (fixed or boost); memory type, speed and timings; power limits; software and settings; the metric (for example, frames per second, IPC, runtime or throughput); and whether the source is the vendor or an independent party. Results are reported as relative changes with the source, metric and conditions stated, never as a single headline number.
+
+\plannedcontent{Source-selection criteria (peer-reviewed or methodologically transparent benchmark publications; vendor data used only when labelled as such); handling of conflicting results; how averages across workloads are formed (geometric mean of ratios).}
+
+\section{Published Benchmarks and Performance Measurements}
+\label{sec:benchmarks}
+
+The evidence currently in hand is entirely AMD-reported (\cref{tab:amd-reported}). Independent measurements are still to be collected.
+
+\begin{table}[htbp]
+  \centering
+  \caption{AMD-reported performance figures relevant to this study (vendor claims, not independent measurements)}
+  \label{tab:amd-reported}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{2.0cm}@{}}
+    \toprule
+    \textbf{Claim} & \textbf{Conditions stated} & \textbf{Source} \\
+    \midrule
+    About 15\% faster gaming, 8-core Ryzen~7 5800X3D vs 12-core Ryzen~9 5900X; per-title results from a tie to 1.36$\times$ & Six games at 1080p, high preset; both with DDR4-3600 and RTX~3080; AMD testing, Dec.\ 2021 & \cite[slides~29, 35]{wuu2022vcache} \\
+    About 66\% more RTL-simulation jobs per hour (24.4 to 40.6), 16-core EPYC with V-Cache vs 16-core EPYC~73F3 & Synopsys VCS; same reference platform; AMD testing, Sept.\ 2021 & \cite[slides~31, 35]{wuu2022vcache} \\
+    19\% average IPC gain, Zen~3 vs Zen~2 & 25 workloads at a locked 4\,GHz, 8-core desktop parts & \cite[slides~10, 35]{wuu2022vcache} \\
+    15\% average gaming uplift, 12-core 3D-chiplet prototype vs Ryzen~9 5900X & Both at the same fixed frequency; disclosed games only & \cite{swaminathanAdvancedPackagingEnabling2021} \\
+    15\% IPC improvement from Zen to Zen~2 & Many simultaneous changes, including doubled L3 & \cite{suggs2019zen2} \\
+    19\% average memory-latency reduction, Rome vs Naples & Central IOD, decoupled clocks, optimised IFOP & \cite{naffziger2020chiplet} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\todo{Collect independent benchmark studies covering gaming, technical computing, databases and general productivity for paired V-Cache and non-V-Cache parts; add each to Zotero with a reading note before citing.}
+
+\section{Cache-Sensitive Versus Cache-Insensitive Workloads}
+\label{sec:workload-sensitivity}
+\plannedcontent{Classify workloads from the collected evidence by the size of the stacked-cache benefit, and explain the pattern with working-set size and the miss classes of \cref{sec:miss-classes}. Include cases where the V-Cache part is slower (for example, where lower clocks outweigh a cache that the workload does not need), if the evidence shows them.}
+
+\section{Separating Cache Effects From Other Factors}
+\label{sec:confounds}
+
+A difference in measured performance between two processors can rarely be attributed to cache size alone. Using \cref{eq:perf} and \cref{eq:amat}, the main confounding factors are:
+\begin{itemize}
+  \item \textbf{Clock frequency.} If the larger-cache part runs at a different frequency, $f$ in \cref{eq:perf} changes as well as IPC. Fixed-frequency comparisons, like the one AMD reports for its prototype \cite{swaminathanAdvancedPackagingEnabling2021}, remove this factor.
+  \item \textbf{Core count and topology.} More cores or a different number of CCDs changes throughput and the cache available per core. AMD's headline desktop comparison sets an eight-core, single-CCD Ryzen~7 5800X3D against a twelve-core, two-CCD Ryzen~9 5900X \cite[slide~29]{wuu2022vcache}, so it mixes cache capacity with core count, CCD topology and clock speed. Its server comparison holds the core count at 16 but uses the EPYC~73F3 as the baseline, an F-series model that AMD positions for high frequency \cite{amd2022epyc7003,wuu2022vcache}.
+  \item \textbf{Memory bandwidth and latency.} Memory speed, timings and the fabric clock change the miss penalty in \cref{eq:amat} and can make a larger cache appear more or less valuable.
+  \item \textbf{Concurrent microarchitectural changes.} Generational comparisons mix many changes. AMD's 15\% Zen-to-Zen~2 IPC figure, for example, combines a new branch predictor, a larger op cache, wider floating-point paths and a doubled L3, among others \cite{suggs2019zen2}; it cannot be credited to the cache.
+  \item \textbf{Power limits and software.} Package power limits, operating-system scheduling across CCDs, and application versions all affect results.
+\end{itemize}
+
+\plannedcontent{For each collected comparison, record which of these factors are controlled and which remain, and grade the strength of the cache-attribution accordingly.}
+
+\section{Summary of Part V}
+\plannedcontent{Answer RQ4 with the collected evidence: where the stacked L3 helps, by how much, under which conditions, and with what confidence.}

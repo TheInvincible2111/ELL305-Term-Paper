@@ -1,0 +1,149 @@
+% Part VI -- Comparative synthesis, limitations and future directions (target: about 20 pages)
+\clearpage
+\part{Comparative Synthesis, Limitations and Future Directions}
+\label{part:synthesis}
+\partbudget{20}{comparison, interactions and remaining bottlenecks drafted; conclusions and open questions drafted}
+
+\section{Monolithic, Chiplet-Based and Vertically Stacked Designs Compared}
+\label{sec:comparison}
+
+\Cref{tab:three-way} compares the three organisations against the bottleneck--benefit--trade-off test of \cref{sec:rq}, with the measured or modelled values from Parts~\ref{part:chiplets}--\ref{part:case-study} where they exist.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Comparison of the three design approaches (model values illustrative; measured values from the cited sections)}
+  \label{tab:three-way}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    & \textbf{Monolithic die} & \textbf{Chiplets (2D package)} & \textbf{Chiplets with stacked cache} \\
+    \midrule
+    Main limit addressed & --- & Die size, yield, uneven node scaling & Planar cost and wire length of a large LLC \\
+    Communication & All on-die & Die-to-die links through the package & Adds dense vertical links between cache and compute dies \\
+    Memory latency & Shortest on-die paths & Extra die-to-die hop to memory & Fewer trips to memory for cache-sensitive work \\
+    Cost and yield & Falls steeply with die area & Smaller dies, mixed nodes, tested before assembly & Extra die and bonding step; capacity only where sold \\
+    Thermal & One heat source per die & Heat spread over several dies & Stack alters heat path from cores \\
+    New trade-off & Scaling ceiling & Latency, link power, packaging & Heat, test complexity, workload dependence \\
+    \midrule
+    64-core compute sets per wafer (model) & about 35 & about 95 & about 95, plus cache dies \\
+    L3 per compute die (Zen~3) & --- & 32\,MB & 96\,MB \\
+    L3 hit latency (Milan / Milan-X) & --- & 47.5 cycles & 51.1 cycles \\
+    Clock (Zen~4 desktop, same package) & --- & reference & about 7\% lower \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Other Ways to Enlarge the Last-Level Cache}
+\label{sec:llc-alternatives}
+3D V-Cache is one of several ways to give a processor more last-level cache. \Cref{tab:llc-alternatives} places it beside the alternatives for which the sources give numbers.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Ways to enlarge the last-level cache, with the figures the sources report (different studies, nodes and conditions; compare orders of magnitude, not exact values)}
+  \label{tab:llc-alternatives}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.5cm}@{}}
+    \toprule
+    \textbf{Approach} & \textbf{Reported figures} & \textbf{Main drawback} & \textbf{Source} \\
+    \midrule
+    Planar SRAM L3 & 32\,MB per Zen~3 CCD; about 47 cycles & Die area, yield and wire length grow with capacity & \cite{cozmaAMDsVCacheTested2022,7-cpu.comAMDZen3} \\
+    Stacked SRAM (3D V-Cache) & 64\,MB in 41\,mm$^2$; $+4$ cycles; $>$2\,TB/s & Heat path, clocks, bonding cost & \cite{wuu2022vcache,cozmaDeepDivingZen2022} \\
+    On-package eDRAM L4 (Intel Broadwell, side by side) & 128\,MB; over 30\,ns; about 50\,GB/s & Too slow to join the L3; must be a separate L4 & \cite{lamAMDs7950X3DZen2023} \\
+    Stacked DRAM cache (simulated, 2006) & 32\,MB; average 13\% fewer cycles per memory access; off-die traffic $-66\%$; $+0.08$\,\textdegree C & Higher latency than SRAM; large tag store & \cite{blackStacking3DMicroarchitecture2006,mittalSurveyTechniquesArchitecting2016} \\
+    STT-RAM (simulated, 16\,MB) & 5.0 against 11.4\,mm$^2$ for SRAM; leakage 65 against 463\,mW; write 11.9 against 3.3\,ns & Slow, energy-hungry writes & \cite{kimExploitingDataCompression2022} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\textbf{A side-by-side cache in practice.} Intel's Broadwell processors offer a real example of the side-by-side cache die discussed in \cref{sec:horizontal-vs-vertical}. They placed a 128\,MB embedded-DRAM die next to the processor die and used it as a fourth-level cache. Lam measured its latency at over 30\,ns (34.18\,ns in his chart, against 10.65\,ns for the 7950X3D's V-Cache CCD) and its bandwidth at about 50\,GB/s, a quarter of Broadwell's own L3 bandwidth, and explains why: reaching the eDRAM involves another trip over the on-chip ring bus and then Intel's OPIO package link, which on the related Haswell design is a 64-bit full-duplex interface at 6.4\,GT/s, providing 51.2\,GB/s in each direction \cite{lamAMDs7950X3DZen2023}. Because the eDRAM was too slow to be part of the L3, the L3 stayed in place to protect the cores from its latency, and Broadwell even used part of the L3's data array to hold the tags for the L4 \cite{lamAMDs7950X3DZen2023}. Lam contrasts this with V-Cache: each nominally 4\,MB slice of the Zen~4 L3 gets its own interface to an 8\,MB extension on the stacked die, complete with tag and LRU arrays, so the stacked SRAM can extend the L3 rather than add a level \cite{lamAMDs7950X3DZen2023}. He also notes that Zen~4's own Infinity Fabric link between dies provides only about 64\,GB/s of read bandwidth per CCD, little better than Broadwell's link, and concludes that package traces are not well suited to L3 bandwidths \cite{lamAMDs7950X3DZen2023}. This is the comparison of \cref{tab:horizontal-vs-vertical} with real numbers: the side-by-side cache had about three times the latency of the stacked one and, in Lam's multithreaded test, about a thirteenth of its bandwidth (53 against 702\,GB/s), and it had to sit at a different level of the hierarchy \cite{lamAMDs7950X3DZen2023}.
+
+\textbf{Denser memory technologies.} The two simulated alternatives trade speed for density in different ways. Kim \emph{et al.}'s circuit-level estimates for 16\,MB caches show STT-RAM needing less than half the area of SRAM (5.0 against 11.4\,mm$^2$) and about a seventh of the leakage power (65 against 463\,mW), with a similar read latency (6.9 against 6.6\,ns) but a write latency more than three times longer (11.9 against 3.3\,ns) and about six times the write energy (1.13 against 0.18\,nJ) \cite[Table~1]{kimExploitingDataCompression2022}. That is why they place write-intensive blocks in a small SRAM region, an approach that gave a 26\% average speedup over a baseline placement policy in their simulations \cite{kimExploitingDataCompression2022}. Black \emph{et al.}'s 32\,MB stacked DRAM cache reduced the cycles per memory access of their benchmarks by 13\% on average and up to 55\%, cut off-die bandwidth and bus power by 66\%, and raised the peak temperature by only 0.08\,\textdegree C, much less than stacked SRAM, because DRAM dissipates less power \cite{blackStacking3DMicroarchitecture2006}. Neither has appeared in a mainstream CPU as an L3 extension; V-Cache's advantage is that it changes the cache's location but not its technology, so it adds capacity at nearly SRAM speed.
+
+\section{Interactions Between Chiplet Organisation and Cache Design}
+\label{sec:interactions}
+The two techniques studied in this paper are not alternatives but layers of one design. Three interactions stand out.
+
+\textbf{The chiplet makes the stack practical.} Stacking is applied to a small, self-contained compute die rather than to a large monolithic processor. Because the CCD is small, a defective stack loses only one CCD's worth of silicon. Because the same CCD is used across the product line, AMD could design V-Cache support into it ``from Day~1'' and then offer stacked and unstacked versions of the same die \cite[slide~10]{wuu2022vcache}. And because the stacked CCD is built to the same height as a plain one, server parts with and without V-Cache share a package \cite[slide~17]{wuu2022vcache}.
+
+\textbf{Stacking moves the cost of the cache to where it is wanted.} On a planar die every CCD would pay for a 96\,MB L3 whether or not its workload needs it, which is the ``product flexibility'' barrier on AMD's own list \cite[slide~6]{wuu2022vcache}. With stacking, the base CCD stays at 81\,mm$^2$ and the 41\,mm$^2$ cache die is added only to the products that benefit.
+
+\textbf{The chiplet boundary also bounds the cache.} The L3 remains private to each CCD (\cref{sec:multicore}), so a thread gains only from the stacked cache on its own die, and data shared across CCDs still crosses the die-to-die link. A larger per-CCD L3 reduces trips to memory through the IOD, which partly offsets the chiplet's main latency cost (\cref{sec:d2d}), but it does nothing for traffic between CCDs.
+
+\textbf{Mixing stacked and plain CCDs creates a scheduling problem.} Because stacking is per CCD, a product can combine a V-Cache CCD with a plain one, as the 16-core Ryzen~9 7950X3D does. The two CCDs then have different strengths: one has three times the L3, the other clocks about 7\% higher, and neither is better for every program. At the time of Lam's testing, AMD's default policy placed ordinary applications on the higher-clocked CCD, so a user had to set processor affinity by hand to use the cache \cite{lamAMDs7950X3DZen2023}. The chiplet organisation thus turns a hardware choice into an operating-system decision about where each thread should run.
+
+\section{Workload-Dependent Trade-Offs and Remaining Bottlenecks}
+\label{sec:remaining-bottlenecks}
+Taken together, Parts~III--V suggest a simple map of where each technique helps. Throughput workloads with many independent threads favour more cores, which chiplets supply. Workloads whose working sets lie just beyond a CCD's planar L3 favour stacked cache. Latency-sensitive single-threaded code with a small working set favours clock frequency, which a stacked part may sacrifice (\cref{sec:confounds}).
+
+\Cref{fig:stacking-decision} turns this map into a sequence of questions for the stacked cache.
+
+\input{"../initial-draft-2/figures/stacking-decision.tex"}
+
+\subsection*{Worked example: cache against clock on one chip}
+The Ryzen~9 7950X3D makes the trade-off concrete, because its two CCDs differ only in the stacked cache and in clock speed: the plain CCD runs about 7\% faster \cite{lamAMDs7950X3DZen2023}. If performance scaled linearly with clock, the V-Cache CCD would win whenever its IPC gain at equal clock exceeded 7\%. \Cref{tab:cache-vs-clock} applies this rule to Lam's fixed-clock measurements.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Worked example: IPC gain of the V-Cache CCD at equal clock \cite{lamAMDs7950X3DZen2023} against the plain CCD's 7\% clock advantage (net $= (1 + \text{gain})/1.07 - 1$)}
+  \label{tab:cache-vs-clock}
+  \small
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Workload} & \textbf{IPC gain at 4.2\,GHz} & \textbf{Net, with plain CCD 7\% faster} & \textbf{Better CCD} \\
+    \midrule
+    libx264 & $+4.9\%$ & $-2.0\%$ & plain \\
+    GHPC & $+9.7\%$ & $+2.5\%$ & V-Cache \\
+    7-Zip & $+9.8\%$ & $+2.6\%$ & V-Cache \\
+    Cyberpunk~2077 & $+13.5\%$ & $+6.1\%$ & V-Cache \\
+    Call of Duty & $>+19\%$ & $>+11\%$ & V-Cache \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The linear rule overstates the plain CCD's advantage, because memory-bound programs do not speed up in proportion to clock; Lam makes this point for libx264, expecting the two CCDs to come close \cite{lamAMDs7950X3DZen2023}. The table's net values are therefore conservative for the V-Cache CCD. Even so, the result shows why AMD placed ordinary applications on the higher-clocked CCD by default, and why the choice still depends on the program \cite{lamAMDs7950X3DZen2023}.
+
+Three bottlenecks remain after both techniques are applied: memory bandwidth per core, which falls as CCDs are added behind a fixed IOD; the die-to-die hop for every L3 miss and for sharing between CCDs; and heat removal from stacked dies. The alternative technologies of \cref{sec:llc-alternatives} attack the capacity problem from another direction, at a cost in speed; 3D V-Cache instead keeps SRAM and changes only its placement, which is why it could ship in a mainstream product with the latency cost held to four cycles. The independent evidence of Part~\ref{part:case-study} confirms that these alternatives differ chiefly in which workloads they serve, not in a single ranking: stacked SRAM gives the lowest-latency capacity, but only up to 96\,MB per CCD in current products.
+
+\section{Future Directions in Heterogeneous Integration and Advanced Packaging}
+\label{sec:future}
+
+AMD's Hot Chips~33 presentation sketches integration schemes that go beyond stacking cache on cores, including memory stacked on compute, cores stacked on cores or on uncore logic, and splitting or ``folding'' circuits across dies; AMD presents these as schemes that advanced packaging could enable but monolithic design could not \cite{swaminathanAdvancedPackagingEnabling2021}. These are vendor projections, not products.
+
+AMD's more recent statements point the same way. Its 2023 EPYC white paper asks whether the same bonding technology could add ``specialized processing units to the CPU die'' rather than only cache \cite{advancedmicrodevicesinc.4thGenAMD2023}, and a 2025 AMD packaging talk lists, among future directions, high-speed standardised die-to-die interfaces (UCIe), co-packaged optics and module sizes that grow beyond what a single wafer-scale process provides, with 3D interconnect pitch below 9\,\textmu m and 2.5D pitch below 40\,\textmu m \cite[slides~12--13]{lambertHeterogenousIntegrationHigh2025}. An independent review of chiplet research reaches a compatible conclusion from the other side: substantial progress has been made, especially in high-performance computing, but chiplet systems are still far from delivering cost, performance, power and design agility together, and package, architecture and interconnect must be co-optimised by chip designers, package designers and design-tool vendors jointly \cite{liuReviewChipletbasedDesign2024}.
+
+These directions raise architectural questions that the first-generation evidence already hints at. Stacking logic on logic would concentrate far more power than stacking SRAM, which was itself thermally significant (\cref{sec:thermal-evidence}). Black \emph{et al.} simulated exactly this: splitting a high-performance core's floorplan across two stacked dies removed enough wire to cut power by 15\% and raise performance by 15\%, but the power density rose by 1.3$\times$ and the peak temperature by 14\,\textdegree C, or 26\,\textdegree C if there were no power savings and the stacking doubled the power density; scaling voltage and frequency down to reach the original temperature still left an 8\% performance gain with 34\% less power \cite{blackStacking3DMicroarchitecture2006}. The thermal cost is roughly three times that of their stacked SRAM cache (4.5\,\textdegree C), which suggests why commercial stacking has started with cache. Standard interfaces would allow chiplets from different designers to be combined, but each added die-to-die hop adds latency of the kind measured in \cref{sec:d2d}. And as packages grow, testing each die before assembly becomes more important for yield (\cref{app:yield-cost}).
+
+\section{Limitations of This Study}
+\label{sec:limitations}
+\begin{itemize}
+  \item The quantitative analysis relies on published measurements and is limited by their experimental conditions and by the availability of comparable data.
+  \item Much of the detailed technical information about AMD designs comes from AMD itself; such claims are attributed to AMD and treated as engineering claims rather than independent results.
+  \item The study works at the architectural level and does not model physical design, packaging processes or thermal behaviour in detail.
+  \item The best-controlled independent evidence for the cache effect (fixed-clock, per-CCD performance counters) covers only a handful of workloads on one processor; most other comparisons change clock speed as well.
+  \item Several independent sources are technical web publications rather than peer-reviewed papers; they are used for measurements whose method they state, and archived locally, but they are not refereed.
+  \item The thermal argument rests on a 2006 simulation study, measured clock and voltage limits of shipping parts, and AMD's description of its own redesign; no published thermal measurement of a hybrid-bonded stack was available.
+  \item The cost model uses 1964 and 2009 yield and cost formulations with illustrative parameters; no public cost model for hybrid-bonded cache stacking was found.
+\end{itemize}
+
+\section{Conclusions}
+\label{sec:conclusions}
+\textbf{RQ1: Why is a single large die an increasingly costly way to scale?} Because yield falls faster than linearly with area (\cref{sec:yield-cost}), the reticle limits the largest die (\cref{sec:monolithic-limits}), and analog, I/O and now SRAM circuits gain little from new process nodes (\cref{sec:uneven-scaling,sec:why-cache-capacity}). Each of these makes the last square millimetres of a large die the most expensive.
+
+\textbf{RQ2: What does partitioning into compute and I/O dies change?} AMD places the cores, their private L2 caches and the shared L3 on the CCDs, made on the newest node, and the memory controllers, I/O and the fabric that links the CCDs on the IOD, made on an older node; it connects them through the organic substrate because that reach lets eight CCDs surround one IOD, keeping 2.5D and 3D connections for places where density matters more than reach (RQ2a, \cref{sec:ccd-iod,sec:packaging-options}). The split makes high core counts practical, improves silicon yield substantially and moves I/O to a cheaper node, at the cost of a die-to-die hop on every L3 miss and on all communication between CCDs, per-link bandwidth limits and NUMA behaviour that software may need to manage (Part~\ref{part:chiplets}).
+
+\textbf{RQ3: Why does LLC capacity matter, and what does stacking change?} A larger LLC removes capacity misses, but in the plane of the die it costs area, yield, wire length and power (\cref{sec:planar-limits}). Stacking adds 64\,MB per CCD for about four cycles of latency, with dense, short connections and no growth in package footprint; its price is a harder heat path, which AMD first managed with structural silicon and lower clocks and then addressed by inverting the stack (\cref{sec:thermal-evidence}).
+
+\textbf{RQ4: Where does the stacked cache help, and how can its effect be isolated?} It helps workloads whose working sets fall between the base and stacked capacities, often substantially, and does little or slightly harms others. Its effect can be isolated only by fixed-clock comparisons or performance-counter measurements, and the best such evidence supports the mechanism strongly but covers few workloads (\cref{sec:confounds}).
+
+Taken together, the two techniques address different limits. Chiplet organisation is a general answer to the cost and size limits of monolithic scaling. Stacked cache is a targeted answer to the capacity limit of the last-level cache, whose value depends on the workload. AMD Zen shows that they work best together: the small, reusable compute die makes stacking practical, and stacking lets that die serve both cache-hungry and clock-hungry markets.
+
+\section{Open Research Questions}
+\label{sec:open-questions}
+\begin{itemize}
+  \item When is the extra complexity of 3D integration worth its reduction in footprint and its denser interconnect, compared with a side-by-side cache chiplet built with today's 2.5D packaging rather than the older links of Broadwell's eDRAM?
+  \item How should operating systems and runtimes place threads and data when L3 capacity differs between compute dies?
+  \item What limits the stacking of logic on logic, as opposed to SRAM on logic, from a thermal and power-delivery point of view?
+  \item What is the stacked-cache benefit across a broad, representative workload set when clock speed and core count are held constant?
+  \item How much of the first-generation clock penalty was thermal and how much electrical, and how fully does the inverted stack remove it?
+  \item What would a current, public cost model for hybrid-bonded cache stacking show about where it pays off?
+\end{itemize}

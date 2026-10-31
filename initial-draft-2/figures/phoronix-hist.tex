@@ -1,0 +1,19 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=12pt, width=0.9\textwidth, height=6.0cm,
+  ymin=0, ymax=165, ylabel={Number of tests},
+  symbolic x coords={2--5\%,5--10\%,10--20\%,20--50\%,$\ge$50\%}, xtick=data,
+  xlabel={Size of the winner's lead},
+  legend style={font=\small,at={(0.98,0.97)},anchor=north east},
+  nodes near coords, nodes near coords style={font=\scriptsize},
+  ymajorgrids, grid style={draftgray!25}, enlarge x limits=0.15]
+\addplot[fill=draftlight,draw=draftblue] coordinates {(2--5\%,24) (5--10\%,24) (10--20\%,23) (20--50\%,23) ($\ge$50\%,12)};
+\addplot[fill=draftgray!35,draw=draftgray] coordinates {(2--5\%,150) (5--10\%,91) (10--20\%,3) (20--50\%,0) ($\ge$50\%,0)};
+\legend{Ryzen~7 5800X3D faster (106 tests), Ryzen~7 5800X faster (244 tests)}
+\end{axis}
+\end{tikzpicture}
+\caption{Distribution of the 350 statistically significant differences among Phoronix's 420 benchmarks of the Ryzen~7 5800X3D and 5800X \cite{larabelAMDRyzen72022}. The winner of each test was identified from the colour of its bar in Phoronix's comparison chart and matched to the chart's printed percentages; this classification is ours. Each bin includes its lower bound (for example, 5--10\% means at least 5\% and less than 10\%).}
+\label{fig:phoronix-hist}
+\end{figure}

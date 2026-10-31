@@ -1,0 +1,34 @@
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{\begin{tikzpicture}[x=1cm,y=1cm,
+  st/.style={circle,draw=draftblue,fill=draftlight,thick,minimum size=1.0cm,font=\small\bfseries},
+  tr/.style={-{Stealth[length=2mm]},draftblue,thick},
+  bt/.style={-{Stealth[length=2mm]},todored,thick,dashed},
+  lab/.style={font=\scriptsize,align=center,fill=white,inner sep=1pt}]
+\begin{scope}
+\node[font=\small\bfseries,text=draftblue] at (2.4,4.35) {(a) Requests from this core};
+\node[st] (I) at (0,0) {I};
+\node[st] (S) at (4.8,0) {S};
+\node[st] (M) at (2.4,2.6) {M};
+\draw[tr] (I) to[bend left=12] node[lab,above]{read miss / send read miss} (S);
+\draw[tr] (S) to[bend left=12] node[lab,below]{evict} (I);
+\draw[tr] (I) to[bend left=15] node[lab,left=2pt]{write miss /\\send write miss} (M);
+\draw[tr] (M) to[bend left=15] node[lab,right=2pt]{evict /\\write back} (I);
+\draw[tr] (S) to node[lab,right=2pt]{write hit /\\send write} (M);
+\draw[tr] (S) to[loop right,looseness=6] node[lab,right]{read hit} (S);
+\draw[tr] (M) to[loop above,looseness=6] node[lab,above]{read or write hit} (M);
+\end{scope}
+\begin{scope}[xshift=8.2cm]
+\node[font=\small\bfseries,text=todored] at (2.4,4.35) {(b) Messages from other caches};
+\node[st] (I2) at (0,0) {I};
+\node[st] (S2) at (4.8,0) {S};
+\node[st] (M2) at (2.4,2.6) {M};
+\draw[bt] (S2) to[bend left=12] node[lab,below]{write or write miss} (I2);
+\draw[bt] (M2) to[bend right=15] node[lab,left=2pt]{write miss /\\send data} (I2);
+\draw[bt] (M2) to[bend left=15] node[lab,right=2pt]{read miss / write\\back, send data} (S2);
+\draw[bt] (S2) to[loop right,looseness=6] node[lab,right]{read miss /\\send data} (S2);
+\end{scope}
+\end{tikzpicture}}
+\caption{The write-invalidate (MSI) snooping protocol for one cache block, redrawn after Sarangi \cite[sec.~12.4.6, Figs.~12.13--12.14]{sarangi2025basic}. (a) Transitions caused by this cache's own processor; (b) transitions caused by messages that other caches place on the bus. A block may be held by many caches in S, but by only one in M.}
+\label{fig:msi-states}
+\end{figure}

@@ -1,0 +1,31 @@
+% Entry point for draft-initial, the working draft of the full term paper.
+% paper/main.tex continues to select the milestone draft (Draft 1).
+\documentclass[12pt,a4paper,twoside]{article}
+
+\input{styles/ell305-format.tex}
+\input{"../draft-initial/preamble.tex"}
+\input{"../draft-initial/metadata.tex"}
+
+\begin{document}
+\input{"../draft-initial/front-matter.tex"}
+
+\input{"../draft-initial/sections/part1-introduction.tex"}
+\input{"../draft-initial/sections/part2-foundations.tex"}
+\input{"../draft-initial/sections/part3-chiplets.tex"}
+\input{"../draft-initial/sections/part4-stacked-cache.tex"}
+\input{"../draft-initial/sections/part5-case-study.tex"}
+\input{"../draft-initial/sections/part6-synthesis.tex"}
+
+\clearpage
+\printbibliography[heading=bibintoc,title={References}]
+
+\input{"../draft-initial/appendices/appendix-a-plagiarism-report.tex"}
+\input{"../draft-initial/appendices/appendix-b-reading-indices.tex"}
+\input{"../draft-initial/appendices/appendix-c-yield-cost-model.tex"}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Index}
+\setlength{\columnsep}{24pt}
+\printindex
+\end{document}

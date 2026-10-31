@@ -3,6 +3,9 @@
 ## Working areas
 
 - [[Drafts/Draft 1/00 Draft Overview]]
+- [[Drafts/draft-initial/00 Draft Overview]] (working full-paper draft, not a milestone)
+- [[Drafts/initial-draft-2/00 Draft Overview]] (second working draft, current)
+- `../research/research-landscape.md` (reference only: landscape, gaps, evidence matrix, download list)
 - [[Planning/Outline]]
 - [[Planning/Research Questions]]
 - [[Papers/Reading Note Template]]
@@ -12,6 +15,9 @@
 - [[Planning/Modular Project Structure]]
 
 ## Workflow
+
+Standing instructions for AI assistants, including tooling and publishing rules, are in `../CLAUDE.md`.
+
 
 1. Review the current notes before drafting so that later Obsidian changes are incorporated.
 2. Consult `../sources/archbook.pdf` for the relevant ELL305 foundation, especially Chapters 9--12.

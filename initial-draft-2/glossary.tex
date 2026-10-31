@@ -1,0 +1,112 @@
+% initial-draft-2 glossary (from draft-initial). Started from the Draft 1 definitions (unchanged in Draft 1/)
+% and extended for the full-paper scope.
+
+\newglossaryentry{amat}{
+  name={AMAT (average memory access time)},
+  description={A weighted average of memory-access latencies that accounts for cache hits, cache misses, and the penalties of accessing lower levels of the memory hierarchy}
+}
+
+\newglossaryentry{cache-coherence}{
+  name={cache coherence},
+  description={The mechanisms and rules used to maintain a consistent view of shared data when multiple caches can hold copies of the same memory location}
+}
+
+\newglossaryentry{cache-hierarchy}{
+  name={cache hierarchy},
+  description={A set of cache levels organised to exploit locality by balancing capacity, access latency, and implementation cost}
+}
+
+\newglossaryentry{ccd}{
+  name={CCD (Core Complex Die)},
+  description={AMD terminology for a compute die containing processor cores and associated cache resources in selected Zen-based processors}
+}
+
+\newglossaryentry{chiplet}{
+  name={chiplet},
+  description={A separately fabricated die designed to operate with one or more other dies as part of a packaged system}
+}
+
+\newglossaryentry{hybrid-bonding}{
+  name={hybrid bonding},
+  description={A fine-pitch die-stacking technique that forms direct mechanical and electrical connections between aligned die surfaces}
+}
+
+\newglossaryentry{infinity-fabric}{
+  name={Infinity Fabric},
+  description={AMD's interconnect architecture for communication among processor components and, in relevant products, among separate dies}
+}
+
+\newglossaryentry{iod}{
+  name={IOD (I/O Die)},
+  description={AMD terminology for a die that centralises input/output, memory-interface, and supporting interconnect functions in selected chiplet-based Zen processors}
+}
+
+\newglossaryentry{llc}{
+  name={LLC (last-level cache)},
+  description={The final cache level checked before a request proceeds to main memory in the cache hierarchy under discussion}
+}
+
+\newglossaryentry{memory-hierarchy}{
+  name={memory hierarchy},
+  description={An organisation of storage levels with different capacities, costs, and access times, arranged to exploit temporal and spatial locality}
+}
+
+\newglossaryentry{monolithic-die}{
+  name={monolithic die},
+  description={A single semiconductor die on which the principal processor resources under discussion are integrated rather than partitioned across multiple dies}
+}
+
+\newglossaryentry{tsv}{
+  name={TSV (through-silicon via)},
+  description={A vertical electrical connection passing through a silicon die to support communication in a stacked-die assembly}
+}
+
+\newglossaryentry{v-cache}{
+  name={3D V-Cache},
+  description={AMD's name for a design that uses three-dimensional die integration to add stacked cache capacity above a processor die}
+}
+
+\newglossaryentry{ccx}{
+  name={CCX (Core Complex)},
+  description={AMD terminology for a group of cores that share one L3 cache; in Zen~2 a CCD contains two four-core CCXs, and in Zen~3 a CCD contains one eight-core CCX}
+}
+
+\newglossaryentry{cpi}{
+  name={CPI (cycles per instruction)},
+  description={The average number of clock cycles taken per dynamic instruction; its reciprocal is IPC}
+}
+
+\newglossaryentry{defect-density}{
+  name={defect density},
+  description={The average number of yield-killing manufacturing defects per unit area of silicon, written $D_0$ in simple yield models}
+}
+
+\newglossaryentry{ifop}{
+  name={IFOP (Infinity Fabric On-Package)},
+  description={The on-package serial link used by AMD to connect compute dies to the I/O die over short organic-package routes}
+}
+
+\newglossaryentry{ipc}{
+  name={IPC (instructions per cycle)},
+  description={The average number of dynamic instructions completed per clock cycle; the reciprocal of CPI}
+}
+
+\newglossaryentry{micro-bump}{
+  name={micro-bump},
+  description={A small solder-based bump used to connect stacked or adjacent dies; its pitch limits the achievable interconnect density compared with hybrid bonding}
+}
+
+\newglossaryentry{reticle-limit}{
+  name={reticle limit},
+  description={The maximum die area that a lithography system can pattern in a single exposure field, which bounds the size of a monolithic die}
+}
+
+\newglossaryentry{sram}{
+  name={SRAM (static random-access memory)},
+  description={A memory built from bistable cells that retain data while powered without refresh; the usual technology for on-chip caches}
+}
+
+\newglossaryentry{yield}{
+  name={yield},
+  description={The fraction of manufactured dies that function correctly; larger dies generally yield worse for a given defect density}
+}

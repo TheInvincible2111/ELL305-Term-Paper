@@ -1,0 +1,288 @@
+% Part IV -- 3D-stacked cache and AMD 3D V-Cache (target: about 25 pages)
+\clearpage
+\part{3D-Stacked Cache and AMD 3D V-Cache}
+\label{part:stacked-cache}
+\partbudget{25}{drafted from AMD ISSCC 2022 slides and Mittal \& Vetter; independent latency, thermal and workload evidence added}
+
+\section{Why Cache Capacity Matters}
+\label{sec:why-cache-capacity}
+
+\Cref{sec:amat,sec:miss-classes} showed that a larger LLC lowers the miss rate by removing capacity misses, provided its hit time does not grow too much. Whether that matters depends on the workload: a program whose working set already fits in the cache gains little, while one whose working set lies just above the cache size can gain a great deal.
+
+AMD's ISSCC~2022 presentation of 3D V-Cache opens with two charts that frame this part \cite[slides~5--6]{wuu2022vcache}. The first, titled ``Large L3 Caches Provide IPC Uplift'', plots IPC uplift on a linear scale rising steadily as L3 size grows from 1$\times$ to 32$\times$; the slide gives no values on the uplift axis and does not name the workloads. The second, ``Silicon Area Scaling by Function'', shows logic area continuing to shrink from 28\,nm to 5\,nm while SRAM scaling falls behind from about 7\,nm and analog circuits shrink least; a companion chart on the same slide shows normalised cost per yielded mm$^2$ (for a 250\,mm$^2$ die) rising from 45\,nm to 5\,nm. The slide summarises these as ``SRAM scaling \& cost = barriers to large on-die caches''. This extends Naffziger \emph{et al.}'s 2020 observation that analog circuits scale worst \cite{naffziger2020chiplet}: by the 5\,nm generation SRAM, too, has become comparatively expensive.
+
+Both charts are vendor material, and the first has no stated workloads or values; neither is evidence that every program benefits. Part~\ref{part:case-study} tests the claim against published measurements.
+
+The textbook's miss classes explain why the benefit of a larger cache is uneven. Compulsory misses occur on the first access to a block and no cache size removes them; conflict misses depend on associativity; capacity misses occur because the cache cannot hold everything the program is actively using \cite[sec.~11.3.2]{sarangi2025basic}. Only capacity misses fall as the cache grows, and they fall sharply only when the cache becomes large enough to hold a program's \emph{working set}, the data it reuses over a period of time. \Cref{fig:working-set} sketches the consequence. A program whose working set fits in 32\,MB sees almost no change from a 96\,MB cache; one whose working set is far larger than 96\,MB also sees little change, because most of its data still does not fit; only programs whose working sets lie between the two sizes move from frequent misses to frequent hits. The useful range is set by the ratio of the two capacities, three times, rather than by the extra 64\,MB alone.
+
+\input{"../initial-draft-2/figures/working-set.tex"}
+
+\section{Why Expanding Cache in Two Dimensions Became Difficult}
+\label{sec:planar-limits}
+
+Growing the L3 in the plane of the compute die meets four related obstacles.
+
+\subsection{Area and yield}
+SRAM cells no longer shrink at the rate of logic (\cref{sec:why-cache-capacity}), so a cache of a given capacity occupies a growing share of the die at each new node. AMD lists cost, product flexibility and latency as the resulting barriers to large on-die caches \cite[slide~6]{wuu2022vcache}. Mittal and Vetter add that, if the large caches needed by future workloads were built from SRAM, they could occupy up to 90\% of the chip area \cite[sec.~1]{mittalSurveyTechniquesArchitecting2016}. A larger die yields fewer good dies per wafer (\cref{sec:yield-cost}), so doubling the L3 on a planar CCD would raise the cost of every CCD, including those sold for workloads that do not need the extra cache. It would also make the CCD less flexible as a building block reused across products.
+
+\subsection{Wire length and access latency}
+A larger planar cache spreads over a larger area, so the average distance between a core and the cache bank holding its data increases. Longer wires have more resistance and capacitance; their RC delay increases access latency, and the energy needed to charge their capacitance increases dynamic power (\cref{eq:pdyn}). Inside each array the same effect appears at smaller scale: more cells per bit line mean more capacitance to drive, which is why large caches are divided into many small arrays and banks (\cref{sec:sram}).
+
+The effect is measurable even within today's L3. Zen~3 divides its L3 into eight slices, and measurements on a Ryzen~5 5600G show that a core reaches its nearest slice in 40 cycles but needs up to 20 cycles more, 60 in total, for the farthest one (\cref{fig:l3-slices}) \cite{7-cpu.comAMDZen3}. Because consecutive lines are spread across the slices, the average over all eight is what a program sees: $(0+6+1+10+6+13+10+20)/8 \approx 8$ extra cycles for core~0, or about 48 cycles in total, which matches the 47-cycle L3 latency measured on the same processor \cite{7-cpu.comAMDZen3}. Distance on the die is therefore already a visible part of the L3's hit time; a planar L3 three times larger would spread its slices over a larger area and lengthen the farthest paths further.
+
+\input{"../initial-draft-2/figures/l3-slices.tex"}
+
+ In terms of \cref{eq:amat}, part of the miss-rate gain from a bigger cache is paid back as a longer hit time $t_{\mathrm{LLC}}$. AMD makes the same argument for stacking: compared with spreading a large cache across the plane, 3D integration ``improves effective memory latency'' and ``reduces long datapath and I/O's dynamic powers'' \cite[slide~7]{wuu2022vcache}.
+
+\subsection{Power}
+Large SRAM caches consume dynamic power on every read and write and leakage power even when idle (\cref{sec:power}). Mittal and Vetter's survey of DRAM-cache architectures argues that the low density and high leakage power of SRAM make very large SRAM caches infeasible, and that such caches may need expensive cooling, such as liquid cooling, which adds substantial cost and complexity \cite[sec.~1]{mittalSurveyTechniquesArchitecting2016}. This is one reason researchers have explored denser technologies, such as stacked DRAM, for last-level caches.
+
+\subsection{Summary of the planar limits}
+Planar expansion therefore trades miss rate against die cost, hit latency and power all at once. The question for the next section is whether a separate cache die can break that coupling.
+
+\section{Side-by-Side Versus Vertically Stacked Cache Dies}
+\label{sec:horizontal-vs-vertical}
+
+If extra cache is to be made on its own die, it can be placed either \emph{beside} the compute die in the package or \emph{on top of} it (\cref{fig:horizontal-vs-vertical}). Both are valid chiplet designs; the choice is a trade-off rather than a matter of one being impossible.
+
+\input{"../initial-draft-2/figures/horizontal-vs-vertical.tex"}
+
+\subsection{Placing the cache die beside the compute die}
+A side-by-side cache die is a perfectly workable chiplet design. It could be connected through the organic substrate or, more densely, through 2.5D packaging (\cref{sec:packaging-options}), but either way it has three costs:
+\begin{itemize}
+  \item \textbf{Package footprint.} The extra die occupies additional area next to the CCD. This enlarges the \emph{package}, even though it does not enlarge the compute die itself. The distinction between \emph{die area} (one piece of silicon) and \emph{package footprint} (the area of the assembled processor) is important throughout this part.
+  \item \textbf{Interconnect.} Every access to the extra cache must cross a die-to-die interface through the package or an interposer. Package-level connections are far coarser than on-die wiring, which limits how many parallel connections---and hence how much bandwidth---the link can offer.
+  \item \textbf{Latency and power.} Data must travel between the dies, adding interface circuitry and wire delay to every access to the extra cache, and energy to every bit moved.
+\end{itemize}
+
+A side-by-side die does not automatically push the CCD farther from the IOD: the package designer chooses where each die goes, and the cache die could be placed on the far side of the CCD. However, package area is limited, the CCD--IOD links are already routed with care to minimise memory latency \cite{naffziger2020chiplet}, and every additional die competes for the same routing resources. At high signalling rates, longer and more numerous package routes bring RC delay, power, signal-integrity and routing-congestion problems. These can be mitigated with better interconnect design, buffering and packaging technology, so they are engineering costs rather than impossibilities.
+
+The more important comparison is therefore not the CCD-to-IOD distance but the latency and bandwidth of the path \emph{between the cores and the additional cache}.
+
+AMD's own framing of the choice matches this analysis. Its ISSCC~2022 presentation illustrates a hypothetical processor whose large cache is split off onto a side-by-side chiplet, and states that ``2.5D chiplets can provide product flexibility and reduce cost'' but that ``3D can be even better'', because it improves effective memory latency, reduces long-datapath and I/O dynamic power, and ``fits more transistors within a given package cavity size'' \cite[slide~7]{wuu2022vcache}.
+
+\subsection{Stacking the cache die on the compute die}
+Vertical stacking changes the trade-off:
+\begin{itemize}
+  \item \textbf{Footprint.} The cache die overlaps the CCD's existing footprint, so capacity grows with little additional package area.
+  \item \textbf{Interconnect density.} The two dies can be joined by a very large number of short vertical connections, which supports the bandwidth a large cache needs and keeps the added distance small.
+  \item \textbf{Thermal design.} The stack can obstruct heat flow from the compute die, depending on which die is on top and what lies above the cores. This is the central new engineering problem (\cref{sec:thermal}).
+\end{itemize}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Qualitative comparison of side-by-side and vertically stacked cache dies}
+  \label{tab:horizontal-vs-vertical}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    \textbf{Factor} & \textbf{Cache die beside the CCD} & \textbf{Cache die stacked on the CCD} \\
+    \midrule
+    Package footprint & Larger & More compact \\
+    Connections & Side-by-side package or interposer link & Dense vertical bonds and through-silicon vias \\
+    Cache access latency & Depends on the interface design & Can benefit from short, dense connections \\
+    Cooling & Easier to arrange & More difficult; depends on stack order \\
+    Manufacturing & Extra die plus package assembly & Extra die plus bonding, thinning and stacking \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\Cref{tab:horizontal-vs-vertical} summarises the comparison. The case for vertical stacking is not that side-by-side chiplets cannot work. It is that stacking can add substantial cache capacity without enlarging the package by the same amount, with potentially better interconnect characteristics. The question worth investigating is \emph{when the extra complexity of 3D integration is worth the smaller footprint and denser interconnect}.
+
+\section{Stacked-Die Integration and Hybrid Bonding}
+\label{sec:hybrid-bonding}
+
+\subsection{The first-generation 3D V-Cache stack}
+AMD's Hot Chips~33 presentation describes the first-generation stack as a 64\,MB L3 cache die attached to an up-to-eight-core Zen~3 CCD by a direct copper-to-copper bond, with \glspl{tsv} carrying signals and power through the CCD \cite{swaminathanAdvancedPackagingEnabling2021}. AMD's EPYC~7003 documentation states that the L3 cache tiles are stacked on the central L3 portion of the base CCX \cite{amd2022epyc7003}. The ISSCC~2022 presentation describes the three components of the stack and how they are assembled \cite[slides~10--12, 14, 16--17]{wuu2022vcache}:
+\begin{itemize}
+  \item the Zen~3 CCD, built on TSMC's 7\,nm process with eight cores sharing 32\,MB of L3 in an area of 81\,mm$^2$, with V-Cache support designed in ``from Day~1'';
+  \item the extended L3 die (L3D), also 7\,nm, carrying 64\,MB of L3 in 41\,mm$^2$, roughly half the CCD area;
+  \item structural silicon dies, which provide mechanical support for the thinned CCD and a path for heat from the CPU cores.
+\end{itemize}
+The CCD is mounted face-down on the package substrate through conventional C4 bumps and connects to the L3D through TSVs. The L3D is mounted face-down on the CCD by hybrid bonding, using TSMC's SoIC process with a minimum TSV pitch of 9\,\textmu m, while the structural dies are oxide-bonded beside it. Support silicon brings the stack to the same height as an unstacked CCD, so server parts with and without V-Cache fit the same package. The cache die sits over the CCD's central L3 region \cite{amd2022epyc7003} and the structural silicon over the cores, so the hottest circuits are covered only by passive silicon. \Cref{fig:vcache-stack} shows the arrangement in cross-section.
+
+\input{"../initial-draft-2/figures/vcache-stack.tex"}
+
+\subsection{Hybrid bonding versus micro-bumps}
+Earlier 3D stacking typically joined dies with solder \glspl{micro-bump}. \Gls{hybrid-bonding} instead bonds aligned copper pads and surrounding dielectric directly. AMD reports, from its internal engineering analysis \cite{swaminathanAdvancedPackagingEnabling2021}:\index{hybrid bonding}
+\begin{itemize}
+  \item a hybrid-bond pitch of 9\,\textmu m, compared with 50 to 36\,\textmu m for micro-bump 3D;
+  \item more than 15$\times$ the interconnect density of micro-bump 3D;
+  \item more than 3$\times$ better interconnect power efficiency than micro-bump 3D;
+  \item lower TSV capacitance and inductance, which benefits signal and power delivery.
+\end{itemize}
+AMD's EPYC~7003 documentation similarly claims over 200$\times$ the interconnect density of 2D packaging and over 15$\times$ that of solder-bump 3D \cite{amd2022epyc7003}. These are AMD's own comparisons and should be read as engineering claims.
+
+Interconnect density matters architecturally for three reasons. First, \emph{bandwidth}: the number of parallel connections between two dies limits how much data can cross between them per cycle, and a large L3 serving eight cores needs very wide paths; AMD's stack delivers more than 2\,TB/s \cite[slide~20]{wuu2022vcache}. Second, \emph{latency}: vertical connections a few micrometres long add very little wire delay, which helps explain why the extra 64\,MB costs only four cycles. Third, \emph{energy}: short, low-capacitance connections cost less energy per bit (\cref{eq:pdyn}), which AMD quantifies as more than 3$\times$ better than micro-bump stacking \cite[slide~15]{wuu2022vcache}. The low parasitics of hybrid bonding also let AMD use a simple digital signal interface between the dies rather than the serialising transceivers needed by package-level chiplet links \cite[slide~26]{wuu2022vcache}. These are exactly the costs that \cref{sec:horizontal-vs-vertical} identified for a side-by-side cache die.
+
+\subsection{Worked example: what a finer pitch buys}
+\label{sec:density-example}
+Pitch is the distance between the centres of neighbouring connections. If pads are laid out on a square grid of pitch $p$, a square millimetre holds
+\begin{equation}
+  n \;=\; \left(\frac{1000\,\text{\textmu m}}{p}\right)^{2}
+  \label{eq:pad-density}
+\end{equation}
+connections. At the 36\,\textmu m micro-bump pitch quoted by AMD this gives $(1000/36)^2 \approx 772$ connections per mm$^2$; at the 9\,\textmu m hybrid-bond pitch it gives $(1000/9)^2 \approx 12\,346$, sixteen times as many, which is consistent with AMD's claim of more than 15$\times$ the density \cite{swaminathanAdvancedPackagingEnabling2021}. Against C4 bumps at AMD's 150\,\textmu m limit \cite[slide~13]{lambertHeterogenousIntegrationHigh2025}, about 44 per mm$^2$, the hybrid bond offers roughly 280 times as many, the same order as AMD's ``over 200$\times$'' comparison with 2D packaging \cite{amd2022epyc7003}. Because density grows with the square of the pitch reduction, each halving of the pitch gives four times as many connections (\cref{fig:interconnect-density}).
+
+The architectural meaning becomes clear from the area involved. Suppose, for illustration only, that a 1\,mm$^2$ strip of the CCD were given over entirely to signal connections. At the hybrid-bond pitch it could carry about twelve thousand signals; a 32-byte (256-bit) interface for each of eight cores in both directions needs $8 \times 256 \times 2 = 4096$ data wires, a third of that budget before clocks, control and spares. At the micro-bump pitch the same interface would need more than 5\,mm$^2$, and at the C4 pitch more than 90\,mm$^2$, larger than the whole CCD. This is a model calculation, not AMD's layout, but it shows why a wide, parallel, cache-speed interface between two dies is practical only with 3D bonding, and why package-level chiplet links must instead serialise data over a few fast lanes (\cref{sec:d2d}).
+
+\input{"../initial-draft-2/figures/interconnect-density.tex"}
+
+\subsection{How a hybrid bond is made}
+\label{sec:bond-process}
+Hybrid bonding joins two surfaces that each contain both dielectric and copper. AMD's packaging engineers describe the dielectric part as \emph{fusion bonding} \cite[slide~9]{alam2ndGeneration3D2024}. The oxide surfaces are prepared so that they end in silanol (Si--OH) groups. When the two dies are brought together at room temperature, these groups hold the surfaces together with weak hydrogen bonds. Annealing then converts them into strong siloxane bonds,
+\[
+  \text{Si--OH} \;+\; \text{HO--Si} \;\longrightarrow\; \text{Si--O--Si} \;+\; \text{H}_2\text{O},
+\]
+releasing water vapour \cite[slide~9]{alam2ndGeneration3D2024}. In hybrid bonding the copper pads start slightly recessed (``dished'') below the oxide, so that the oxide surfaces bond first; during the anneal the copper diffuses across the interface and joins the pads \cite[slide~9]{alam2ndGeneration3D2024}. No solder is involved, which is why the pitch can be so much finer than with micro-bumps.
+
+\Cref{fig:bond-interface} shows one connection. In the first-generation stack, the copper pads on each die are called bond-pad metal (BPM). On the CCD, the BPM sits on the end of a TSV; on the L3D, a bond-pad via (BPV) connects the BPM to the die's top copper layer, M13 \cite[slide~16]{wuu2022vcache}. The L3D has thirteen copper layers and one aluminium layer \cite[slide~11]{wuu2022vcache}. For Zen~4, AMD changed this detail: the stack became explicitly face-to-back, with a 7\,nm cache die on a 5\,nm CCD, and the BPV lands on the top aluminium pad instead of the top copper layer \cite[slides~11--12]{alam2ndGeneration3D2024}. The process is TSMC's SoIC (System on Integrated Chips) \cite[slide~16]{wuu2022vcache}.
+
+\input{"../initial-draft-2/figures/bond-interface.tex"}
+
+\section{Cache Access, Latency, Bandwidth and Hierarchy}
+\label{sec:vcache-access}
+
+With the stacked die, the L3 of a Zen~3 CCD grows from 32\,MB to 96\,MB, shared by up to eight cores \cite{wuu2022vcache,amd2022epyc7003}; an EPYC~7003 processor with eight such CCDs carries up to 768\,MB of L3 \cite{amd2022epyc7003}. AMD reports up to 2\,TB/s of bandwidth for the V-Cache \cite{wuu2022vcache}. The extra capacity remains part of the same L3 level, so the cache hierarchy above it (private L1 and L2 per core) is unchanged \cite{amd2022epyc7003}.
+
+AMD's presentation gives the cost of the extra capacity in latency: the 96\,MB L3 remains 16-way set associative with a 32\,B/cycle interface to each core, delivers more than 2\,TB/s of L3 bandwidth, and adds \emph{four cycles} of latency \cite[slide~20]{wuu2022vcache}. Independent measurements agree: Chips and Cheese measured roughly three to four extra cycles of L3 latency on Milan-X compared with Milan \cite{cozmaDeepDivingZen2022}, about four extra cycles on the V-Cache CCD of the Zen~4 Ryzen~9 7950X3D \cite{lamAMDs7950X3DZen2023}, and the same four cycles on the Zen~5 Ryzen~7 9800X3D, whose cache die sits below the CCD \cite{cozmaAMDs9800X3D2nd2024}. AMD's bandwidth figure is a peak capability: on Milan-X, single-thread L3 bandwidth measured about 25\% more bytes per cycle than Milan rather than the doubling AMD had announced \cite{cozmaDeepDivingZen2022}. Each die's portion of the L3 has its own data, tag and LRU arrays, so a tag lookup does not have to cross between dies before the data array is accessed \cite[slide~20]{wuu2022vcache}.
+
+\Cref{eq:amat} shows how to judge this trade-off. For an access that has already missed in L2, the extra capacity changes the average cost by approximately
+\begin{equation}
+  \Delta T \;\approx\; \Delta t_{\mathrm{L3}} \;-\; \Delta m_{\mathrm{L3}} \cdot t_{\mathrm{mem}},
+  \label{eq:vcache-tradeoff}
+\end{equation}
+where $\Delta t_{\mathrm{L3}} = 4$ cycles is the added hit latency, $\Delta m_{\mathrm{L3}}$ the reduction in the L3 miss rate and $t_{\mathrm{mem}}$ the main-memory latency in cycles. The textbook puts the stall for a miss that goes to main memory at 100--300 cycles \cite[sec.~12.4.8]{sarangi2025basic}. Over that range, the larger L3 pays off once it removes more than about $4/300 \approx 1.3$ to $4/100 = 4$ percentage points of L3 misses. A workload whose working set already fits in 32\,MB gains nothing and pays the four cycles on every L3 hit; a workload whose working set lies between 32\,MB and 96\,MB can gain substantially.
+
+\subsection{Worked example: applying the trade-off to a measured workload}
+\label{sec:tradeoff-example}
+Lam's fixed-frequency measurements of the Ryzen~9 7950X3D give enough data to apply \cref{eq:vcache-tradeoff} to a real program \cite{lamAMDs7950X3DZen2023}. For libx264 video encoding, the plain CCD had 1.48 L3 misses per thousand instructions (MPKI); Lam's charts give an L3 hit rate of 61.55\% and an IPC of 1.36 on the plain CCD, against 71.86\% and 1.43 on the V-Cache CCD. (The article's text gives the second hit rate as 72.8\%, but its chart and its stated 16.75\% improvement both correspond to 71.86\%, which is used here.)
+\begin{enumerate}
+  \item \textbf{L3 accesses.} If 38.45\% of L3 accesses miss and this gives 1.48 misses per thousand instructions, the program makes $1.48 / 0.3845 \approx 3.85$ L3 accesses per thousand instructions.
+  \item \textbf{Misses removed.} With V-Cache, $3.85 \times 0.2814 \approx 1.08$ of those accesses still miss, so about $1.48 - 1.08 = 0.40$ misses per thousand instructions are removed.
+  \item \textbf{Cycles saved.} At the textbook's 100--300 cycles per memory access \cite[sec.~12.4.8]{sarangi2025basic}, that saves $0.40 \times (100\text{ to }300) \approx 40$ to 120 cycles per thousand instructions.
+  \item \textbf{Cycles added.} Every L3 access pays four more cycles: $3.85 \times 4 \approx 15$ cycles per thousand instructions.
+  \item \textbf{Net effect.} About 25 to 105 cycles saved per thousand instructions.
+\end{enumerate}
+At an IPC of 1.36, a thousand instructions take $1000/1.36 \approx 735$ cycles, so the model predicts 3--14\% fewer cycles. The measurement lies inside that range: at an IPC of 1.43 the same work takes about 699 cycles, 4.9\% fewer.
+
+The measurement can also be turned around. The observed saving of about 36 cycles per thousand instructions, plus the 15 cycles of added L3 latency, implies that each removed miss saved about $(36 + 15)/0.40 \approx 130$ cycles. That is at the low end of the textbook's 100--300-cycle range, which is expected: an out-of-order core overlaps some memory misses with other work (\cref{sec:pipelining-power}), so removing a miss saves less than its full latency. The worked example therefore uses no assumed values except the textbook's range for memory latency, and the measurement narrows even that.
+
+The same arithmetic explains the small loss Lam observed in a flight simulator with only 0.35 MPKI, falling to 0.28 with V-Cache \cite{lamAMDs7950X3DZen2023}. Removing 0.07 misses per thousand instructions saves at most 7--21 cycles, which can be outweighed by four extra cycles on each of its L3 hits. The model, the measurement and the miss-class argument of \cref{sec:why-cache-capacity} agree.
+
+\subsection{Inside the cache interface}
+\label{sec:cache-interface}
+AMD's ISSCC presentation describes how the stacked half of the L3 is organised and connected, and the details explain why the latency cost is so small (\cref{fig:vcache-floorplan}).
+
+\textbf{Where the connections are.} On the CCD, two columns of signal TSVs run along either side of the central 32\,MB L3, between the L3 and the two rows of four cores \cite[slide~10]{wuu2022vcache}. The L3D has matching ``CCD signal interface'' columns directly above them \cite[slide~11]{wuu2022vcache}. The L3 already sits at the centre of the CCD, with every core's 32\,B/cycle interface entering it from the side \cite[slides~19, 21]{wuu2022vcache}, so the stacked cache is reached through the same central region rather than through a new path across the die. AMD states that support for V-Cache was integrated in the CCD ``from Day~1'' \cite[slide~10]{wuu2022vcache}: the TSV columns occupy CCD area in every Zen~3 CCD, including those sold without a cache die.
+
+\textbf{How the stacked arrays are organised.} The L3D contains 512 data macros of 128\,KB each and 1088 tag and LRU macros of 6\,KB each \cite[slide~25]{wuu2022vcache}. The first figure checks: $512 \times 128\,\text{KB} = 64\,\text{MB}$. The arrays use a high-density SRAM bit cell and two supply rails, one for the bit cells and one for the peripheral circuits, with ``extensive power reduction features'' \cite[slide~25]{wuu2022vcache}. The L3 is protected by DECTED (double-error-correcting, triple-error-detecting) ECC \cite[slide~19]{wuu2022vcache}.
+
+\textbf{Worked example: the cost of tags.} The tag and LRU macros hold $1088 \times 6\,\text{KB} = 6528$\,KB, about 10\% of the 64\,MB of data. With the 64-byte lines used throughout Zen~3 \cite{amd2022epyc7003}, the L3D holds $64\,\text{MB}/64\,\text{B} = 1\,048\,576$ lines, so the tag, state and replacement storage averages $6528 \times 1024 \times 8 / 1\,048\,576 \approx 51$ bits per line. The address split of \cref{sec:cache-org} shows where those bits go. A 64\,MB, 16-way cache with 64-byte lines has $2^{26}/(2^{6} \times 16) = 65\,536 = 2^{16}$ sets, so 6 address bits select the byte and 16 select the set. With the 48-bit physical addresses AMD documents for Zen~3 EPYC processors \cite[p.~10]{advancedmicrodevicesinc.UsingSEVAMD2023}, each tag would need $48 - 16 - 6 = 26$ bits, leaving roughly 25 bits per line for coherence state, replacement information and error-correction bits. The overhead is significant: a cache die is not all data storage.
+
+\textbf{An open detail.} The combined 96\,MB L3 is 16-way set associative \cite[slide~20]{wuu2022vcache}. With 64-byte lines that is $96\,\text{MB} / (64\,\text{B} \times 16) = 98\,304 = 3 \times 2^{15}$ sets, which is not a power of two, so the simple indexing of \cref{sec:cache-org}, in which a fixed group of address bits selects the set, cannot cover it directly. Because each die's portion of the L3 has its own data, tag and LRU arrays \cite[slide~20]{wuu2022vcache}, the base and stacked portions may be indexed separately, but AMD's materials do not say how addresses are divided between them. Lam, examining the Zen~4 version, describes each nominally 4\,MB L3 slice as having its own interface to an 8\,MB extension on the stacked die, with its own tags and LRU state, and suggests that the controller \emph{probably} chooses between the base and stacked portions using a subset of the address bits \cite{lamAMDs7950X3DZen2023}. That arrangement would split each slice's lines between the two dies in a 1:2 ratio and would explain the non-power-of-two total, but it remains an informed inference rather than an AMD statement.
+
+\textbf{Worked example: checking the bandwidth claim.} Each core has a 32\,B/cycle interface to the L3, and AMD describes the stacked connection as a 32\,B/cycle bidirectional bus \cite[slides~20--21]{wuu2022vcache}. If all eight cores transfer 32 bytes per cycle in each direction at an assumed L3 clock of 4\,GHz, the total is
+\[
+  8 \times 32\,\text{B} \times 2 \times 4 \times 10^{9}\,\text{s}^{-1} \;\approx\; 2.0\,\text{TB/s},
+\]
+consistent with AMD's ``more than 2\,TB/s'' \cite[slide~20]{wuu2022vcache}. The figure is therefore an aggregate peak across all cores and both directions. A single thread uses only one core's interface, which may explain why Chips and Cheese's single-thread measurement on Milan-X found a much smaller gain, about 25\% more bytes per cycle, than the headline suggested; the article itself notes that the clock speed in that test was estimated \cite{cozmaDeepDivingZen2022}.
+
+\textbf{A simple signal interface.} Because hybrid-bond connections have low parasitics, each signal crosses between the dies through an ordinary digital path: a flip-flop and driver on one side, the TSV, electrostatic-discharge protection and an isolation stage on the other, and a receiving flip-flop \cite[slide~26]{wuu2022vcache}. No serialiser, equaliser or separate link clock is needed. By contrast, the CCD-to-IOD link of \cref{sec:d2d} is a serial interface with a round trip of 13 fabric clocks. This difference is the main reason a stacked cache can add only four cycles while a die-to-die hop through the package costs several nanoseconds (under 9\,ns for the round trip in Rome \cite{naffziger2020chiplet}), against about 1\,ns for four cycles at 4\,GHz.
+
+\input{"../initial-draft-2/figures/vcache-floorplan.tex"}
+
+The L3 remains private to each CCD, so a thread running on one CCD does not benefit from another CCD's stacked cache.
+
+\section{Thermal Management, Power Delivery and Manufacturing Complexity}
+\label{sec:thermal}
+
+Stacking changes the heat path described in \cref{sec:power}: heat from the cores must now pass through additional silicon and bonding layers before it reaches the heat spreader. The first-generation design limits the penalty by placing the cache die over the CCD's central L3 region \cite{amd2022epyc7003} and covering the cores only with structural silicon, whose stated purposes include ``thermal dissipation for CPU cores'' \cite[slide~12]{wuu2022vcache}. AMD also credits hybrid bonding with ``superior thermal conductance'' compared with micro-bump stacking \cite[slide~15]{wuu2022vcache}, although this is an AMD claim based on internal simulation. Earlier academic work gives a sense of scale. Black \emph{et al.} simulated an extra 8\,MB of SRAM stacked on a Core~2~Duo-class processor: the peak temperature rose from 88.35\,\textdegree C to 92.85\,\textdegree C, whereas a 32\,MB stacked DRAM cache raised it only to 88.43\,\textdegree C, because SRAM has the higher power density \cite{blackStacking3DMicroarchitecture2006}. These are 2006 simulations of an older stacking technology and are indicative only.
+
+\Cref{eq:thermal} gives a way to reason about these numbers. Treat a core's hot spot as one grid point with power $P$ and an effective thermal resistance $R$ to ambient, so that its temperature rise is $\Delta T = RP$. Any layer added above the core adds its own resistance in series, raising $R$ and therefore $\Delta T$ for the same power. As an illustration with assumed values only: a hot spot that runs 60\,K above ambient through its original heat path runs 66\,K above ambient if the added layer raises $R$ by 10\%. Because leakage rises with temperature, the extra 6\,K also raises $P$ slightly, and the feedback loop of \cref{sec:power} increases the final temperature further. The designer then has two choices: accept the higher temperature, or lower voltage and frequency until $P$ falls enough to compensate. The measured clock and voltage limits of the first-generation parts (\cref{sec:thermal-evidence}) are consistent with the second choice, although the sources attribute them at least partly to the stacked cache's lower voltage tolerance rather than to temperature alone \cite{lamAMDs7950X3DZen2023}. Black \emph{et al.}'s simulations show the same effect in reverse: the stacked SRAM die adds both its own power and a layer, so its 4.5\,K rise is much larger than that of a lower-power stacked DRAM \cite{blackStacking3DMicroarchitecture2006}.
+
+\subsection{Power delivery through the stack}
+Power must also be delivered upwards, through the CCD, to the cache die. The Zen~3 CCD has three primary supplies: an ungated supply (RVDD), a per-core gated supply (VDD), and a gated supply for the L2 and L3 SRAM arrays (VDDM) \cite[slide~23]{wuu2022vcache}. The L3D needs two of these, RVDD and VDDM, and receives them through dedicated power TSVs placed in channels between the CCD's array macros \cite[slide~24]{wuu2022vcache}. Inside the L3D the same split continues: VDDM powers the bit cells and RVDD the peripheral circuits \cite[slide~25]{wuu2022vcache}. Supplying the bit cells separately lets them run at the voltage that keeps SRAM data stable, while the periphery can follow the rest of the logic. Each of these power paths is a set of TSVs that occupies CCD area and must carry current with little voltage drop. Hybrid bonding's lower TSV capacitance and inductance help here as well \cite{swaminathanAdvancedPackagingEnabling2021}.
+
+\subsection{Evidence of the thermal cost and AMD's response}
+\label{sec:thermal-evidence}
+Measurements of shipping parts show that the first-generation arrangement did carry a cost. In the first generation the CCD is thinned to about 20\,\textmu m, and the stacked parts accepted a lower voltage limit: the Zen~4 Ryzen~7 7800X3D has a maximum of 1.2\,V \cite{cozmaAMDs9800X3D2nd2024}. Clock speeds fall accordingly. On the Ryzen~9 7950X3D, which pairs one V-Cache CCD with one plain CCD, the plain CCD clocks about 7\% higher on average, and under an all-core load on an L3-sized data set the V-Cache CCD sustained 4.8\,GHz against 5.15\,GHz \cite{lamAMDs7950X3DZen2023}. On servers, the 96-core EPYC~9684X with V-Cache has a lower all-core boost than the otherwise similar EPYC~9654 (3.42 against 3.55\,GHz) and a higher default power (400 against 360\,W), although its base clock is higher (2.55 against 2.40\,GHz) and both reach the same 3.70\,GHz maximum boost \cite{advancedmicrodevicesinc.AMDEPYC90042023}.
+
+The Zen~4 generation kept the first-generation arrangement: a 5\,nm CCD and a 7\,nm cache die, both face-down, joined by hybrid bonding at a 9\,\textmu m minimum pitch, with structural dies alongside \cite{alam2ndGeneration3D2024}. For the Zen~5 Ryzen~9000X3D series AMD inverted the stack. AMD states that the 64\,MB cache ``has been relocated below the processor, which puts the core complex die (CCD) closer to the cooling solution'' \cite{advancedmicrodevicesinc.GamingLegendContinues2024}, and its packaging engineers describe the new arrangement as placing the CPU die on top of the stack with face-to-back hybrid bonding at below 9\,\textmu m pitch \cite[slides~6--7]{lambertHeterogenousIntegrationHigh2025}. The two structural dies that sat beside the cache die, directly over the cores, are gone (\cref{fig:vcache-generations}); AMD's schematic still shows a structural silicon layer above the whole stack \cite[slide~7]{lambertHeterogenousIntegrationHigh2025}. Independent testing found that the Ryzen~7 9800X3D held its 4.7\,GHz base clock while running at 95\,\textdegree C, and characterised the change as removing the first generation's biggest weakness, the extra thermal resistance of the support silicon over the cores; a boost-clock deficit of about 300\,MHz against the equivalent non-V-Cache part remains \cite{cozmaAMDs9800X3D2nd2024}. The redesign is consistent with heat removal having been a major constraint of the first design, which Cozma calls its biggest weakness \cite{cozmaAMDs9800X3D2nd2024}. It was not the only one: both Cozma and Lam describe the first-generation stacked cache as less tolerant of high voltage, which also limited boost clocks \cite{cozmaAMDs9800X3D2nd2024,lamAMDs7950X3DZen2023}. How the clock penalty divides between the two causes is left open (\cref{sec:open-questions}).
+
+\input{"../initial-draft-2/figures/vcache-generations.tex"}
+
+AMD's own naming is inconsistent: one 2024 AMD presentation calls the Zen~4 stack the ``2nd generation'' \cite{alam2ndGeneration3D2024}, while AMD's 2024 press release and a 2025 presentation use the same label for the inverted Zen~5 stack \cite{advancedmicrodevicesinc.GamingLegendContinues2024,lambertHeterogenousIntegrationHigh2025}. This paper therefore names designs by product rather than by generation.
+
+\subsection{Manufacturing: thinning, assembly, yield and test}
+\label{sec:manufacturing}
+Stacking adds steps that a planar die does not need. The CCD is thinned, to about 20\,\textmu m in the first generation \cite{cozmaAMDs9800X3D2nd2024}; a die that thin cannot support itself, which is one reason for the structural silicon \cite[slide~12]{wuu2022vcache}. Support silicon then restores the stack to the height of an ordinary CCD, so that server packages with and without V-Cache are the same \cite[slide~17]{wuu2022vcache}. Each of these steps costs money and adds a new way for a part to fail.
+
+\textbf{Die-to-wafer or wafer-to-wafer?} Dies can be bonded one at a time onto a wafer of other dies (die-to-wafer, D2W), or two whole wafers can be bonded together (wafer-to-wafer, W2W). Dong and Xie summarise the trade-off: D2W can achieve a higher yield because each die can be tested first and only \emph{known-good dies} (KGD) stacked, whereas W2W needs no test before bonding and is easier to align, with higher throughput, at the cost of yield \cite[sec.~IV.C]{dongSystemlevelCostAnalysis2009}. AMD's 2024 comparison adds that in D2W the top and bottom dies need not be the same size and that D2W allows more heterogeneous integration, while W2W requires dies of the same or similar size \cite[slide~10]{alam2ndGeneration3D2024}. V-Cache stacks a 41\,mm$^2$ cache die on an 81\,mm$^2$ CCD, dies of different sizes from different wafers, so it falls on the D2W side of this comparison.
+
+Dong and Xie's cost model shows why testing before bonding matters. For an $N$-layer stack bonded die-to-wafer, the cost of the bare stack is
+\begin{equation}
+  C_{\mathrm{D2W}} \;=\; \frac{\sum_{i=1}^{N} \left(C_{\mathrm{die},i} + C_{\mathrm{KGD\,test}}\right)/Y_{\mathrm{die},i} \;+\; (N-1)\,C_{\mathrm{bonding}}}{Y_{\mathrm{bonding}}^{\,N-1}},
+  \label{eq:d2w-cost}
+\end{equation}
+while for wafer-to-wafer bonding the die yields multiply:
+\begin{equation}
+  C_{\mathrm{W2W}} \;=\; \frac{\sum_{i=1}^{N} C_{\mathrm{die},i} \;+\; (N-1)\,C_{\mathrm{bonding}}}{\prod_{i=1}^{N} Y_{\mathrm{die},i} \; Y_{\mathrm{bonding}}^{\,N-1}}
+  \label{eq:w2w-cost}
+\end{equation}
+\cite[Eqs.~16--17]{dongSystemlevelCostAnalysis2009}. In W2W, a defect in either die scraps the whole stack, so the stack's yield is as low as that of a single large die; Dong and Xie find W2W stacking always more expensive than 2D in their study, and D2W cheaper than W2W from the yield perspective \cite[sec.~IV.C]{dongSystemlevelCostAnalysis2009}.
+
+\textbf{Worked example: does stacking save silicon?} Compare a hypothetical planar CCD with all 96\,MB of L3 on one die against the actual two-die stack, using the yield model of \cref{eq:yield} with $D_0 = 0.2$\,cm$^{-2}$ and $Y_{\mathrm{wafer}} = 1$. The planar die is taken as the sum of the two real dies, $81 + 41 = 122$\,mm$^2$; this ignores the area of the TSVs and the possibility of a denser layout, so it is only an approximation. \Cref{tab:stack-yield} gives the result.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Worked example: silicon consumed per good part for a planar 96\,MB CCD and the stacked design (Murphy model, $D_0 = 0.2$\,cm$^{-2}$; illustrative)}
+  \label{tab:stack-yield}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{4.0cm}@{}}
+    \toprule
+    \textbf{Design} & \textbf{Die area(s)} & \textbf{Modelled yield} & \textbf{Silicon per good part} \\
+    \midrule
+    Planar CCD with 96\,MB L3 & 122\,mm$^2$ & 79.1\% & 154\,mm$^2$ \\
+    Stack, dies tested first (D2W) & 81 + 41\,mm$^2$ & 85.4\% and 92.2\% & $94.8 + 44.5 = 139$\,mm$^2$ $\div\,Y_{\mathrm{bonding}}$ \\
+    Stack, untested (W2W) & 81 + 41\,mm$^2$ & $0.854 \times 0.922 = 78.8\%$ & $122/0.788 = 155$\,mm$^2$ $\div\,Y_{\mathrm{bonding}}$ \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+With known-good-die testing, the stack consumes about 10\% less silicon than the planar die, as long as bonding loses fewer than about 10\% of stacks ($139/154 \approx 0.90$). With $D_0 = 0.1$ the saving shrinks to about 5\%, and with $D_0 = 0.3$ it grows to about 14\%. Without testing, the stack has almost exactly the planar die's yield, as Dong and Xie's analysis predicts, and gains nothing. The silicon saving is modest; thinning, bonding and testing all cost extra, so on this measure alone stacking is not obviously cheaper. The stronger economic argument is the one AMD gives: \emph{product flexibility} \cite[slide~6]{wuu2022vcache}. The same 81\,mm$^2$ CCD is sold with or without a cache die, so only the products that need 96\,MB pay for it, while a planar 122\,mm$^2$ CCD would charge every product for the larger die.
+
+\textbf{Reliability.} A bonded interface must survive years of heating and cooling. AMD reports that packaged Zen~4 V-Cache parts passed 96 hours of unbiased highly accelerated stress testing, 2500 temperature cycles and 1000 hours of high-temperature storage, with no apparent damage to the bond interface \cite[slide~14]{alam2ndGeneration3D2024}. These are AMD's qualification results, not independent tests.
+
+\textbf{Co-design.} AMD's own summary of the project is that ``product definition and design [were] co-optimized up front with technology development'' \cite[slide~33]{wuu2022vcache}. The TSV columns, power channels and isolation circuits had to be in the CCD before the first V-Cache product existed, and the CCD's floorplan, with the L3 at the centre and the cores at the edges, made a cool, central place for the cache die. Stacked cache was therefore a design decision taken years before it shipped, not a packaging option added at the end.
+
+\section{Workloads That Benefit From a Larger LLC}
+\label{sec:vcache-workloads}
+
+AMD's figures for V-Cache in games come from two different comparisons. Its Hot Chips~33 comparison of a 12-core 3D-chiplet prototype with the 12-core Ryzen~9 5900X, both fixed at 4.0\,GHz, reports gains from 1.04$\times$ to 1.25$\times$ across five games, 15\% on average \cite[slide~19]{swaminathanAdvancedPackagingEnabling2021}. Holding frequency fixed is valuable because it isolates the cache effect, but the result covers only the disclosed games and configuration and should not be generalised.
+
+The ISSCC~2022 presentation adds product results, again from AMD's own testing \cite[slides~29, 31, 35]{wuu2022vcache}. The eight-core Ryzen~7 5800X3D is reported as about 15\% faster in games than the twelve-core Ryzen~9 5900X at 1080p with high settings, ranging from up to 1.36$\times$ in one title to a tie in another. On servers, a 16-core EPYC with V-Cache completed about 66\% more electronic-design (RTL simulation) jobs per hour than a 16-core EPYC~73F3 without it. The spread from a tie to 1.36$\times$ already illustrates the workload dependence predicted in \cref{sec:miss-classes}; \cref{sec:confounds} discusses what else differs between the compared parts.
+
+The miss classification of \cref{sec:miss-classes} predicts which workloads should benefit. A larger L3 removes capacity misses, so the gain depends on where a workload's working set lies relative to the 32\,MB and 96\,MB capacities:
+\begin{itemize}
+  \item \textbf{Working set already within 32\,MB.} Few capacity misses remain to remove, and every L3 hit pays the extra four cycles. Little or no gain, possibly a small loss.
+  \item \textbf{Working set between 32\,MB and 96\,MB, with reuse.} Many accesses that went to memory now hit in the L3. This is where large gains are expected.
+  \item \textbf{Working set far larger than 96\,MB, or streaming with little reuse.} The data still does not fit or is not reused, so the miss rate barely changes.
+\end{itemize}
+Mittal and Vetter note that modern scale-out workloads such as business analytics and web search can demand hundreds of megabytes of last-level cache \cite[sec.~1]{mittalSurveyTechniquesArchitecting2016}. The spread in AMD's own gaming results, from a tie in one title to 1.36$\times$ in another \cite[slide~29]{wuu2022vcache}, and the 66\% gain in RTL simulation \cite[slide~31]{wuu2022vcache}, fit this picture, but they are vendor results and Part~\ref{part:case-study} examines them more critically.
+
+Independent measurements support this classification. Lam measured each CCD of a Ryzen~9 7950X3D separately, with boost disabled and both CCDs held at 4.2\,GHz, and used performance counters to compare IPC and L3 hit rate \cite{lamAMDs7950X3DZen2023}. Because clock, core design, memory and software are identical, the differences isolate the cache. Workloads with many L3 misses gained most: IPC rose by over 19\% in \emph{Call of Duty: Black Ops Cold War}, whose hit rate rose by 47\%, and by 13\% in \emph{Cyberpunk 2077} (from 1.26 to 1.43). Workloads with few misses to remove gained little: libx264 video encoding, with 1.48 L3 misses per thousand instructions, gained 4.9\%, less than the plain CCD's 7\% clock advantage, and a flight simulator with only 0.35 misses per thousand instructions lost a little IPC, which Lam suggests is likely due to the added latency. These are the first two classes above, measured directly (\cref{fig:lam-ipc}); \cref{sec:tradeoff-example} works through the libx264 case with \cref{eq:vcache-tradeoff}.
+
+\input{"../initial-draft-2/figures/lam-ipc.tex"}
+
+HPC studies show the third class. On a memory-bound proxy application, Domke \emph{et al.} found that Milan-X was up to 3.4$\times$ faster than Milan, but only for a subset of problem sizes \cite{domkeLocusPerformanceQuantifying2023}. Lawenda \emph{et al.} found the same pattern in OpenFOAM: Milan-X was up to 1.54$\times$ faster than Milan for the mesh size that best fits its larger cache, the advantage fell to 1.24$\times$ for the largest mesh, and on some smaller meshes Milan-X was up to 19\% slower; the larger L3 cut the L3 miss rate by up to 30 percentage points \cite{lawendaEvaluatingImpactL32025}. On desktop software, Phoronix's 420-test comparison of the eight-core Ryzen~7 5800X3D with the eight-core 5800X found large V-Cache leads in a minority of tests, while the 5800X won, mostly by a couple of percent, where the cache could not be used and its slightly higher clocks paid off \cite{larabelAMDRyzen72022}.
+
+\section{Summary of Part IV}
+Applying the three-part test to 3D-stacked cache:
+\begin{itemize}
+  \item \textbf{Bottleneck addressed.} The area, yield, wire-length and power costs of growing an SRAM cache in the plane of the compute die, made worse by SRAM's slowing area scaling (\cref{sec:planar-limits}).
+  \item \textbf{Benefit.} Three times the L3 per CCD (32 to 96\,MB) for four extra cycles of latency, with more than 2\,TB/s of bandwidth and no change to the package footprint or the cache hierarchy above the L3 \cite{wuu2022vcache,amd2022epyc7003}.
+  \item \textbf{New trade-offs.} An altered heat path from the cores, power delivery through TSVs, die thinning, bonding and test complexity, a second die to pay for, and a benefit that depends strongly on the workload.
+\end{itemize}
+
+The worked examples of this part make these points quantitative. The 9\,\textmu m bond pitch gives about sixteen times the connection density of micro-bumps (\cref{sec:density-example}), which is what makes a wide, parallel, cache-speed interface possible and keeps the latency cost to four cycles. Applied to Lam's libx264 measurements, the simple trade-off of \cref{eq:vcache-tradeoff} predicts a gain of the right size (\cref{sec:tradeoff-example}). The yield model suggests that stacking with tested dies saves only about a tenth of the silicon of an equivalent planar die (\cref{tab:stack-yield}), so the economic case rests mainly on product flexibility. And the heat path, which the first generation managed with structural silicon and lower clocks, was important enough for AMD to invert the stack in Zen~5 (\cref{sec:thermal-evidence}). Part~\ref{part:case-study} now turns from the mechanism to the evidence across products.

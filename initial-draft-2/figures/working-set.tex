@@ -1,0 +1,22 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\textwidth, height=6.0cm,
+  xmode=log, log basis x=2, xmin=4, xmax=1024,
+  xtick={4,8,16,32,64,96,128,256,512,1024}, xticklabels={4,8,16,32,64,96,128,256,512,1024},
+  xlabel={Working-set size (MB, log scale)}, ylabel={L3 miss rate (illustrative)},
+  ymin=0, ymax=1.05, ytick={0,0.5,1}, yticklabels={low,,high},
+  legend pos=north west, legend style={font=\small},
+  every axis plot/.append style={thick,samples=120,domain=4:1024}]
+\addplot[draftgray,dashed] {1/(1+exp(-6*(ln(x)/ln(2)-5.2)))}; \addlegendentry{32\,MB L3}
+\addplot[draftblue] {1/(1+exp(-6*(ln(x)/ln(2)-6.8)))}; \addlegendentry{96\,MB L3}
+\fill[draftblue!10] (axis cs:32,0) rectangle (axis cs:96,1.05);
+\node[font=\scriptsize,align=center] at (axis cs:55,0.55) {gain\\region};
+\node[font=\scriptsize,align=center] at (axis cs:9,0.3) {fits in both:\\no gain, +4 cycles};
+\node[font=\scriptsize,align=center] at (axis cs:420,0.62) {fits in neither:\\little change};
+\end{axis}
+\end{tikzpicture}
+\caption{Conceptual shape of the L3 miss rate against working-set size for a workload with reuse, for a 32\,MB and a 96\,MB L3. The curves are illustrative, not measured; real transitions are smoother and depend on access pattern, associativity and sharing. They show the three workload classes of \cref{sec:vcache-workloads}.}
+\label{fig:working-set}
+\end{figure}

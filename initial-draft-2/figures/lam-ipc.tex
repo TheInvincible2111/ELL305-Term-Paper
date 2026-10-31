@@ -1,0 +1,23 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  xbar, bar width=10pt, width=0.8\textwidth, height=6.0cm,
+  xmin=0, xmax=24, xlabel={IPC gain of the V-Cache CCD over the plain CCD (\%)},
+  symbolic y coords={libx264,GHPC,7-Zip,Cyberpunk 2077,Call of Duty},
+  ytick=data, y dir=reverse, yticklabel style={font=\small},
+  nodes near coords, nodes near coords style={font=\small,anchor=west},
+  point meta=explicit symbolic,
+  xmajorgrids, grid style={draftgray!25}, axis y line*=left, axis x line*=bottom,
+  enlarge y limits=0.15]
+\addplot[fill=draftlight,draw=draftblue] coordinates {
+  (4.9,libx264)[4.9]
+  (9.67,GHPC)[9.7]
+  (9.75,7-Zip)[9.8]
+  (13.5,Cyberpunk 2077)[13.5]
+  (19,Call of Duty)[$>$19]};
+\end{axis}
+\end{tikzpicture}
+\caption{IPC gain from 3D V-Cache with clock, core design and memory held equal: the two CCDs of one Ryzen~9 7950X3D, both fixed at 4.2\,GHz, measured with performance counters by Lam \cite{lamAMDs7950X3DZen2023}. Cyberpunk~2077 is computed from the reported IPC of 1.26 and 1.43; the Call of Duty value is reported only as ``over 19\%''. A sixth workload, a flight simulator with very few L3 misses, lost a small, unquantified amount of IPC and is not plotted.}
+\label{fig:lam-ipc}
+\end{figure}

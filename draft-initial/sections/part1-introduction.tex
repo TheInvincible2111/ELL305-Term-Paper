@@ -1,0 +1,104 @@
+% Part I -- Introduction and research framing (target: about 10 pages)
+\clearpage
+\part{Introduction and Research Framing}
+\label{part:intro}
+\partbudget{10}{opening argument, research questions, scope and method drafted; contributions provisional}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Motivation: why monolithic scaling is becoming difficult}
+\label{sec:motivation}
+
+For most of the history of the microprocessor, a new product generation could be built by placing more transistors on a single piece of silicon. The course textbook summarises this trend as Moore's law: the number of transistors on a chip has roughly doubled every one to two years since the 1960s \cite[sec.~12.1.1]{sarangi2025basic}. Designers turned those transistors into deeper pipelines, wider issue, larger caches and, from the mid-2000s, more cores per chip \cite[ch.~12]{sarangi2025basic}.\index{Moore's law}
+
+Three pressures now make it harder to keep growing a single \gls{monolithic-die}:
+
+\begin{itemize}
+  \item \textbf{Die size and yield.} A lithography system can only pattern a die up to the \gls{reticle-limit}, and the probability that a die contains a fatal defect rises with its area. AMD states that the 64-core server configuration of its second-generation EPYC processors would lie well beyond the maximum reticle size if built as one chip \cite{naffziger2020chiplet}. \Cref{sec:yield-cost} quantifies the yield effect with a simple model.
+  \item \textbf{Uneven scaling of circuit types.} Logic, \gls{sram} and analog/I-O circuits do not shrink equally when moving to a new process node. Naffziger \emph{et al.} note that analog circuitry shrinks far less than digital logic and SRAM, so memory interfaces and SerDes gain little from an advanced node \cite{naffziger2020chiplet}. More recent AMD material indicates that SRAM itself now scales more slowly than logic (\cref{sec:why-cache-capacity}).
+  \item \textbf{Power and temperature.} Dynamic power grows with switched capacitance, the square of the supply voltage and clock frequency, while leakage power is consumed even when circuits are idle and itself rises with temperature \cite[sec.~10.10]{sarangi2025basic}. Every additional square millimetre of active silicon must be powered and cooled within a fixed package budget.
+\end{itemize}
+
+These pressures do not stop progress, but they change its form. Instead of one ever-larger die, designers increasingly assemble a processor from several dies inside one package, and increasingly use the vertical dimension as well as the horizontal one. This paper studies that shift through two concrete techniques and one principal case study.
+
+\subsection{Two linked scaling problems}
+\label{sec:two-problems}
+
+The paper is organised around two related problems (\cref{fig:research-framework}).
+
+\textbf{Problem 1: scaling processor resources beyond a single die.} If a product needs more cores, memory channels and I/O than one economical die can hold, the processor can be partitioned into \glspl{chiplet}. AMD's Zen~2-based products separate eight-core compute dies (CCDs) built on a 7\,nm process from an I/O die (IOD) built on a mature 12\,nm process \cite{naffziger2020chiplet,suggs2019zen2}.
+
+\textbf{Problem 2: scaling cache capacity without spending planar die area.} A larger \gls{llc} can reduce costly trips to main memory, but on a planar die every extra megabyte of SRAM enlarges the die, lowers yield and lengthens wires. AMD's \gls{v-cache} instead stacks an additional SRAM die on top of the compute die, expanding the Zen~3 L3 from 32\,MB to 96\,MB per CCD \cite{wuu2022vcache,amd2022epyc7003}.
+
+The problems are linked: the chiplet organisation makes the CCD a small, self-contained compute die with its own L3, and that die is the natural host for a stacked cache. The paper therefore follows the argument in four steps:
+
+\begin{enumerate}
+  \item Monolithic CPUs face die-size, yield and scaling limits; chiplets address compute scaling \cite{naffziger2020chiplet}.
+  \item Chiplets alone leave the cost of large on-die caches unsolved: AMD's ISSCC~2022 presentation names SRAM scaling and cost as the barriers to large on-die caches, in cost, product flexibility and latency, and argues that 2.5D chiplets address only part of the problem \cite[slides~6--7]{wuu2022vcache}.
+  \item Vertical stacking addresses those cache-specific limits \cite{wuu2022vcache,swaminathanAdvancedPackagingEnabling2021}.
+  \item Evaluation evidence shows where the stacked cache improves performance, and which thermal, packaging and cost trade-offs it introduces (Part~\ref{part:case-study}).
+\end{enumerate}
+
+\input{"../draft-initial/figures/research-framework.tex"}
+
+\subsection{Research questions and objectives}
+\label{sec:rq}
+
+The central research question is:
+
+\begin{quote}
+\itshape How do chiplet-based organisation and 3D-stacked cache help modern processors address limits in performance, scalability, memory latency, power and die-level integration, and what new trade-offs do they introduce?
+\end{quote}
+
+It is divided into four sub-questions:
+
+\begin{description}[leftmargin=1.2cm,style=nextline]
+  \item[RQ1] Which architectural and manufacturing limits make a single large die an increasingly costly way to scale a processor?
+  \item[RQ2] How does partitioning a processor into compute and I/O dies change memory latency, bandwidth, power and product flexibility?
+  \item[RQ3] Why does last-level-cache capacity matter, and what does vertical stacking change compared with expanding the cache in the plane of the die?
+  \item[RQ4] For which workloads does a larger stacked L3 produce measurable benefit, and how can that benefit be separated from differences in frequency, core count and memory configuration?
+\end{description}
+
+For every technique the paper applies the same three-part test: \emph{which bottleneck does it address, what benefit does it provide, and what new bottleneck, cost or trade-off does it create?}
+
+\subsection{Scope}
+\label{sec:scope}
+
+AMD Zen processors are the principal case study because AMD has published unusually detailed technical descriptions of both its chiplet organisation and its stacked cache \cite{naffziger2020chiplet,suggs2019zen2,amd2022epyc7003,swaminathanAdvancedPackagingEnabling2021}. They are, however, a case study and not the whole subject: the architectural principles apply to chiplet and die-stacked designs in general.
+
+The following are deliberately outside scope:
+
+\begin{itemize}
+  \item fabrication chemistry and process details beyond what is needed to explain an architectural decision;
+  \item reverse engineering of undisclosed Zen internals;
+  \item a catalogue of product specifications;
+  \item vendor contests. Comparisons are always tied to a stated workload, metric and time period, and the paper makes no general claim that one vendor ``beats'' another.
+\end{itemize}
+
+\subsection{Methodology}
+\label{sec:method-overview}
+
+The study combines three kinds of evidence:
+
+\begin{enumerate}
+  \item \textbf{Textbook foundations.} Chapters 9--12 of Sarangi's \emph{Basic Computer Architecture} supply the models used throughout: the performance equation, pipelining limits, power and temperature, the memory hierarchy and average memory access time, and multicore coherence and interconnects \cite{sarangi2025basic}.
+  \item \textbf{Primary technical disclosures.} Peer-reviewed conference papers and vendor technical presentations describe what was built and why. Vendor presentations are attributed to the vendor and treated as engineering claims rather than independent measurements.
+  \item \textbf{Published research and benchmarks.} Part~\ref{part:case-study} analyses published measurements of chiplet and stacked-cache processors. The paper does not perform new hardware measurements; its quantitative contribution lies in organising, normalising and critically comparing existing results (\cref{sec:evidence-method}).
+\end{enumerate}
+
+\subsection{Contributions}
+\label{sec:contributions}
+
+\todo{Finalise once Parts V and VI are complete. Provisional list:}
+\begin{itemize}
+  \item a single argument linking chiplet partitioning and 3D-stacked cache as responses to two related scaling limits;
+  \item an explanation of both techniques in terms of the textbook's performance, power and memory-hierarchy models;
+  \item a structured comparison of planar, side-by-side and vertically stacked cache expansion;
+  \item a critical synthesis of published performance evidence for stacked cache, with explicit treatment of confounding factors.
+\end{itemize}
+
+\subsection{Organisation of the paper}
+\label{sec:organisation}
+
+Part~\ref{part:foundations} reviews the architectural foundations. Part~\ref{part:chiplets} analyses chiplet-based organisation. Part~\ref{part:stacked-cache} examines 3D-stacked cache and AMD 3D V-Cache. Part~\ref{part:case-study} presents the AMD case study and quantitative analysis, and Part~\ref{part:synthesis} compares the approaches, identifies limitations and outlines future directions. Self-contained derivations longer than about half a page appear as appendices.

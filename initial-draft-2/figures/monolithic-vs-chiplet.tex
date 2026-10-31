@@ -1,0 +1,28 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  die/.style={draw=draftblue,thick,fill=draftlight,align=center,font=\scriptsize},
+  core/.style={draw=draftblue,fill=white,minimum width=0.55cm,minimum height=0.55cm,font=\tiny},
+  lab/.style={font=\small\bfseries,text=draftblue}]
+% Monolithic
+\node[die,minimum width=5.2cm,minimum height=4.2cm] (mono) at (0,0) {};
+\foreach \i in {0,...,3}{\foreach \j in {0,1}{
+  \node[core] at (-1.9+\i*0.7,1.3-\j*0.7) {C};}}
+\node[die,fill=white,minimum width=2.1cm,minimum height=1.3cm] at (1.3,0.95) {Shared\\L3 cache};
+\node[die,fill=white,minimum width=4.6cm,minimum height=0.7cm] at (0,-0.55) {Memory controllers, PCIe, SerDes (analog-heavy)};
+\node[die,fill=white,minimum width=4.6cm,minimum height=0.55cm] at (0,-1.5) {All on one leading-edge process};
+\node[lab,above=0.15cm of mono] {(a) Monolithic die};
+% Chiplet
+\begin{scope}[xshift=7.6cm]
+\node[draw=draftgray,dashed,minimum width=6.0cm,minimum height=4.2cm] (pkg) at (0,0) {};
+\node[die,minimum width=1.5cm,minimum height=1.25cm] (c1) at (-2.0,1.15) {CCD\\cores + L3\\(advanced node)};
+\node[die,minimum width=1.5cm,minimum height=1.25cm] (c2) at (-2.0,-1.15) {CCD\\cores + L3\\(advanced node)};
+\node[die,minimum width=2.4cm,minimum height=2.0cm,fill=white] (iod) at (1.3,0) {IOD\\memory, PCIe,\\fabric\\(mature node)};
+\draw[thick,draftblue,{Stealth}-{Stealth}] (c1.east) -- node[above,font=\tiny,sloped]{die-to-die link} (iod.north west);
+\draw[thick,draftblue,{Stealth}-{Stealth}] (c2.east) -- (iod.south west);
+\node[lab,above=0.15cm of pkg] {(b) Chiplet package};
+\end{scope}
+\end{tikzpicture}
+\caption{Schematic contrast between a monolithic processor die and a chiplet package with compute dies (CCDs) and an I/O die (IOD). Illustrative only; not to scale and not an actual AMD floorplan.}
+\label{fig:monolithic-vs-chiplet}
+\end{figure}

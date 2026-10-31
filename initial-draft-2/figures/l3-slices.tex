@@ -1,0 +1,26 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  sl/.style={draw=draftblue,minimum width=1.5cm,minimum height=0.75cm,font=\scriptsize,align=center},
+  lab/.style={font=\small\bfseries,text=draftblue}]
+% helper: shade by extra latency (0..20)
+\newcommand{\slice}[4]{\pgfmathsetmacro{\sh}{8+#4*3.4}\node[sl,fill=todored!\sh] at (#1,#2) {#3\\$+#4$};}
+\begin{scope}
+\node[lab] at (1.0,1.15) {Requests from core 0};
+\slice{0.2}{0.45}{s0}{0}  \slice{1.8}{0.45}{s1}{6}
+\slice{0.2}{-0.4}{s2}{1}  \slice{1.8}{-0.4}{s3}{10}
+\slice{0.2}{-1.25}{s4}{6} \slice{1.8}{-1.25}{s5}{13}
+\slice{0.2}{-2.1}{s6}{10} \slice{1.8}{-2.1}{s7}{20}
+\end{scope}
+\begin{scope}[xshift=5.2cm]
+\node[lab] at (1.0,1.15) {Requests from core 2};
+\slice{0.2}{0.45}{s0}{1}  \slice{1.8}{0.45}{s1}{10}
+\slice{0.2}{-0.4}{s2}{0}  \slice{1.8}{-0.4}{s3}{13}
+\slice{0.2}{-1.25}{s4}{1} \slice{1.8}{-1.25}{s5}{20}
+\slice{0.2}{-2.1}{s6}{6}  \slice{1.8}{-2.1}{s7}{13}
+\end{scope}
+\node[font=\scriptsize,align=left,anchor=west] at (8.5,-0.85) {Base: 40 cycles to the\\nearest slice.\\Shading: extra cycles\\(darker = farther).};
+\end{tikzpicture}
+\caption{Measured extra latency, in cycles beyond the 40-cycle minimum, for a Zen~3 core to reach each of the eight slices of its L3, on a Ryzen~5 5600G \cite{7-cpu.comAMDZen3}. The arrangement of slices follows the source's own table; it is a logical layout, not a floorplan.}
+\label{fig:l3-slices}
+\end{figure}

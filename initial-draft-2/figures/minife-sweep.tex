@@ -1,0 +1,21 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=5pt, width=0.95\textwidth, height=6.2cm,
+  ymin=0, ymax=3.7, ylabel={Speedup, Milan-X over Milan},
+  xlabel={MiniFE input cube dimension $n$ (problem has $n^3$ grid points)},
+  xtick={100,120,140,160,180,200,250,300,350,400}, xmin=95, xmax=405,
+  ymajorgrids, grid style={draftgray!25},
+  extra y ticks={1}, extra y tick style={grid style={black,dashed}}]
+\addplot[fill=draftlight,draw=draftblue] coordinates {
+ (100,0.89) (110,0.90) (120,1.14) (130,1.91) (140,2.53) (150,3.04) (160,3.38) (170,3.04) (180,2.17) (190,1.78)
+ (200,1.59) (210,1.54) (220,1.57) (230,1.53) (240,1.47) (250,1.43) (260,1.39) (270,1.35) (280,1.29) (290,1.24)
+ (300,1.17) (310,1.13) (320,1.09) (330,1.06) (340,1.04) (350,1.03) (360,1.03) (370,1.04) (380,1.04) (390,1.04) (400,1.04)};
+\node[font=\scriptsize,anchor=south] at (axis cs:160,3.42) {3.4$\times$};
+\node[font=\scriptsize,align=center,anchor=south] at (axis cs:105,0.95) {0.9$\times$};
+\end{axis}
+\end{tikzpicture}
+\caption{MiniFE on a dual-socket EPYC 7773X (Milan-X, 2$\times$768\,MiB L3) against a dual-socket EPYC 7763 (Milan, 2$\times$256\,MiB L3) as the problem size grows. Values were read by eye from Domke \emph{et al.}'s figure \cite[Fig.~1]{domkeLocusPerformanceQuantifying2023} and are accurate to about $\pm 0.05$. Milan-X runs at a lower base clock (2.20 against 2.45\,GHz).}
+\label{fig:minife-sweep}
+\end{figure}

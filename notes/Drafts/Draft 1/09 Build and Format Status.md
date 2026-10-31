@@ -30,4 +30,4 @@ tags: [draft-1, build, format]
 
 The supplied `Term Paper Overleaf Template.zip` was reviewed as a reference. Its useful institutional report sequence informed the reusable templates, but its CLL110 sample text, bundled class, sample images, `natbib` setup, and `jfm.bst` do not replace the ELL305 milestone instructions, the modular project structure, or the Zotero-generated bibliography workflow.
 
-The verified PDF is local. No GitHub publication is recorded by this note.
+The verified PDF and submission package were published to the private GitHub repository in commit `89a4c69` (confirmed against GitHub on 28 October 2026).

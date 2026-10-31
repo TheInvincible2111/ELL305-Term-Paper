@@ -1,0 +1,45 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  met/.style={fill=draftblue!70,draw=draftblue},
+  lab/.style={font=\scriptsize,anchor=west},
+  callout/.style={draftgray,thin}]
+% top die (L3D, face-down): dielectric with metal stack
+\fill[draftlight] (0,2.2) rectangle (7,4.6);
+\fill[draftgray!15] (0,4.6) rectangle (7,5.3);
+\node[font=\scriptsize,text=draftgray] at (3.5,4.95) {top-die silicon (L3D, face-down)};
+% three metal stacks in top die
+\foreach \x in {1.0,3.5,6.0}{
+  \fill[met] (\x-0.55,4.25) rectangle (\x+0.55,4.42); % M11
+  \fill[met] (\x-0.12,3.95) rectangle (\x+0.12,4.25);
+  \fill[met] (\x-0.45,3.78) rectangle (\x+0.45,3.95); % M12
+  \fill[met] (\x-0.12,3.48) rectangle (\x+0.12,3.78);
+  \fill[met] (\x-0.4,3.31) rectangle (\x+0.4,3.48);   % M13
+}
+\fill[draftgray!60] (0.2,2.75) rectangle (1.8,3.05);
+\fill[draftgray!60] (5.2,2.75) rectangle (6.8,3.05);
+\foreach \x in {1.0,6.0}{\fill[met] (\x-0.12,3.05) rectangle (\x+0.12,3.31);}
+% bond pad via and bond pad metal (centre)
+\fill[todored!75] (3.3,2.55) rectangle (3.7,3.31);
+\fill[todored!90] (3.05,2.2) rectangle (3.95,2.55);
+% bond interface
+\draw[draftblue!60!black,line width=1.3pt] (0,2.2) -- (7,2.2);
+% bottom die (CCD, thinned)
+\fill[orange!12] (0,0) rectangle (7,2.2);
+\fill[todored!90] (3.05,1.85) rectangle (3.95,2.2);
+\fill[draftblue!25,draw=draftblue] (3.25,0) rectangle (3.75,1.85);
+\node[font=\scriptsize,rotate=90] at (3.5,0.95) {TSV};
+\node[font=\scriptsize,text=draftgray,align=center] at (1.5,0.9) {bottom-die silicon\\(CCD, thinned)};
+% labels
+\draw[callout] (6.55,4.33) -- (7.3,4.45) node[lab]{M11};
+\draw[callout] (6.45,3.86) -- (7.3,3.95) node[lab]{M12};
+\draw[callout] (6.4,3.4) -- (7.3,3.45) node[lab]{M13 (top copper layer)};
+\draw[callout] (6.8,2.9) -- (7.3,2.95) node[lab]{aluminium layer};
+\draw[callout] (3.7,2.95) -- (4.4,2.95) -- (4.9,2.5) -- (7.3,2.5) node[lab]{bond pad via (BPV)};
+\draw[callout] (3.95,2.38) -- (4.4,2.38) -- (4.9,2.05) -- (7.3,2.05) node[lab]{bond pad metal (BPM)};
+\draw[callout] (6.6,2.2) -- (7.3,1.6) node[lab]{bond interface: Cu--Cu and oxide--oxide};
+\draw[callout] (3.75,1.0) -- (7.3,1.0) node[lab]{through-silicon via};
+\end{tikzpicture}
+\caption{Schematic of one hybrid-bond connection in the first-generation stack, redrawn from AMD's description \cite[slide~16]{wuu2022vcache}. Copper bond-pad metal (BPM) on the two dies is bonded directly; on the top die a bond-pad via (BPV) connects the pad to the top copper layer (M13), and on the bottom die the pad lands on a TSV. In the Zen~4 stack the BPV lands on the top aluminium pad instead \cite[slides~11--12]{alam2ndGeneration3D2024}. Not to scale.}
+\label{fig:bond-interface}
+\end{figure}

@@ -1,0 +1,116 @@
+% Part II -- Architectural foundations (target: about 25 pages)
+% Textbook mapping: Sarangi, Basic Computer Architecture, Chapters 9--12.
+\clearpage
+\part{Architectural Foundations}
+\label{part:foundations}
+\partbudget{25}{core models drafted (performance equation, power, AMAT, miss classes); pipelining, cache organisation and coherence chapters need expansion}
+
+This part sets out the models that the rest of the paper uses to judge chiplets and stacked cache. It follows Chapters 9--12 of the course textbook \cite{sarangi2025basic}. The textbook supplies the theory; it does not describe modern compute-die/I/O-die partitioning or stacked cache, which later parts support with external sources.
+
+\section{Processor Organisation and Performance Metrics}
+\label{sec:perf-metrics}
+
+\subsection{The performance equation}
+
+The textbook defines the performance of a processor only with respect to a given program, as the reciprocal of its execution time \cite[sec.~10.9.1]{sarangi2025basic}. Execution time $\tau$ can be split into three factors:
+\begin{equation}
+  \tau \;=\; \frac{\#\text{instructions} \times \mathrm{CPI}}{f},
+  \qquad
+  P \;\propto\; \frac{\mathrm{IPC} \times f}{\#\text{instructions}},
+  \label{eq:perf}
+\end{equation}
+where $f$ is the clock frequency, \gls{cpi} is the average number of cycles per dynamic instruction, and \gls{ipc} is its reciprocal \cite[sec.~10.9.1]{sarangi2025basic}.\index{performance equation}
+
+\Cref{eq:perf} is the lens for the whole paper. A larger cache does not change the instruction count or, directly, the clock frequency; it acts through IPC by reducing the cycles spent waiting for memory. A chiplet organisation, by contrast, can change all three: it can enable more cores (more throughput), alter memory latency (IPC), and change the frequency and power each die can sustain. When published results compare two processors, they must therefore be checked for differences in $f$ as well as in cache size (\cref{sec:confounds}).
+
+\subsection{Baseline processor organisation}
+\plannedcontent{Summarise the single-cycle and multi-cycle processor organisation of Chapter~9 as the baseline from which pipelined, multicore and partitioned designs depart. Keep to what is needed for later parts (about two pages). Source: \cite[ch.~9]{sarangi2025basic}.}
+
+\section{Pipelining, Power and Thermal Limits}
+\label{sec:pipelining-power}
+
+\subsection{Pipelining and its limits}
+\plannedcontent{Pipeline stages, hazards and their effect on CPI; why memory stalls are a principal source of non-ideal CPI; brief note on out-of-order execution hiding some, but not all, memory latency \cite[ch.~10]{sarangi2025basic}. About three pages.}
+
+\subsection{Dynamic and leakage power}
+\label{sec:power}
+
+The textbook models dynamic power, the energy dissipated when circuit nodes switch, as
+\begin{equation}
+  P_{\mathrm{dyn}} \;\propto\; \sum_{i} \alpha_i\, C_i\, V^2 f,
+  \label{eq:pdyn}
+\end{equation}
+where $\alpha_i$ is the activity factor and $C_i$ the capacitance of node $i$, $V$ the supply voltage and $f$ the frequency \cite[sec.~10.10.2]{sarangi2025basic}. Leakage (static) power arises because transistors do not switch off perfectly; it is consumed all the time regardless of activity, and the textbook notes that it can account for roughly 20--40\% of a high-performance processor's power budget \cite[sec.~10.10.3]{sarangi2025basic}.\index{leakage power}\index{dynamic power}
+
+Both terms matter for this paper:
+\begin{itemize}
+  \item \textbf{Wires are capacitance.} Long on-die or die-to-die wires increase $C$ in \cref{eq:pdyn}, so moving data farther costs energy as well as time. This is one reason the distance between cores and cache matters (\cref{sec:planar-limits}).
+  \item \textbf{Large SRAM arrays leak.} A large cache adds leakage even when most of it is idle, which is part of the cost of simply growing the LLC on a planar die.
+\end{itemize}
+
+\subsection{Temperature}
+Power that is dissipated becomes heat, which must flow from the transistors through the die, a thermal interface material and a heat spreader to the cooler \cite[sec.~10.10.1]{sarangi2025basic}. Higher temperature raises leakage, which raises power further, and accelerates ageing \cite[sec.~10.10.1]{sarangi2025basic}. Stacking a die on top of a compute die changes this heat path, which is the main thermal question raised in \cref{sec:thermal}.
+
+\todo{Add the ED$^2$ metric (\cite[sec.~10.10.5]{sarangi2025basic}) if Part V uses energy-delay comparisons.}
+
+\section{The Memory Hierarchy}
+\label{sec:memory-hierarchy}
+
+\subsection{Why a hierarchy is needed}
+
+The textbook frames memory design as a conflict between capacity and speed. Per unit of silicon, DRAM stores far more data than SRAM but is much slower; a memory built entirely of DRAM would make every load and store wait for main memory, while a memory built entirely of fast on-chip SRAM cannot hold a program's data \cite[sec.~11.1.1]{sarangi2025basic}. As an illustration, if one third of instructions access a 100-cycle memory, the effective CPI of an otherwise ideal pipeline rises to $1 + \tfrac{1}{3}(100-1) = 34$ \cite[sec.~11.1.1]{sarangi2025basic}.\index{memory hierarchy}
+
+The way out is \emph{locality}: programs tend to reuse recently used data (temporal locality) and to access data near recently used data (spatial locality) \cite[sec.~11.1.2--11.1.6]{sarangi2025basic}. A \gls{memory-hierarchy} keeps recently used blocks in small, fast caches close to the core and backs them with progressively larger, slower levels (\cref{fig:memory-hierarchy-amat}).
+
+\input{"../draft-initial/figures/memory-hierarchy-amat.tex"}
+
+\subsection{Average memory access time}
+\label{sec:amat}
+
+The average memory access time (\gls{amat}) of a hierarchy is defined recursively \cite[sec.~11.3.1]{sarangi2025basic}:\index{AMAT}
+\begin{equation}
+\begin{aligned}
+  \mathrm{AMAT} &= t_1 + m_1 \times \mathrm{penalty}_1,\\
+  \mathrm{penalty}_{k} &= t_{k+1} + m_{k+1} \times \mathrm{penalty}_{k+1},
+\end{aligned}
+\label{eq:amat}
+\end{equation}
+where $t_k$ is the hit time and $m_k$ the local miss rate of level $k$, and the penalty of the last cache level is the main-memory latency. The textbook's worked example uses an L1 with 10\% miss rate and 1-cycle latency, an L2 with 10\% miss rate and 10-cycle latency, and a 100-cycle memory, giving $T = 1 + 0.1(10 + 0.1\times100) = 3$ cycles against 100 cycles for a flat memory \cite[sec.~11.1.7, Example~147]{sarangi2025basic}.
+
+\Cref{eq:amat} shows precisely what a larger last-level cache can and cannot do:
+\begin{itemize}
+  \item it can lower $m_{\mathrm{LLC}}$, so fewer accesses pay the main-memory latency;
+  \item but if making the cache larger also lengthens its hit time $t_{\mathrm{LLC}}$, part of the gain is lost on every LLC hit.
+\end{itemize}
+The design problem for a large LLC is therefore to add capacity while keeping the added hit latency small. That is the problem 3D stacking attacks (Part~\ref{part:stacked-cache}).
+
+\subsection{Classifying cache misses}
+\label{sec:miss-classes}
+
+The textbook divides misses into three classes \cite[sec.~11.3.2]{sarangi2025basic}:\index{cache miss}
+\begin{itemize}
+  \item \textbf{Compulsory (cold) misses} occur the first time a block is accessed.
+  \item \textbf{Capacity misses} occur when the program's working set---the blocks it uses over a typical interval---is larger than the cache.
+  \item \textbf{Conflict misses} occur in direct-mapped and set-associative caches when more blocks map to one set than the set can hold.
+\end{itemize}
+A larger LLC primarily removes capacity misses. It therefore helps workloads whose working set exceeds the original cache but fits in the larger one, and helps little when the working set either already fits or is far larger than either size. This simple argument predicts the strongly workload-dependent results examined in Part~\ref{part:case-study}.
+
+\subsection{Cache organisation and policies}
+\plannedcontent{Direct-mapped, set-associative and fully associative organisation; tags, sets and associativity; replacement policies (random, FIFO, LRU); write-back versus write-through \cite[sec.~11.2]{sarangi2025basic}. Explain the dependence of hit time on cache size and associativity. About four pages; move any derivation over half a page to an appendix.}
+
+\subsection{Beyond SRAM: alternative LLC technologies}
+Stacking SRAM is not the only way to obtain a larger last-level cache. Research has also explored denser memory technologies. Mittal and Vetter's survey notes that DRAM offers roughly eight times the density of SRAM, and that die-stacked DRAM can provide 8 to 15 times the bandwidth of off-chip DRAM at one half to one third of its latency, which has made stacked DRAM a candidate for very large LLCs \cite[sec.~1]{mittalSurveyTechniquesArchitecting2016}. Its longer access latency, the size of the tag store such a cache needs, and thermal management are the main design challenges the survey identifies \cite[secs.~1--2]{mittalSurveyTechniquesArchitecting2016}. Non-volatile memories such as STT-RAM offer high density and low leakage, but with much longer write latency and higher write energy than SRAM. Kim \emph{et al.} therefore study hybrid LLCs that combine an SRAM region for write-intensive blocks with an STT-RAM region for the rest, and report a 26\% average speedup in simulation from a better block-placement policy \cite{kimExploitingDataCompression2022}. These approaches change the \emph{technology} of the cache, whereas AMD's 3D V-Cache keeps SRAM and changes its \emph{placement}; the comparison is taken up in Part~\ref{part:synthesis}.
+
+\section{Multicore Processors, Coherence and Interconnects}
+\label{sec:multicore}
+
+\subsection{From one core to many}
+The textbook traces the move to multicore processors from the mid-2000s as transistor budgets continued to grow while single-core power and complexity limits tightened \cite[sec.~12.1]{sarangi2025basic}. Multicore processors raise two questions that matter directly for chiplets: how cores keep a consistent view of shared data, and how requests travel between cores, caches and memory.
+
+\subsection{Cache coherence}
+When several caches can hold copies of the same address, \gls{cache-coherence} rules ensure that all threads observe writes to that address in a consistent order \cite[sec.~12.4.2]{sarangi2025basic}. In a chiplet processor, a coherence transaction between cores on different compute dies must cross the die-to-die interconnect, so the physical partitioning becomes visible as latency (\cref{sec:d2d}).
+
+\plannedcontent{Snooping versus directory protocols; MSI-style states at the level used by the textbook; why shared versus private LLC organisation matters for coherence traffic \cite[ch.~12]{sarangi2025basic}. About four pages.}
+
+\subsection{On-chip and on-package interconnection networks}
+\plannedcontent{Bus, ring, mesh and crossbar topologies; latency and bandwidth metrics; banked and non-uniform caches \cite[ch.~12]{sarangi2025basic}. Bridge to Part III by asking what changes when a link leaves the die. About three pages.}

@@ -1,0 +1,35 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  core/.style={draw=draftblue,fill=white,font=\scriptsize,minimum width=1.7cm,minimum height=0.85cm},
+  tsv/.style={fill=draftblue!70},
+  lab/.style={font=\scriptsize,align=center}]
+% CCD outline
+\draw[draftblue,thick] (0,0) rectangle (11,4.4);
+\node[font=\small\bfseries,text=draftblue,anchor=south west] at (0,4.45) {CCD (81\,mm$^2$), top view};
+% cores
+\foreach \i in {0,1,2,3}{
+  \node[core] at (1.1,3.85-\i*1.05) {Core \i};
+  \node[core] at (9.9,3.85-\i*1.05) {Core \the\numexpr\i+4\relax};}
+\node[lab,text=draftgray] at (1.1,-0.3) {cores + L2};
+\node[lab,text=draftgray] at (9.9,-0.3) {cores + L2};
+% L3 region
+\fill[draftlight] (2.3,0.2) rectangle (8.7,4.2);
+\node[lab] at (5.5,0.55) {32\,MB L3 (base)};
+% signal TSV columns
+\fill[tsv] (3.2,0.2) rectangle (3.45,4.2);
+\fill[tsv] (7.55,0.2) rectangle (7.8,4.2);
+\node[lab,rotate=90,text=white] at (3.325,2.2) {signal TSVs};
+\node[lab,rotate=90,text=white] at (7.675,2.2) {signal TSVs};
+% L3D outline overlay
+\draw[todored,thick,dashed] (2.55,0.95) rectangle (8.45,4.05);
+\node[lab,text=todored,fill=white,inner sep=1pt] at (5.5,3.65) {outline of the L3D above (41\,mm$^2$, 64\,MB)};
+\node[lab,align=center] at (5.5,2.25) {L3D: 512 data macros of 128\,KB\\and 1088 tag/LRU macros of 6\,KB};
+% bus arrows
+\draw[{Stealth}-{Stealth},thick,draftblue] (2.05,2.2) -- (3.15,2.2);
+\draw[{Stealth}-{Stealth},thick,draftblue] (7.85,2.2) -- (8.95,2.2);
+\draw[{Stealth}-{Stealth},thick,draftblue] (4.3,-0.3) -- (4.9,-0.3); \node[lab,anchor=west] at (5.0,-0.3) {32\,B/cycle interface per core};
+\end{tikzpicture}
+\caption{Top view of how the L3D connects to the CCD, redrawn from AMD's descriptions \cite[slides~10--11, 19--21, 25]{wuu2022vcache}. Two columns of signal TSVs run along the CCD's central L3, and matching interface columns on the L3D lie directly above them. Each core reaches the L3 over a 32\,B/cycle interface. Positions and sizes are schematic; the L3D outline is drawn only approximately over the L3 region.}
+\label{fig:vcache-floorplan}
+\end{figure}

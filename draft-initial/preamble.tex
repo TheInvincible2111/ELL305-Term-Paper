@@ -1,0 +1,30 @@
+% Draft-specific packages and working-draft markers for draft-initial.
+\usepackage{placeins}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,shapes.geometric,decorations.pathreplacing,patterns}
+\input{"../draft-initial/glossary.tex"}
+
+\hypersetup{pdftitle={ELL305 Term Paper - draft-initial (working draft)}}
+
+% Article class has no chapters: Parts are \part, chapters are \section.
+\titleformat{\part}[display]
+  {\centering\color{draftblue}\Huge\bfseries}{Part \thepart}{0.6em}{}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+% Working-draft markers. Every marker must be resolved or removed before
+% this material is used in any submitted milestone.
+\definecolor{todored}{HTML}{B0222B}
+\definecolor{verifyamber}{HTML}{8A5A00}
+\newcommand{\todo}[1]{{\color{todored}\textbf{[TODO:} #1\textbf{]}}}
+\newcommand{\verify}[1]{{\color{verifyamber}\textbf{[VERIFY:} #1\textbf{]}}}
+\newcommand{\partbudget}[2]{%
+  \begin{center}\small\itshape\color{draftgray}
+  Target length: about #1 pages. Draft status: #2.
+  \end{center}}
+\newcommand{\plannedcontent}[1]{%
+  \par\noindent\fcolorbox{draftgray}{white}{%
+    \begin{minipage}{0.96\textwidth}\small
+    \textbf{Planned content (not yet written).} #1
+    \end{minipage}}\par}

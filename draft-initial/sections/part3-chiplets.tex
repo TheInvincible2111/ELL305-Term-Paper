@@ -1,0 +1,94 @@
+% Part III -- Chiplet-based processor architecture (target: about 25 pages)
+\clearpage
+\part{Chiplet-Based Processor Architecture}
+\label{part:chiplets}
+\partbudget{25}{yield model, CCD/IOD partitioning and IFOP characteristics drafted from AMD sources; cost modelling and scalability analysis pending}
+
+\section{Why Large Monolithic Dies Become Costly}
+\label{sec:monolithic-limits}
+
+\subsection{The reticle limit and die size}
+A single die cannot be larger than the area a lithography tool can expose in one field. AMD's Hot Chips~33 presentation plots server CPU and GPU die sizes growing towards this reticle limit over roughly the last fifteen years \cite{swaminathanAdvancedPackagingEnabling2021}. For its second-generation EPYC (``Rome'') processor, AMD states that the 64-core top configuration would not be practical as a monolithic chip and would lie well beyond the maximum reticle size \cite{naffziger2020chiplet}.\index{reticle limit}
+
+\subsection{Manufacturing yield}
+\label{sec:yield-cost}
+
+Manufacturing defects are scattered across a wafer, so a larger die is more likely to contain one. The simplest model assumes that defects fall independently with a fixed average density $D_0$, which gives a Poisson yield $e^{-AD_0}$ for a die of area $A$. Real defect densities vary across a wafer and from wafer to wafer, and the Poisson model ignores this. This paper therefore uses the yield model adopted in the 3D-IC cost analysis of Dong and Xie \cite[Eq.~15]{dongSystemlevelCostAnalysis2009}:
+\begin{equation}
+  Y_{\mathrm{die}} = Y_{\mathrm{wafer}} \cdot \frac{1 - e^{-2 A D_0}}{2 A D_0},
+  \label{eq:yield}
+\end{equation}
+where $A$ is the die area, $D_0$ the average \gls{defect-density} and $Y_{\mathrm{wafer}}$ the wafer yield. This is one of the yield functions derived by Murphy, who averaged the Poisson yield over a defect density that varies from chip to chip; this form assumes the density is spread uniformly between $0$ and $2D_0$ \cite[Eq.~11]{murphyCostsizeOptimaMonolithic1964}. \Cref{app:yield-cost} derives it and compares it with Murphy's preferred intermediate model.\index{yield}\index{Murphy yield model}
+
+\Cref{tab:yield-example} gives an illustrative calculation with $D_0 = 0.2$ defects/cm$^2$ and $Y_{\mathrm{wafer}} = 1$. It is a model result, not a measured processor result.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Illustrative Murphy-model yield for $D_0 = 0.2$ defects/cm$^2$ and $Y_{\mathrm{wafer}} = 1$}
+  \label{tab:yield-example}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Die area} & \textbf{$2 A D_0$} & \textbf{Modelled yield $Y_{\mathrm{die}}$} \\
+    \midrule
+    100 mm$^2$ (1 cm$^2$) & 0.4 & 82.4\% \\
+    200 mm$^2$ (2 cm$^2$) & 0.8 & 68.8\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Doubling the die area lowers the modelled yield from about 82.4\% to 68.8\% (\cref{fig:yield-curve}). Cost per good die rises faster than area for two reasons: fewer dies fit on each wafer, and a smaller fraction of them work. The exact increase depends on wafer cost, process node, defect distribution and test cost; \cref{app:yield-cost} derives the cost-per-good-die expression and shows why partitioning a design into smaller dies can lower the silicon cost even after paying for extra interface area.
+
+\input{"../draft-initial/figures/yield-curve.tex"}
+
+AMD's own material makes the same qualitative point. Its Zen~2 presentation lists ``small die improve yield'' among the motivations for the chiplet strategy \cite{suggs2019zen2}, and its Hot Chips~33 presentation shows normalised cost per yielded square millimetre rising at each newer process node \cite{swaminathanAdvancedPackagingEnabling2021}.
+
+\subsection{Uneven scaling of logic, SRAM and analog circuits}
+\label{sec:uneven-scaling}
+Moving a design to a newer node does not shrink every circuit equally. Naffziger \emph{et al.} state that shrink factors at advanced nodes are much lower for analog circuitry than for digital logic and SRAM, and that memory interfaces and SerDes therefore gain very little performance, power or area from moving from 12\,nm to 7\,nm \cite{naffziger2020chiplet}. Building those circuits on the expensive leading-edge node wastes its cost. This observation is the basis of process-node specialisation (\cref{sec:process-specialisation}). The related, more recent observation that SRAM is falling behind logic is taken up in \cref{sec:why-cache-capacity}.
+
+\section{Compute Dies, I/O Dies and Core Complexes}
+\label{sec:ccd-iod}
+
+\input{"../draft-initial/figures/monolithic-vs-chiplet.tex"}
+
+AMD's Zen~2 products (``Rome'' for servers and ``Matisse'' for desktops) are built from three kinds of die \cite{naffziger2020chiplet,suggs2019zen2}:
+\begin{itemize}
+  \item an eight-core \gls{ccd} of about 74\,mm$^2$ on a 7\,nm process, containing the cores and their L3 cache;
+  \item a server \gls{iod} of about 416\,mm$^2$ on a 12\,nm process;
+  \item a smaller client IOD of about 125\,mm$^2$, which in a standalone package also serves as the X570 chipset.
+\end{itemize}
+The same CCD is reused across server and desktop products; only the IOD and the number of populated CCDs change \cite{naffziger2020chiplet}. Within each Zen~2 CCD, the cores are grouped into two four-core \glspl{ccx}, each with up to 16\,MB of L3 \cite{suggs2019zen2}.
+
+The partition places latency-critical, logic-dense circuits---cores and caches---on the newest node, and places memory controllers, PCIe and other I/O, which scale poorly, on a cheaper mature node (\cref{fig:monolithic-vs-chiplet}).
+
+\plannedcontent{Expand with the Rome and Matisse package organisation (CCD count, IOD placement) from \cite{naffziger2020chiplet} Figs.~2.2.1--2.2.4, and compare with first-generation EPYC (``Naples''), whose four dies each carried their own memory and I/O. Avoid reverse-engineering undisclosed details.}
+
+\section{Infinity Fabric and Die-to-Die Communication}
+\label{sec:d2d}
+
+Splitting a processor into dies turns some on-chip wires into package-level links. AMD connects each CCD to the IOD with an \gls{ifop} serial link routed over 10--20\,mm of organic package \cite{naffziger2020chiplet}. AMD reports, for Rome \cite{naffziger2020chiplet}:\index{Infinity Fabric}
+\begin{itemize}
+  \item about 55\,GB/s of effective bandwidth per IFOP link at a 1.46\,GHz fabric clock;
+  \item a round-trip latency from CCD to IOD and back of 13 fabric clocks, under 9\,ns;
+  \item longer reach than a 2.5D silicon interposer, which allowed two-deep columns of chiplets and hence eight CCDs in one package;
+  \item a 19\% average reduction in memory latency for the socket compared with the previous generation, attributed to the central IOD, decoupled clocks and the latency-optimised link.
+\end{itemize}
+The predecessor ``Zeppelin'' link achieved about 2\,pJ/bit \cite{naffziger2020chiplet}. These are AMD-reported figures for specific configurations and are not independent measurements.
+
+\subsection{Latency, bandwidth and interconnect power}
+\plannedcontent{Interpret the figures above with the textbook models: a die-to-die hop adds latency to every L3 miss that goes to memory (raising $\mathrm{penalty}_{\mathrm{LLC}}$ in \cref{eq:amat}); link energy per bit multiplies into interconnect power (\cref{eq:pdyn}); per-link bandwidth caps the memory bandwidth available to one CCD. Discuss cross-CCD coherence traffic and NUMA effects, using \cite{amd2022epyc7003} for the Zen~3 EPYC NUMA options. About five pages.}
+
+\subsection{Scalability}
+\plannedcontent{How the number of CCDs, IOD links and memory channels scale together; diminishing returns and bandwidth balance (AMD notes that four or more CCDs are populated in most Rome configurations to balance bandwidth \cite{naffziger2020chiplet}). About three pages.}
+
+\section{Yield, Process-Node Specialisation and Cost}
+\label{sec:process-specialisation}
+
+Chiplets combine two cost advantages. First, small dies yield better (\cref{sec:yield-cost}). Second, each die can use the process that suits it: AMD keeps memory interfaces and SerDes on 12\,nm because they would see little benefit at 7\,nm \cite{naffziger2020chiplet}. AMD also tests every CCD before assembly and can down-bin a CCD damaged during assembly, placing it in a known low-power state \cite{naffziger2020chiplet}, which limits the cost of combining several dies in one package.
+
+These benefits are not free. AMD describes the design as requiring package--silicon co-design, new interconnect circuits, a mixed-process package (with copper pillars on the 12\,nm IOD to match die heights), and new test and power-management infrastructure \cite{naffziger2020chiplet}.
+
+\plannedcontent{Quantitative cost comparison of monolithic and chiplet designs using the model in \cref{app:yield-cost} and the 3D-IC cost model of Dong and Xie, including their result that splitting pays off only above a size threshold and their die-to-wafer versus wafer-to-wafer comparison \cite{dongSystemlevelCostAnalysis2009}; discussion of packaging and test cost.}
+
+\section{Summary of Part III}
+\plannedcontent{Apply the three-part test: \emph{bottleneck addressed} (die size, yield, uneven scaling); \emph{benefit} (core-count scaling, reuse across markets, cost); \emph{new trade-offs} (die-to-die latency and power, packaging complexity, NUMA-like behaviour). Close by noting that each CCD still carries its own planar L3, which motivates Part~\ref{part:stacked-cache}.}

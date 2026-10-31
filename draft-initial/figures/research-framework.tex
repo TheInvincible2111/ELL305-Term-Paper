@@ -1,0 +1,24 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw=draftblue,fill=draftlight,rounded corners=2pt,align=center,text width=4.3cm,minimum height=1.1cm,font=\small},
+  hdr/.style={box,fill=draftblue,text=white,font=\small\bfseries},
+  arr/.style={-{Stealth[length=2.2mm]},draftblue,thick},
+  node distance=0.55cm and 0.9cm]
+\node[hdr,text width=10.2cm] (top) {Limits of monolithic scaling: die size, yield, uneven circuit scaling, power and temperature};
+\node[box,below left=0.8cm and -2.6cm of top] (p1) {\textbf{Problem 1}\\Scaling compute and I/O resources beyond one die};
+\node[box,below right=0.8cm and -2.6cm of top] (p2) {\textbf{Problem 2}\\Scaling cache capacity without spending planar die area};
+\node[hdr,below=of p1] (s1) {Chiplet organisation\\(CCD + IOD, Zen 2 onwards)};
+\node[hdr,below=of p2] (s2) {3D-stacked cache\\(3D V-Cache, Zen 3 onwards)};
+\node[box,below=of s1] (t1) {New costs: die-to-die latency, interconnect power, packaging complexity};
+\node[box,below=of s2] (t2) {New costs: heat removal, bonding and test complexity, product cost};
+\node[box,below=1.0cm of $(t1.south)!0.5!(t2.south)$,text width=10.2cm] (q) {Evaluation for each technique: bottleneck addressed $\rightarrow$ benefit $\rightarrow$ new trade-off, judged per workload and metric};
+\draw[arr] (top) -- (p1); \draw[arr] (top) -- (p2);
+\draw[arr] (p1) -- (s1); \draw[arr] (p2) -- (s2);
+\draw[arr] (s1) -- (t1); \draw[arr] (s2) -- (t2);
+\draw[arr] (t1) -- (q); \draw[arr] (t2) -- (q);
+\draw[arr,dashed] (s1) -- node[above,font=\scriptsize,text=draftgray]{CCD hosts the stack} (s2);
+\end{tikzpicture}
+\caption{Research framework: two linked scaling problems, the AMD responses studied in this paper, and the evaluation question applied to each.}
+\label{fig:research-framework}
+\end{figure}

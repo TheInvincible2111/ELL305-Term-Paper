@@ -1,0 +1,39 @@
+\clearpage
+\section{Yield and Cost-per-Good-Die Model}
+\label{app:yield-cost}
+\index{yield}
+
+This appendix derives the illustrative cost model used in \cref{sec:yield-cost}. It is a textbook-style model for reasoning about trends, not a model of any real AMD product or foundry process. The yield expressions follow Murphy \cite{murphyCostsizeOptimaMonolithic1964} and Dong and Xie \cite{dongSystemlevelCostAnalysis2009}; the numerical examples are this paper's own.
+
+\subsection{From Poisson to Murphy yield}
+If yield-killing defects fall independently and uniformly with a \emph{fixed} density $D$ per unit area, the number of defects on a die of area $A$ is Poisson-distributed with mean $AD$. A die is good only if it has no defects, so its yield is
+\begin{equation*}
+  Y_{\mathrm{Poisson}}(A, D) = e^{-AD}.
+\end{equation*}
+In practice the defect density is not fixed: it varies from chip to chip and from slice to slice. Murphy therefore averaged the Poisson yield over a normalised distribution $f(D)$ of defect densities, $Y = \int_0^\infty e^{-DA} f(D)\,dD$, and solved it for three simplified distributions \cite[Eqs.~7--11]{murphyCostsizeOptimaMonolithic1964}. If $D$ is spread uniformly (a ``rectangular'' distribution) between $0$ and $2D_0$, so that its mean is $D_0$, then
+\begin{equation*}
+  Y_{\mathrm{Murphy}}(A) = \frac{1}{2D_0}\int_{0}^{2D_0} e^{-AD}\,dD = \frac{1 - e^{-2AD_0}}{2AD_0}.
+\end{equation*}
+This is Murphy's Eq.~11, and multiplying it by the fraction of wafers that survive processing, $Y_{\mathrm{wafer}}$, gives the expression Dong and Xie use (their Eq.~15), which is \cref{eq:yield}.
+
+Murphy also considered a narrower, ``triangular'' distribution, which gives
+\begin{equation*}
+  Y_{\mathrm{triangular}}(A) = \left(\frac{1 - e^{-AD_0}}{AD_0}\right)^{2}.
+\end{equation*}
+He regarded the zero-width (Poisson) and rectangular cases as extremes that are ``almost certainly inappropriate'' and used the triangular form for most of his results, while noting that the three forms differ little at high yields \cite[p.~1539]{murphyCostsizeOptimaMonolithic1964}. This paper keeps the rectangular form because it is the one used in the 3D-IC cost model of Dong and Xie; at the yields in the worked example the choice changes the result by less than one percentage point. Because the averaged expression is never smaller than $e^{-AD_0}$ for the same mean density, Murphy's model is less pessimistic than the Poisson model for large dies.
+
+With $D_0 = 0.2$\,cm$^{-2}$ and $Y_{\mathrm{wafer}} = 1$: for $A = 1$\,cm$^2$, $Y = (1-e^{-0.4})/0.4 \approx 0.824$; for $A = 2$\,cm$^2$, $Y = (1-e^{-0.8})/0.8 \approx 0.688$. For comparison, the triangular model gives 0.821 and 0.679, and the Poisson model 0.819 and 0.670.
+
+\subsection{Cost per good die}
+Let $C_w$ be the cost of a processed wafer and $N(A)$ the number of whole dies of area $A$ that fit on it. Ignoring edge losses, $N(A) \approx W/A$ for usable wafer area $W$. Dong and Xie use a more exact dies-per-wafer expression that also counts the partial dies lost at the wafer edge \cite{dongSystemlevelCostAnalysis2009}. The cost per good die is
+\begin{equation*}
+  C_{\text{good}}(A) = \frac{C_w}{N(A)\, Y(A)} \approx \frac{C_w}{W}\cdot\frac{A}{Y(A)}.
+\end{equation*}
+Doubling the area therefore multiplies the cost per good die by approximately $2\,Y(A)/Y(2A)$. In the example above (from 1 to 2\,cm$^2$ with $D_0=0.2$\,cm$^{-2}$), the factor is $2 \times 0.824/0.688 \approx 2.40$: the larger die costs about 2.4 times as much, not twice as much.
+
+\subsection{Splitting a design into chiplets}
+Suppose a design of area $A$ is split into $k$ chiplets of area $A/k$, each with an additional interface overhead $\delta$. If each chiplet is tested before assembly, so that only known-good dies are packaged, the silicon cost of the assembled part is approximately
+\begin{equation*}
+  k \cdot C_{\text{good}}\!\left(\tfrac{A}{k} + \delta\right) \approx \frac{C_w}{W}\cdot\frac{A + k\delta}{Y\!\left(\tfrac{A}{k} + \delta\right)}.
+\end{equation*}
+Smaller chiplets yield better, so the denominator grows with $k$, while the overhead term $k\delta$ in the numerator also grows. As an illustration with $D_0 = 0.2$\,cm$^{-2}$, a 4\,cm$^2$ design split into four chiplets of 1\,cm$^2$ plus a 0.05\,cm$^2$ interface each costs about $(4.2/0.817)/(4/0.499) \approx 0.64$ of the monolithic silicon, a saving of roughly 36\%. The saving grows for larger designs and higher defect densities. Dong and Xie reach the same qualitative conclusion for die stacking: it becomes cheaper than a single planar die only above a size threshold, and testing each die before stacking (die-to-wafer bonding) avoids multiplying together the yields of all dies in the stack \cite{dongSystemlevelCostAnalysis2009}. The model omits packaging, assembly yield, test cost and the use of different process nodes for different chiplets, all of which \cref{sec:process-specialisation} discusses qualitatively.

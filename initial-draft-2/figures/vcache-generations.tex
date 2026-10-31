@@ -1,0 +1,70 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  lay/.style={font=\scriptsize,align=center},
+  hp/.style={-{Stealth[length=2mm]},orange!80!black,thick},
+  ttl/.style={font=\small\bfseries,anchor=south}]
+% ---------- common pieces ----------
+\newcommand{\base}[1]{%
+  \filldraw[fill=draftgray!22,draw=draftgray] (#1-0.15,0) rectangle (#1+6.65,0.5);
+  \node[lay] at (#1+3.25,0.25) {package substrate};
+  \foreach \x in {0.35,0.95,...,6.2}{\fill[draftgray] (#1+\x,0.64) circle (0.11);}
+  \fill[draftgray!14] (#1-0.15,4.05) rectangle (#1+6.65,4.5);
+  \node[lay,text=draftgray] at (#1+3.25,4.27) {heat spreader};}
+% ================= (a) first generation =================
+\begin{scope}
+\base{0}
+% CCD (thinned, face-down)
+\filldraw[fill=draftlight!55,draw=draftblue,thick] (0,0.78) rectangle (6.5,1.75);
+\draw[draftblue!55] (2.0,0.78) -- (2.0,1.75) (4.5,0.78) -- (4.5,1.75);
+\node[lay] at (1.0,1.27) {cores\\+ L2};
+\node[lay] at (5.5,1.27) {cores\\+ L2};
+\node[lay] at (3.25,1.05) {L3, 32\,MB};
+\foreach \x in {2.3,2.6,...,4.3}{\draw[draftblue,line width=0.7pt] (\x,1.3) -- (\x,1.75);}
+% bond line
+\draw[draftblue!60!black,line width=2pt] (2.0,1.78) -- (4.5,1.78);
+% upper tier
+\filldraw[fill=draftlight,draw=draftblue] (0,1.81) rectangle (1.95,3.0);
+\filldraw[fill=draftlight,draw=draftblue] (4.55,1.81) rectangle (6.5,3.0);
+\fill[pattern=north east lines,pattern color=draftblue!30] (2.0,1.81) rectangle (4.5,3.0);
+\draw[draftblue,thick] (2.0,1.81) rectangle (4.5,3.0);
+\foreach \x in {0.35,1.6,4.9,6.15}{\draw[hp] (\x,1.5) -- (\x,3.95);}
+\node[lay] at (0.97,2.4) {structural\\silicon};
+\node[lay] at (5.52,2.4) {structural\\silicon};
+\node[lay,fill=white,inner sep=1.5pt] at (3.25,2.4) {64\,MB\\cache die};
+% heat path from cores
+\node[ttl] at (3.25,4.6) {(a) Cache die on top (Zen~3, Zen~4)};
+\end{scope}
+% ================= (b) inverted stack =================
+\begin{scope}[xshift=7.6cm]
+\base{0}
+% cache die at bottom, with TSVs
+\fill[pattern=north east lines,pattern color=draftblue!30] (0,0.78) rectangle (6.5,1.6);
+\draw[draftblue,thick] (0,0.78) rectangle (6.5,1.6);
+\node[lay,fill=white,inner sep=1.5pt] at (3.25,1.19) {64\,MB cache die};
+\foreach \x in {0.55,1.0,1.45,1.9,4.6,5.05,5.5,5.95}{\draw[draftblue,line width=0.7pt] (\x,0.78) -- (\x,1.6);}
+% bond line
+\draw[draftblue!60!black,line width=2pt] (0,1.63) -- (6.5,1.63);
+% CCD on top
+\filldraw[fill=draftlight!55,draw=draftblue,thick] (0,1.66) rectangle (6.5,2.55);
+\draw[draftblue!55] (2.0,1.66) -- (2.0,2.55) (4.5,1.66) -- (4.5,2.55);
+\node[lay] at (3.25,2.1) {L3, 32\,MB};
+% structural silicon
+\filldraw[fill=draftlight,draw=draftblue] (0,2.6) rectangle (6.5,3.55);
+\foreach \x in {0.35,1.6,4.9,6.15}{\draw[hp] (\x,2.2) -- (\x,3.95);}
+\node[lay] at (3.25,3.07) {structural silicon};
+\node[lay] at (1.0,2.1) {cores\\+ L2};
+\node[lay] at (5.5,2.1) {cores\\+ L2};
+\node[ttl] at (3.25,4.6) {(b) Cache die below (Zen~5)};
+\end{scope}
+% ---------- legend ----------
+\begin{scope}[yshift=-0.55cm]
+\draw[draftblue!60!black,line width=2pt] (0.2,0) -- (0.8,0); \node[lay,anchor=west] at (0.9,0) {hybrid bond (face-to-back)};
+\foreach \x in {4.2,4.4,4.6}{\draw[draftblue,line width=0.7pt] (\x,-0.15) -- (\x,0.15);} \node[lay,anchor=west] at (4.8,0) {through-silicon vias};
+\draw[hp] (8.1,-0.15) -- (8.1,0.15); \node[lay,anchor=west] at (8.3,0) {heat path from the cores};
+\fill[draftgray] (11.6,0) circle (0.11); \node[lay,anchor=west] at (11.8,0) {C4 bumps};
+\end{scope}
+\end{tikzpicture}
+\caption{The two stack arrangements of 3D V-Cache, drawn from AMD's comparison \cite[slide~7]{lambertHeterogenousIntegrationHigh2025} and descriptions \cite{wuu2022vcache,alam2ndGeneration3D2024,cozmaAMDs9800X3D2nd2024}. In (a) the cache die sits over the CCD's central L3 and the cores lie under structural silicon dies; in (b) the cache die, now the full width of the CCD, carries the through-silicon vias and the cores sit directly beneath a single structural layer. Schematic; not to scale.}
+\label{fig:vcache-generations}
+\end{figure}

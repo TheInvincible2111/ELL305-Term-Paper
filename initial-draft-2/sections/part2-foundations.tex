@@ -1,0 +1,345 @@
+% Part II -- Architectural foundations (target: about 25 pages)
+% Textbook mapping: Sarangi, Basic Computer Architecture, Chapters 9--12.
+\clearpage
+\part{Architectural Foundations}
+\label{part:foundations}
+\partbudget{25}{all sections drafted from Sarangi Ch.~9--12; expand worked examples and figures}
+
+This part sets out the models that the rest of the paper uses to judge chiplets and stacked cache. It follows Chapters 9--12 of the course textbook \cite{sarangi2025basic}. The textbook supplies the theory; it does not describe modern compute-die/I/O-die partitioning or stacked cache, which later parts support with external sources.
+
+\section{Processor Organisation and Performance Metrics}
+\label{sec:perf-metrics}
+
+\subsection{The performance equation}
+
+The textbook defines the performance of a processor only with respect to a given program, as the reciprocal of its execution time \cite[sec.~10.9.1]{sarangi2025basic}. Execution time $\tau$ can be split into three factors:
+\begin{equation}
+  \tau \;=\; \frac{\#\text{instructions} \times \mathrm{CPI}}{f},
+  \qquad
+  P \;\propto\; \frac{\mathrm{IPC} \times f}{\#\text{instructions}},
+  \label{eq:perf}
+\end{equation}
+where $f$ is the clock frequency, \gls{cpi} is the average number of cycles per dynamic instruction, and \gls{ipc} is its reciprocal \cite[sec.~10.9.1]{sarangi2025basic}.\index{performance equation}
+
+\Cref{eq:perf} is the lens for the whole paper. A larger cache does not change the instruction count or, directly, the clock frequency; it acts through IPC by reducing the cycles spent waiting for memory. A chiplet organisation, by contrast, can change all three: it can enable more cores (more throughput), alter memory latency (IPC), and change the frequency and power each die can sustain. When published results compare two processors, they must therefore be checked for differences in $f$ as well as in cache size (\cref{sec:confounds}).
+
+\subsection{Baseline processor organisation}
+The textbook builds its baseline processor, SimpleRisc, from five stages: instruction fetch (IF), operand fetch (OF), execute (EX), memory access (MA) and register writeback (RW) \cite[sec.~9.9.1]{sarangi2025basic}. The \emph{data path} holds and processes information (registers, memory elements, the ALU), while the \emph{control path} generates the signals that move instructions and data through it; the control path can be a hardwired control unit or a microprogrammed one, which trades speed for flexibility \cite[secs.~9.2--9.8]{sarangi2025basic}.
+
+Two features of this baseline matter for the rest of the paper. First, the MA stage is the processor's only contact with memory: every load and store passes through it, so the speed of the memory system directly sets how long that stage can take. Second, the organisation assumes a single processor on a single piece of silicon. Everything that follows, from pipelining to multicore processors and finally to chiplets, can be read as a series of departures from this baseline, each made to use a larger transistor budget without lengthening the clock cycle or exceeding the power budget.
+
+\section{Pipelining, Power and Thermal Limits}
+\label{sec:pipelining-power}
+
+\subsection{Pipelining and its limits}
+In the basic processor, most of the hardware is idle at any moment: when an instruction is in the MA stage, the IF stage has nothing to do. Pipelining overlaps instructions so that each of the five stages works on a different instruction in the same cycle, with pipeline registers between stages carrying each instruction's state forward \cite[sec.~10.12.1]{sarangi2025basic}. Ideally this completes one instruction per cycle while allowing the clock frequency to rise roughly in proportion to the number of stages.
+
+The ideal is broken by \emph{hazards}. A data (read-after-write) hazard occurs when an instruction needs a value that an earlier instruction has not yet produced; a control hazard occurs because the outcome of a branch is not known when the following instructions are fetched; a structural hazard occurs when two instructions need the same hardware unit \cite[sec.~10.4]{sarangi2025basic}. Interlocks resolve hazards by stalling, and forwarding passes results directly between stages, which removes every data hazard except the load-use hazard \cite[sec.~10.12.1]{sarangi2025basic}. The effect on performance is captured by
+\begin{equation}
+  \mathrm{CPI} = \mathrm{CPI}_{\mathrm{ideal}} + \text{stall rate} \times \text{stall penalty},
+  \label{eq:cpi-stalls}
+\end{equation}
+so that, for example, if 10\% of instructions suffer a one-cycle load-use stall and 20\% are taken branches costing two cycles each, the CPI rises from 1 to 1.5 \cite[sec.~10.9.3, Example~140]{sarangi2025basic}. Deeper pipelines raise the frequency but also the stall penalty, which is why the textbook derives an optimal pipeline depth rather than an unlimited one \cite[sec.~10.9.3]{sarangi2025basic}.
+
+\subsubsection*{Worked example: how deep should a pipeline be?}
+The textbook models a pipeline of $k$ stages whose total logic delay $t_{\max}$ is divided equally among the stages, each stage adding a latch delay $l$, and whose stall penalty grows in proportion to depth, $ck$, for a stall rate of $r$ stalls per instruction. Maximising performance over $k$ gives
+\begin{equation}
+  k_{\mathrm{opt}} \;\approx\; \sqrt{\frac{t_{\max}}{l\,r\,c}}
+  \label{eq:pipeline-depth}
+\end{equation}
+\cite[sec.~10.9.3]{sarangi2025basic}. With $t_{\max}/l = 20$, $r = 0.2$ and $c = 0.6$, $k_{\mathrm{opt}} = \sqrt{20/0.12} \approx 13$ stages \cite[sec.~10.9.3, Example~142]{sarangi2025basic}. The textbook draws three conclusions: programs with many dependencies favour shallower pipelines; better forwarding, which lowers $c$, favours deeper ones; and because logic and latches have been getting faster at about the same rate, the optimal depth has changed little over time \cite[sec.~10.9.3]{sarangi2025basic}. The same reasoning explains why designers stopped raising clock frequency by deepening pipelines (\cref{sec:intro}), and why a design that reduces the stall rate, such as a larger cache that removes memory stalls, is a more durable source of performance than a higher clock.
+
+\Cref{eq:cpi-stalls} is the link between pipelining and the memory hierarchy. A load that misses in the cache is a stall whose penalty is not one or two cycles but the miss penalty of \cref{eq:amat}, which can be tens or hundreds of cycles. Out-of-order processors soften this: they fetch and decode in order, rename registers to remove false dependencies, and issue any instruction whose operands are ready from an instruction window that typically holds 64--128 entries \cite[sec.~10.11.4]{sarangi2025basic}. Independent work can therefore proceed while a load waits. But the window is finite, so a long miss to main memory eventually fills it and stalls the pipeline. Reducing the number of such misses, which is what a larger last-level cache does, therefore still matters even for aggressive out-of-order cores.
+
+\subsection{Dynamic and leakage power}
+\label{sec:power}
+
+The textbook models dynamic power, the energy dissipated when circuit nodes switch, as
+\begin{equation}
+  P_{\mathrm{dyn}} \;\propto\; \sum_{i} \alpha_i\, C_i\, V^2 f,
+  \label{eq:pdyn}
+\end{equation}
+where $\alpha_i$ is the activity factor and $C_i$ the capacitance of node $i$, $V$ the supply voltage and $f$ the frequency \cite[sec.~10.10.2]{sarangi2025basic}. Leakage (static) power arises because transistors do not switch off perfectly; it is consumed all the time regardless of activity, and the textbook notes that it can account for roughly 20--40\% of a high-performance processor's power budget \cite[sec.~10.10.3]{sarangi2025basic}.\index{leakage power}\index{dynamic power}
+
+Both terms matter for this paper:
+\begin{itemize}
+  \item \textbf{Wires are capacitance.} Long on-die or die-to-die wires increase $C$ in \cref{eq:pdyn}, so moving data farther costs energy as well as time. This is one reason the distance between cores and cache matters (\cref{sec:planar-limits}).
+  \item \textbf{Large SRAM arrays leak.} A large cache adds leakage even when most of it is idle, which is part of the cost of simply growing the LLC on a planar die.
+\end{itemize}
+
+\subsection{Temperature}
+Power that is dissipated becomes heat, which must flow from the transistors through the die, a thermal interface material and a heat spreader to the cooler \cite[sec.~10.10.1]{sarangi2025basic} (\cref{fig:package-thermal}). The textbook gives a sense of the scale: a 200--400\,mm$^2$ die dissipating 60--100\,W would heat up to around 200\,\textdegree C without these measures, and even with them processors run at 60--100\,\textdegree C, reaching 120\,\textdegree C under heavy load \cite[sec.~10.10.1]{sarangi2025basic}.
+
+\input{"../initial-draft-2/figures/package-thermal.tex"}
+ Higher temperature raises leakage, which raises power further, and accelerates ageing \cite[sec.~10.10.1]{sarangi2025basic}. Stacking a die on top of a compute die changes this heat path, which is the main thermal question raised in \cref{sec:thermal}.
+
+Heat is not produced evenly. The textbook notes that the ALUs dissipate a lot of heat while memory elements stay relatively cool, and that the heat spreader exists to even out the resulting hot spots \cite[sec.~10.10.1]{sarangi2025basic}. It models the steady-state temperature by dividing the die into a grid of $m$ points:
+\begin{equation}
+  T - T_{\mathrm{amb}} \;=\; \Delta T \;=\; A \times P_{\mathrm{tot}},
+  \label{eq:thermal}
+\end{equation}
+where $P_{\mathrm{tot}}$ is the vector of power dissipated at each grid point, $T_{\mathrm{amb}}$ the ambient temperature and $A$ the $m\times m$ \emph{thermal resistance matrix} \cite[sec.~10.10.4]{sarangi2025basic}.\index{thermal resistance} Because $P_{\mathrm{tot}} = P_{\mathrm{dyn}} + P_{\mathrm{leak}}$ and leakage itself grows with temperature, \cref{eq:thermal} and the leakage model form a feedback loop that must be iterated until it converges \cite[sec.~10.10.4]{sarangi2025basic}. Two consequences follow for stacking. Placing an extra layer over a hot region increases the entries of $A$ for that region, so the same power produces a higher temperature; and a cool structure such as a cache array is the cheaper thing to put in the heat path. 3D V-Cache follows both rules: its cache die sits over the CCD's L3, and only structural silicon covers the cores (\cref{sec:thermal}).
+
+\subsection{Combining energy and delay: the \texorpdfstring{ED$^2$}{ED2} metric}
+\label{sec:ed2}
+A design that is faster but uses more energy is not necessarily better. To compare two designs fairly, the textbook equalises their delays by voltage--frequency scaling, assuming delay $D \propto 1/f$, $f \propto V$ and energy $E \propto V^2$; under these assumptions the product $ED^2$ is independent of the voltage and frequency setting and depends only on the design itself \cite[sec.~10.10.5]{sarangi2025basic}.\index{ED$^2$ metric} A design with lower $ED^2$ is therefore better at any operating point, and the textbook observes that many performance-enhancing schemes fail this test because they increase energy disproportionately \cite[sec.~10.10.5]{sarangi2025basic}. The metric is a useful lens for 3D V-Cache, which raises the power budget and lowers the clock of some products (\cref{sec:thermal-evidence}) while reducing the time and energy spent on off-chip memory accesses; whether it lowers $ED^2$ therefore depends on the workload.
+
+\section{The Memory Hierarchy}
+\label{sec:memory-hierarchy}
+
+\subsection{Why a hierarchy is needed}
+
+The textbook frames memory design as a conflict between capacity and speed. Per unit of silicon, DRAM stores far more data than SRAM but is much slower; a memory built entirely of DRAM would make every load and store wait for main memory, while a memory built entirely of fast on-chip SRAM cannot hold a program's data \cite[sec.~11.1.1]{sarangi2025basic}. As an illustration, if one third of instructions access a 100-cycle memory, the effective CPI of an otherwise ideal pipeline rises to $1 + \tfrac{1}{3}(100-1) = 34$ \cite[sec.~11.1.1]{sarangi2025basic}.\index{memory hierarchy}
+
+The way out is \emph{locality}: programs tend to reuse recently used data (temporal locality) and to access data near recently used data (spatial locality) \cite[sec.~11.1.2--11.1.6]{sarangi2025basic}. A \gls{memory-hierarchy} keeps recently used blocks in small, fast caches close to the core and backs them with progressively larger, slower levels (\cref{fig:memory-hierarchy-amat}).
+
+\input{"../initial-draft-2/figures/memory-hierarchy-amat.tex"}
+
+\subsection{SRAM and DRAM arrays}
+\label{sec:sram}
+Caches are built from SRAM. A standard SRAM cell uses six transistors: two cross-coupled inverters hold the bit, and two access transistors, switched by a shared \emph{word line}, connect it to a pair of complementary \emph{bit lines} \cite[sec.~7.4.1]{sarangi2025basic}.\index{SRAM} Cells are laid out as a two-dimensional array: a decoder raises one word line, every cell in that row drives its bit lines, and a column multiplexer selects the bits of interest \cite[sec.~7.4.1]{sarangi2025basic}. Because hundreds of cells share a bit line, the bit line has a high capacitance and would be slow to charge fully. Reads therefore pre-charge both bit lines to half the supply voltage and let \emph{sense amplifiers} detect a small voltage difference \cite[sec.~7.4.1]{sarangi2025basic}. The textbook also notes that as an array grows it must be kept roughly square, otherwise the capacitive load on its word lines or bit lines becomes prohibitive \cite[sec.~7.4.1]{sarangi2025basic}. Large caches are therefore built as many smaller arrays and banks (\cref{sec:multicore}), connected by wires whose length grows with total capacity. \Cref{fig:sram-array} shows the cell and the array.
+
+\input{"../initial-draft-2/figures/sram-array.tex"}
+
+
+Cell size sets the density gap between SRAM and DRAM. Using 2012-era figures, the textbook gives an SRAM cell an area of about 0.08\,\textmu m$^2$ and an array access time of 1--5 cycles, against about 0.005\,\textmu m$^2$ and 50--200 cycles for a DRAM cell \cite[sec.~11.1.1, Table~11.1]{sarangi2025basic}. SRAM is thus roughly sixteen times larger per bit but far faster, which is why it is used for on-chip caches and why a cache of tens of megabytes takes a large share of a die (\cref{sec:planar-limits}).
+
+\subsection{Average memory access time}
+\label{sec:amat}
+
+The average memory access time (\gls{amat}) of a hierarchy is defined recursively \cite[sec.~11.3.1]{sarangi2025basic}:\index{AMAT}
+\begin{equation}
+\begin{aligned}
+  \mathrm{AMAT} &= t_1 + m_1 \times \mathrm{penalty}_1,\\
+  \mathrm{penalty}_{k} &= t_{k+1} + m_{k+1} \times \mathrm{penalty}_{k+1},
+\end{aligned}
+\label{eq:amat}
+\end{equation}
+where $t_k$ is the hit time and $m_k$ the local miss rate of level $k$, and the penalty of the last cache level is the main-memory latency. The textbook's worked example uses an L1 with 10\% miss rate and 1-cycle latency, an L2 with 10\% miss rate and 10-cycle latency, and a 100-cycle memory, giving $T = 1 + 0.1(10 + 0.1\times100) = 3$ cycles against 100 cycles for a flat memory \cite[sec.~11.1.7, Example~147]{sarangi2025basic}.
+
+\subsubsection*{Worked example: AMAT on two real processors}
+\label{sec:amat-example}
+\Cref{eq:amat} can be evaluated with measured latencies. The FPS Review ran AIDA64's cache and memory benchmark on a Zen~2 Ryzen~7 3700X and a Zen~3 Ryzen~7 5800X with identical DDR4-3600 memory \cite{justiceAMDRyzen72021}; \cref{tab:amat-example} uses those latencies. The benchmark does not report miss rates, so the example assumes illustrative local miss rates of $m_1 = 5\%$ for L1, $m_2 = 30\%$ for L2 and $m_3 = 40\%$ for L3; real values vary widely between programs.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Worked example: AMAT from measured latencies \cite{justiceAMDRyzen72021} and assumed miss rates ($m_1=5\%$, $m_2=30\%$, $m_3=40\%$)}
+  \label{tab:amat-example}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X cccccc@{}}
+    \toprule
+    & $t_1$ & $t_2$ & $t_3$ & $t_{\mathrm{mem}}$ & \textbf{AMAT} & \textbf{L3 + mem.} \\
+    \midrule
+    Ryzen~7 3700X (Zen~2) & 0.9\,ns & 2.7\,ns & 9.9\,ns & 68.8\,ns & 1.60\,ns & 0.56\,ns \\
+    Ryzen~7 5800X (Zen~3) & 0.8\,ns & 2.5\,ns & 10.9\,ns & 61.8\,ns & 1.46\,ns & 0.53\,ns \\
+    5800X with $m_3 = 30\%$ and $t_3$ + 4 cycles & 0.8\,ns & 2.5\,ns & 11.7\,ns & 61.8\,ns & 1.38\,ns & 0.45\,ns \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+For the 5800X, $\mathrm{AMAT} = 0.8 + 0.05\,[\,2.5 + 0.3\,(10.9 + 0.4 \times 61.8)\,] \approx 1.46$\,ns. Three lessons follow. First, the L1 hit time dominates: 0.8 of the 1.46\,ns is paid on every access. Second, the L3 and memory terms are weighted by $m_1 m_2 = 1.5\%$, so even a 62\,ns memory latency adds only about half a nanosecond on average; that average, however, hides long stalls for the individual loads that miss, which an out-of-order core can only partly overlap. Third, the last row anticipates Part~\ref{part:stacked-cache}: if a larger L3 cut its local miss rate from 40\% to 30\% at a cost of four extra cycles (about 0.8\,ns at the 5800X's measured 4.85\,GHz), the L3-and-memory share would fall from 0.53 to 0.45\,ns and the AMAT by about 5\%. Whether that matters depends entirely on how often a program reaches the L3, which is why the benefit of a larger LLC is so workload-dependent.
+
+\Cref{eq:amat} shows precisely what a larger last-level cache can and cannot do:
+\begin{itemize}
+  \item it can lower $m_{\mathrm{LLC}}$, so fewer accesses pay the main-memory latency;
+  \item but if making the cache larger also lengthens its hit time $t_{\mathrm{LLC}}$, part of the gain is lost on every LLC hit.
+\end{itemize}
+The design problem for a large LLC is therefore to add capacity while keeping the added hit latency small. That is the problem 3D stacking attacks (Part~\ref{part:stacked-cache}).
+
+\subsection{Classifying cache misses}
+\label{sec:miss-classes}
+
+The textbook divides misses into three classes \cite[sec.~11.3.2]{sarangi2025basic}:\index{cache miss}
+\begin{itemize}
+  \item \textbf{Compulsory (cold) misses} occur the first time a block is accessed.
+  \item \textbf{Capacity misses} occur when the program's working set---the blocks it uses over a typical interval---is larger than the cache.
+  \item \textbf{Conflict misses} occur in direct-mapped and set-associative caches when more blocks map to one set than the set can hold.
+\end{itemize}
+A larger LLC primarily removes capacity misses. It therefore helps workloads whose working set exceeds the original cache but fits in the larger one, and helps little when the working set either already fits or is far larger than either size. This simple argument predicts the strongly workload-dependent results examined in Part~\ref{part:case-study}.
+
+\subsection{Cache organisation and policies}
+\label{sec:cache-org}
+A cache stores fixed-size \emph{blocks} (typically 32--128 bytes) and records which memory addresses it holds in a \emph{tag array} beside the \emph{data array}. An address is divided into a tag, an index and an offset within the block. In a \emph{fully associative} cache a block may be placed anywhere, so every tag must be compared on each access; this is practical only for small structures because of its area and power. A \emph{direct-mapped} cache allows each block exactly one location, selected by the index bits, which is simple and fast but suffers conflict misses. A \emph{set-associative} cache is the compromise used almost universally: the index selects a set of $K$ locations (the associativity, typically 2, 4 or 8 in the textbook's examples), and the tags of that set are compared in parallel \cite[sec.~11.2.2]{sarangi2025basic}. AMD's Zen~3 L3, for comparison, is 16-way set associative both with and without V-Cache \cite[slides~19--20]{wuu2022vcache}. \Cref{fig:set-assoc} shows the lookup.
+
+\input{"../initial-draft-2/figures/set-assoc.tex"}
+
+\subsubsection*{Worked example: splitting an address in the Zen~3 caches}
+\label{sec:address-example}
+The textbook's method divides an address into offset, index and tag \cite[sec.~11.2.2]{sarangi2025basic}. For a cache of capacity $S$, associativity $K$ and block size $B$, the number of sets is $S/(K B)$; the offset needs $\log_2 B$ bits, the index $\log_2$ of the number of sets, and the tag the remaining bits. Zen~3 uses 64-byte lines throughout \cite{amd2022epyc7003}, an 8-way 32\,KB L1 data cache, an 8-way 512\,KB L2 and a 16-way 32\,MB L3 per CCD \cite[slide~19]{wuu2022vcache}; independent measurements confirm the L1, L2 and L3 organisation, with 64-byte lines throughout \cite{7-cpu.comAMDZen3}. AMD documents 48-bit physical addressing for its Zen~3 EPYC~7003 processors when memory encryption is off; enabling Secure Encrypted Virtualization reduces the usable width to 43 or 44 bits, because some address bits are then used for encryption keys \cite[p.~10]{advancedmicrodevicesinc.UsingSEVAMD2023}. \Cref{tab:address-split} applies the method with 48 bits.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Worked example: address fields for the Zen~3 caches (64-byte lines; 48-bit physical address, as documented for EPYC~7003 with memory encryption off)}
+  \label{tab:address-split}
+  \small
+  \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    \textbf{Cache} & \textbf{Capacity, ways} & \textbf{Sets} & \textbf{Offset} & \textbf{Index} & \textbf{Tag} \\
+    \midrule
+    L1 data & 32\,KB, 8 & $32\,\text{K}/(8 \times 64) = 64$ & 6 bits & 6 bits & 36 bits \\
+    L2 & 512\,KB, 8 & $512\,\text{K}/(8 \times 64) = 1024$ & 6 bits & 10 bits & 32 bits \\
+    L3 (one CCD) & 32\,MB, 16 & $32\,\text{M}/(16 \times 64) = 32\,768$ & 6 bits & 15 bits & 27 bits \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Two observations matter later. The L1's 64 sets and 6-bit offset together use only the low 12 bits of the address, the size of a 4\,KB page; this is a common design choice that lets the cache be indexed in parallel with address translation, although AMD's sources used here do not state it for Zen~3. And a bigger cache does not shrink the tag much: the 32\,MB L3 still stores 27 bits per line before any state, replacement or error-correction bits, so tag storage grows almost in proportion to capacity (\cref{sec:cache-interface}).
+
+Organisation can also be matched to how a program walks through its data. Wang, for example, proposes an L1 cache for two-dimensional data, such as matrices and images, that stores data in a hierarchical Z-order layout across multiple banks so that either a square tile or a row can be read in one access; in matrix-multiplication simulations this reduced both L1 cache and TLB misses compared with a conventional row-by-row layout \cite{wangDesignImplementationCache2019}. The example is far from AMD's last-level cache, but it illustrates the same principle from the other direction: instead of adding capacity to hold a working set, it rearranges data so that the existing capacity is used better.
+
+When a set is full, a \emph{replacement policy} chooses a victim: random replacement is simplest, FIFO evicts the oldest block, and least-recently-used (LRU), which follows directly from the stack-distance view of temporal locality, is among the most effective \cite[sec.~11.2.5]{sarangi2025basic}. Writes are handled either \emph{write-through}, sending every write to the next level, or \emph{write-back}, marking a block as modified and writing it back only on eviction, which reduces traffic at the cost of tracking state \cite[sec.~11.2.3]{sarangi2025basic}. The stacked V-Cache keeps this organisation intact: each die's portion of the L3 has its own data, tag and LRU arrays \cite[slide~20]{wuu2022vcache}.
+
+The textbook summarises the main cache optimisations and their side effects; \cref{tab:cache-optimisations} reproduces the entries most relevant to this paper. The table makes the paper's central tension explicit: the standard remedy for capacity misses is a larger cache, and its listed costs are higher latency, higher power and more area.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Selected memory-system optimisations and their costs, after Sarangi \cite[Table~11.2]{sarangi2025basic}}
+  \label{tab:cache-optimisations}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    \textbf{Technique} & \textbf{Targets} & \textbf{Disadvantages} \\
+    \midrule
+    Larger block size & compulsory misses & fewer blocks in the cache \\
+    Prefetching & compulsory and capacity misses & complexity; may displace useful data \\
+    \textbf{Larger cache} & \textbf{capacity misses} & \textbf{higher latency, higher power, more area} \\
+    Higher associativity & conflict misses & higher latency, higher power \\
+    Victim cache & conflict misses & extra complexity \\
+    Small, simple cache & hit time & higher miss rate \\
+    Write buffer, critical word first & miss penalty & extra complexity \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+3D V-Cache can be read as an attempt to take the third row of \cref{tab:cache-optimisations} while avoiding most of its disadvantages: the area cost moves to a separate die, and the latency cost is held to four cycles (\cref{sec:vcache-access}).
+
+\subsection{Beyond SRAM: alternative LLC technologies}
+Stacking SRAM is not the only way to obtain a larger last-level cache. Research has also explored denser memory technologies. Mittal and Vetter's survey notes that DRAM offers roughly eight times the density of SRAM, and that die-stacked DRAM can provide 8 to 15 times the bandwidth of off-chip DRAM at one half to one third of its latency, which has made stacked DRAM a candidate for very large LLCs \cite[sec.~1]{mittalSurveyTechniquesArchitecting2016}. Its longer access latency, the size of the tag store such a cache needs, and thermal management are the main design challenges the survey identifies \cite[secs.~1--2]{mittalSurveyTechniquesArchitecting2016}. Non-volatile memories such as STT-RAM offer high density and low leakage, but with much longer write latency and higher write energy than SRAM. Kim \emph{et al.} therefore study hybrid LLCs that combine an SRAM region for write-intensive blocks with an STT-RAM region for the rest, and report a 26\% average speedup in simulation from a better block-placement policy \cite{kimExploitingDataCompression2022}. These approaches change the \emph{technology} of the cache, whereas AMD's 3D V-Cache keeps SRAM and changes its \emph{placement}; the comparison is taken up in Part~\ref{part:synthesis}.
+
+\section{Multicore Processors, Coherence and Interconnects}
+\label{sec:multicore}
+
+\subsection{From one core to many}
+The textbook traces the move to multicore processors from the mid-2000s as transistor budgets continued to grow while single-core power and complexity limits tightened \cite[sec.~12.1]{sarangi2025basic}. Multicore processors raise two questions that matter directly for chiplets: how cores keep a consistent view of shared data, and how requests travel between cores, caches and memory.
+
+\subsection{How far parallelism goes: Amdahl's law}
+More cores help only to the extent that a program can use them. If a fraction $f_{\mathrm{seq}}$ of a program's running time is sequential and the rest divides perfectly among $P$ processors, the speedup is
+\begin{equation}
+  S \;=\; \frac{1}{f_{\mathrm{seq}} + (1 - f_{\mathrm{seq}})/P},
+  \label{eq:amdahl}
+\end{equation}
+which approaches $1/f_{\mathrm{seq}}$ however many processors are added \cite[sec.~12.2.3]{sarangi2025basic}. With $f_{\mathrm{seq}} = 5\%$, eight cores give a speedup of $1/(0.05 + 0.95/8) \approx 5.9$, sixteen give 9.1 and sixty-four give 15.4, against a limit of 20 (\cref{fig:amdahl}). The textbook's own observation is that for $f_{\mathrm{seq}} = 5\%$ there is no appreciable difference between 35 and 200 processors \cite[sec.~12.2.3]{sarangi2025basic}.
+
+\input{"../initial-draft-2/figures/amdahl.tex"}
+
+Amdahl's law has two consequences for this paper. First, a 64-core chiplet processor does not mainly serve one parallel program: its typical use is to run many unrelated programs or requests at once, which the textbook calls loosely coupled multiprocessing and which scales almost perfectly because the programs barely interact \cite[sec.~12.2.1]{sarangi2025basic}. That is the market the chiplet organisation serves. Second, for any single program the sequential part still runs on one core, so the performance of each core, set by its clock, its IPC and the cache it can reach, still decides the limit. Stacked cache improves exactly that per-core performance, which is why it complements rather than competes with adding cores.
+
+\subsection{Cache coherence}
+When several caches can hold copies of the same address, \gls{cache-coherence} rules ensure that all threads observe writes to that address in a consistent order \cite[sec.~12.4.2]{sarangi2025basic}. In a chiplet processor, a coherence transaction between cores on different compute dies must cross the die-to-die interconnect, so the physical partitioning becomes visible as latency (\cref{sec:d2d}).
+
+A multicore memory system can use \emph{shared} caches, which every core accesses, or \emph{private} caches, each serving one core or a small group of cores. The textbook compares them directly (\cref{tab:shared-private}): private caches are small, fast and close to their cores but must be kept coherent and replicate shared data, while shared caches avoid replication and coherence traffic but are large, slow and far from most cores \cite[sec.~12.4.4]{sarangi2025basic}. Its conclusion is that the first levels should be private and the lower, larger levels shared.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Private versus shared caches, after Sarangi \cite[Table~12.3]{sarangi2025basic}}
+  \label{tab:shared-private}
+  \small
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Attribute} & \textbf{Private cache} & \textbf{Shared cache} \\
+    \midrule
+    Area & low & high \\
+    Speed & fast & slow \\
+    Proximity to the processor & near & far \\
+    Scalability in size & low & high \\
+    Data replication & yes & no \\
+    Complexity & high (needs coherence) & low \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A large shared cache is not built as one monolithic array. To serve many cores at once, it is split into \emph{banks}, each a smaller cache in its own right selected by some of the address bits; banking reduces contention and makes each bank faster and more power-efficient \cite[sec.~12.4.5]{sarangi2025basic}.
+
+Private caches are made to look like one shared cache by a coherence protocol. The textbook states the requirement as two axioms: \emph{completion}, every write must eventually complete, and \emph{order}, all threads must see the writes to one address in the same order \cite[sec.~12.4.2]{sarangi2025basic}. If one thread writes 1 and then 2 to $x$ while another reads $x$ twice, the reader may see (0,1), (1,2) or (2,2), but never (2,1), because that would show the writes in the opposite order to the writer's \cite[sec.~12.4.2, Example~151]{sarangi2025basic}.
+
+In a \emph{snooping} protocol the caches share a bus and broadcast read misses, write misses and writes; each block is tracked in a small state machine with the states Modified, Shared and Invalid \cite[sec.~12.4.6]{sarangi2025basic}. Because the bus carries one message at a time, every cache sees the same order of messages, which satisfies the order axiom. The textbook develops two such protocols. In \emph{write-update}, every write is broadcast so that all copies are updated. In \emph{write-invalidate}, a cache that wants to write first invalidates all other copies; a block may then be shared by many readers or owned by a single writer, but never both, and writes to an owned block need no messages at all \cite[sec.~12.4.6]{sarangi2025basic}. \Cref{fig:msi-states} shows the write-invalidate state machine.
+
+\input{"../initial-draft-2/figures/msi-states.tex"}
+
+\subsubsection*{Worked example: one shared variable, two cores}
+\Cref{tab:msi-example} traces a write-invalidate protocol through five accesses by two cores, A and B, to the same block, using the transitions of \cref{fig:msi-states}. Every step generates a bus message, and steps 2 and 4 also move the block's data between the caches.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Worked example: block states and bus traffic for two cores sharing one block (write-invalidate MSI)}
+  \label{tab:msi-example}
+  \small
+  \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.5cm}cc>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    & \textbf{Access} & \textbf{A} & \textbf{B} & \textbf{Bus message and data movement} \\
+    \midrule
+    1 & A reads $x$ & I $\to$ S & I & read miss; data from the lower level \\
+    2 & B reads $x$ & S & I $\to$ S & read miss; A or the lower level supplies the data \\
+    3 & A writes $x$ & S $\to$ M & S $\to$ I & write; B invalidates its copy \\
+    4 & B reads $x$ & M $\to$ S & I $\to$ S & read miss; A writes the block back and sends it to B \\
+    5 & B writes $x$ & S $\to$ I & S $\to$ M & write; A invalidates its copy \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Two points carry over to chiplets. First, every message and every data transfer in the table must travel between the two caches. If A and B are on the same Zen CCD, the transfer stays on the die; if they are on different CCDs, each one crosses the die-to-die links through the I/O die (\cref{sec:d2d}). Second, a block that is written alternately by two cores ping-pongs between them, so the cost of the hop is paid repeatedly. Software that places communicating threads on the same CCD avoids this, which is one reason EPYC processors expose their CCD structure to the operating system (\cref{sec:d2d}). Broadcasting does not scale, so larger systems use a \emph{directory} that records, for each block, which caches hold a copy, and sends messages only to those sharers \cite[sec.~12.4.6]{sarangi2025basic}.
+
+The textbook's directory keeps the sharers as a bit vector with one bit per cache \cite[sec.~12.4.6]{sarangi2025basic}. Its size shows why directories are themselves a design problem. For eight private caches, one bit each per 64-byte (512-bit) block adds $8/512 \approx 1.6\%$ to the storage of every tracked block; for 64 caches it adds $64/512 = 12.5\%$, and for 128 caches 25\%. This is a worked example of the textbook's simple scheme, not a description of AMD's implementation, which the sources used here do not detail; but it explains why coherence tracking grows harder as more caches, and more dies, share one memory.
+
+AMD's Zen designs combine both ideas at different scales. Within a Zen~3 CCD, eight cores share one L3; across CCDs, each L3 is private to its die, and the dies communicate through the I/O die over Infinity Fabric \cite{amd2022epyc7003}. EPYC~7003 can even expose each CCD's L3 as a separate NUMA domain to software \cite{amd2022epyc7003}. The textbook's trade-off therefore reappears one level up: the per-CCD L3 is ``private'' with respect to the whole socket, which keeps it close and fast but means that data shared across CCDs must be kept coherent over a die-to-die link (\cref{sec:d2d}).
+
+\subsection{On-chip and on-package interconnection networks}
+On a single die, cores, cache banks and memory controllers are usually arranged as tiles, each with a \emph{router}; the routers and the links between them form a network-on-chip (NoC) that carries coherence messages, LLC requests and responses, and memory traffic \cite[sec.~12.6.1]{sarangi2025basic}. Two figures of merit describe a topology: the \emph{bisection bandwidth}, the minimum number of links that must be cut to split the network into two equal halves, which measures both reliability and aggregate bandwidth; and the \emph{diameter}, the longest of all shortest paths between nodes, which bounds latency \cite[sec.~12.6.2]{sarangi2025basic}. \Cref{tab:topologies} lists the textbook's values.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Diameter and bisection bandwidth of common topologies with $N$ nodes, from Sarangi \cite[sec.~12.6.3]{sarangi2025basic}}
+  \label{tab:topologies}
+  \small
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Topology} & \textbf{Diameter} & \textbf{Bisection bandwidth} \\
+    \midrule
+    Chain & $N-1$ & 1 \\
+    Ring & $N/2$ & 2 \\
+    Fat tree & $2\log N$ & $N/2$ \\
+    Mesh & $2\sqrt{N}-2$ & $\sqrt{N}$ \\
+    Torus & $\sqrt{N}$ & $2\sqrt{N}$ \\
+    Hypercube & $\log N$ & $N/2$ \\
+    Butterfly & $\log N$ & $N/2$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection*{Worked example: topologies at chiplet scale}
+\Cref{tab:topology-example} evaluates the formulas of \cref{tab:topologies} for eight nodes, the number of CCDs in a Rome or Milan package or of cores in a Zen~3 CCD, and for 64 nodes, the number of cores in the full processor; \cref{fig:topologies} draws three of the cases.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Worked example: diameter and bisection bandwidth from the formulas of \cref{tab:topologies}}
+  \label{tab:topology-example}
+  \small
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    & \multicolumn{2}{c}{$N = 8$} & \multicolumn{2}{c}{$N = 64$} \\
+    \cmidrule(lr){2-3}\cmidrule(l){4-5}
+    \textbf{Topology} & \textbf{Diameter} & \textbf{Bisection} & \textbf{Diameter} & \textbf{Bisection} \\
+    \midrule
+    Ring & 4 & 2 & 32 & 2 \\
+    Mesh & --- & --- & 14 & 8 \\
+    Torus & --- & --- & 8 & 16 \\
+    Hypercube & 3 & 4 & 6 & 32 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+At eight nodes the ring is perfectly adequate: no node is more than four hops away. At 64 nodes the same ring would put cores up to 32 hops apart with a bisection of only 2, which is why large monolithic processors use meshes. AMD's chiplet designs avoid the problem by never building a 64-node network on one die. Within each CCD, a ring connects the eight cores to the L3 slices \cite{lamAMDs7950X3DZen2023}; across the package, the CCDs form a star around the I/O die, in which any two CCDs are two hops apart (\cref{fig:topologies}). Chips and Cheese attributes AMD's L3 latency, 24--28 cycles lower on average than that of Intel's mesh-based server processors in its tests, to this choice: a ring has lower latency and higher bandwidth, while a mesh scales better for a large monolithic die \cite{cozmaDeepDivingZen2022}. The cost of the star is that its hub carries all traffic between dies, which is the bandwidth limit examined in \cref{sec:bandwidth-example}.
+
+\input{"../initial-draft-2/figures/topologies.tex"}
+
+What changes when a link leaves the die is the subject of Part~\ref{part:chiplets}. On a die, a link is a set of short on-chip wires; between chiplets, it is a serialised link routed through the package, with its own transmitters, receivers and clocking. AMD's Rome processors connect every CCD to a single central I/O die, a star-like arrangement in which any two CCDs are two hops apart, which AMD credits with reducing the number of NUMA domains and the distances to memory compared with the previous generation \cite{naffziger2020chiplet}.

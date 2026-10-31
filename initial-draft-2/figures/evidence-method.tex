@@ -1,0 +1,15 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  st/.style={draw=draftblue,fill=draftlight,rounded corners=2pt,align=center,text width=2.6cm,minimum height=1.3cm,font=\scriptsize},
+  arr/.style={-{Stealth[length=2mm]},draftblue,thick}, node distance=0.45cm]
+\node[st] (a) {Collect sources\\(papers, vendor disclosures, independent benchmarks)};
+\node[st,right=of a] (b) {Record test conditions: parts, clocks, memory, settings};
+\node[st,right=of b] (c) {Pair configurations that differ mainly in L3 capacity};
+\node[st,right=of c] (d) {Classify workloads by cache sensitivity};
+\node[st,below=0.9cm of c,text width=5.8cm] (e) {Report effect sizes with source, metric and conditions; state residual confounds};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d) |- (e);
+\end{tikzpicture}
+\caption{Planned evidence-analysis procedure for Part~V (published research and benchmarks only; no new hardware measurement).}
+\label{fig:evidence-method}
+\end{figure}

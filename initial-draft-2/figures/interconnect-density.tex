@@ -1,0 +1,21 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=18pt, width=0.86\textwidth, height=6.2cm,
+  ymode=log, log origin=infty, ymin=10, ymax=40000,
+  ylabel={Connections per mm$^2$ (log scale)},
+  symbolic x coords={C4,2.5D,Micro-bump,Hybrid bond},
+  xtick=data,
+  xticklabels={{C4 bumps\\150\,\textmu m},{2.5D\\40\,\textmu m},{Micro-bump 3D\\36\,\textmu m},{Hybrid bond 3D\\9\,\textmu m}},
+  xticklabel style={align=center,font=\small},
+  nodes near coords, nodes near coords style={font=\small},
+  point meta=explicit symbolic,
+  ymajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left,
+  enlarge x limits=0.18]
+\addplot[fill=draftlight,draw=draftblue] coordinates {(C4,44)[44] (2.5D,625)[625] (Micro-bump,772)[772] (Hybrid bond,12346)[12\,346]};
+\end{axis}
+\end{tikzpicture}
+\caption{Worked example: connections per square millimetre for a square grid of pads at each pitch, $(1000/p)^2$ for a pitch $p$ in micrometres. Pitches are AMD's stated limits for C4 bumps and 2.5D \cite[slide~13]{lambertHeterogenousIntegrationHigh2025}, the finest micro-bump pitch AMD quotes, and the 9\,\textmu m hybrid-bond pitch \cite{swaminathanAdvancedPackagingEnabling2021}. Real layouts are not full square grids, so the values are upper bounds for comparison only.}
+\label{fig:interconnect-density}
+\end{figure}

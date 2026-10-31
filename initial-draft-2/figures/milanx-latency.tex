@@ -1,0 +1,25 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.94\textwidth, height=6.4cm,
+  xmode=log, log basis x=2, ymode=log, log basis y=2,
+  xmin=2, xmax=1048576, ymin=2, ymax=512,
+  xtick={2,32,512,8192,32768,1048576}, xticklabels={2\,KB,32\,KB,512\,KB,8\,MB,32\,MB,1\,GB},
+  ytick={4,8,16,32,64,128,256}, yticklabels={4,8,16,32,64,128,256},
+  xlabel={Size of the data region accessed (log scale)}, ylabel={Load-to-use latency (cycles)},
+  legend pos=south east, legend style={font=\scriptsize},
+  grid=major, grid style={draftgray!20}]
+\fill[draftblue!8] (axis cs:32768,2) rectangle (axis cs:98304,512);
+\addplot[draftgray,thick,dashed] coordinates {(2,4) (32,4) (48,12) (256,12) (512,17) (1024,40) (2048,48) (16384,47.5) (32768,52) (65536,240) (131072,290) (1048576,342)};
+\addlegendentry{EPYC 7763 (Milan, 32\,MB L3 per CCD)}
+\addplot[draftblue,thick] coordinates {(2,4) (32,4) (48,12) (256,12) (512,16) (1024,42) (2048,51) (65536,51) (98304,65) (131072,150) (262144,260) (1048576,313)};
+\addlegendentry{EPYC 7V73X (Milan-X, 96\,MB L3 per CCD)}
+\node[font=\scriptsize,anchor=west] at (axis cs:1100,62) {L3: 47.5 vs 51.1 cycles};
+\node[font=\scriptsize,anchor=west] at (axis cs:3,300) {memory (right): 342 vs 313 cycles};
+\node[font=\scriptsize,align=center] at (axis cs:56000,22) {L3 hit on\\Milan-X only};
+\end{axis}
+\end{tikzpicture}
+\caption{Cache and memory latency against data size for Milan and Milan-X, redrawn from Chips and Cheese's measurements \cite{cozmaAMDsVCacheTested2022}. The labelled values (L1 4 cycles, L2 about 12 cycles, L3 47.49 and 51.14 cycles, memory 342 and 313 cycles) are taken from the chart's own labels; the transitions between them were read by eye and are approximate. In the shaded range, from 32\,MB to about 96\,MB, Milan-X still hits in its L3 while Milan already goes to memory.}
+\label{fig:milanx-latency}
+\end{figure}

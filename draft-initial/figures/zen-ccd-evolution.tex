@@ -1,0 +1,37 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  core/.style={draw=draftblue,fill=white,minimum width=0.5cm,minimum height=0.5cm,font=\tiny},
+  l3/.style={draw=draftblue,fill=draftlight,align=center,font=\scriptsize},
+  ccd/.style={draw=draftblue,thick,dashed,rounded corners=2pt},
+  lab/.style={font=\small\bfseries,text=draftblue,align=center}]
+% Zen 2
+\begin{scope}
+\foreach \c in {0,1}{
+  \node[l3,minimum width=1.2cm,minimum height=1.25cm] (z2l3\c) at (\c*2.2,0) {16 MB\\L3};
+  \foreach \i/\dx/\dy in {0/-0.85/0.35,1/-0.85/-0.35,2/0.85/0.35,3/0.85/-0.35}{
+    \node[core] at (\c*2.2+\dx,\dy) {C};}
+  \node[draw=draftgray,minimum width=2.15cm,minimum height=1.55cm] at (\c*2.2,0) {};}
+\node[ccd,fit={(-1.25,-0.95) (3.45,0.95)}] (z2) {};
+\node[lab,above=0.1cm of z2] {Zen 2 CCD\\two 4-core CCXs};
+\end{scope}
+% Zen 3
+\begin{scope}[xshift=6.1cm]
+\node[l3,minimum width=1.4cm,minimum height=1.6cm] (z3l3) at (0,0) {32 MB\\shared\\L3};
+\foreach \i in {0,1,2,3}{\node[core] at (-1.05,0.9-\i*0.6) {C}; \node[core] at (1.05,0.9-\i*0.6) {C};}
+\node[ccd,fit={(-1.45,-1.25) (1.45,1.25)}] (z3) {};
+\node[lab,above=0.1cm of z3] {Zen 3 CCD\\one 8-core CCX};
+\end{scope}
+% Zen 3 + V-Cache
+\begin{scope}[xshift=10.4cm]
+\node[l3,minimum width=1.4cm,minimum height=1.6cm] (vl3) at (0,0) {32 MB\\base L3};
+\foreach \i in {0,1,2,3}{\node[core] at (-1.05,0.9-\i*0.6) {C}; \node[core] at (1.05,0.9-\i*0.6) {C};}
+\node[l3,fill=white,pattern=north east lines,pattern color=draftblue!35,minimum width=1.25cm,minimum height=1.35cm,opacity=0.9] at (0.18,0.18) {};
+\node[font=\scriptsize,fill=white,inner sep=1pt,align=center] at (0.18,0.18) {+64 MB\\stacked};
+\node[ccd,fit={(-1.45,-1.25) (1.45,1.25)}] (v) {};
+\node[lab,above=0.1cm of v] {Zen 3 CCD with\\3D V-Cache (96 MB L3)};
+\end{scope}
+\end{tikzpicture}
+\caption{Schematic progression of L3 organisation per compute die from Zen~2 to Zen~3 and Zen~3 with 3D V-Cache, based on AMD's descriptions \cite{suggs2019zen2,amd2022epyc7003,wuu2022vcache}. Logical organisation only; not a floorplan.}
+\label{fig:zen-ccd-evolution}
+\end{figure}

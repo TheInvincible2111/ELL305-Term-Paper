@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  ev/.style={draw=draftblue,fill=draftlight,rounded corners=2pt,font=\scriptsize,align=center,text width=1.75cm,minimum height=0.95cm},
+  ev3/.style={ev,fill=todored!12,draw=todored},
+  yr/.style={font=\scriptsize\bfseries,text=draftblue}]
+\draw[-{Stealth},thick,draftgray] (-0.3,0) -- (15.0,0);
+\foreach \x/\y/\t/\s in {0.6/2015/2.5D HBM/ev, 2.75/2017/Multi-chip module/ev, 4.9/2019/Chiplets (CCD + IOD)/ev, 7.05/2021/3D chiplets (V-Cache)/ev3, 9.2//2.5D bridge (EFB)/ev, 11.35/2022/2.5D high-perf. fan-out/ev, 13.5/2023/3.5D chiplets (3D + 2.5D)/ev3}{
+  \fill[draftblue] (\x,0) circle (0.07);
+  \node[yr,below] at (\x,-0.12) {\y};
+  \node[\s,above] at (\x,0.3) {\t};
+  \draw[draftblue] (\x,0.07) -- (\x,0.3);}
+\node[font=\scriptsize,text=draftgray,anchor=west] at (-0.3,-0.75) {Horizontal (2D/2.5D) integration in blue; vertical (3D) integration in red.};
+\end{tikzpicture}
+\caption{AMD's packaging steps as presented by AMD \cite[slide~5]{lambertHeterogenousIntegrationHigh2025}. The slide gives no separate year for the 2.5D bridge (EFB). The CPUs studied in this paper use the 2019 chiplet organisation and, from 2021, 3D-stacked cache.}
+\label{fig:packaging-timeline}
+\end{figure}

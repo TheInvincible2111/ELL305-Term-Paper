@@ -1,0 +1,20 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\textwidth, height=6.4cm,
+  xlabel={Die area $A$ (mm$^2$)}, ylabel={Modelled yield $Y_{\mathrm{die}}$ (\%)},
+  xmin=0, xmax=800, ymin=0, ymax=100, grid=major, grid style={draftgray!25},
+  legend pos=north east, legend style={font=\small},
+  every axis plot/.append style={thick,domain=1:800,samples=80}]
+\addplot[draftblue] {100*(1-exp(-2*x/100*0.1))/(2*x/100*0.1)}; \addlegendentry{$D_0=0.1$ cm$^{-2}$}
+\addplot[draftblue,dashed] {100*(1-exp(-2*x/100*0.2))/(2*x/100*0.2)}; \addlegendentry{$D_0=0.2$ cm$^{-2}$}
+\addplot[draftgray,dotted] {100*(1-exp(-2*x/100*0.5))/(2*x/100*0.5)}; \addlegendentry{$D_0=0.5$ cm$^{-2}$}
+\addplot[only marks,mark=*,draftblue,mark size=2pt] coordinates {(100,82.42) (200,68.83)};
+\node[font=\scriptsize,anchor=west] at (axis cs:105,84) {82.4\%};
+\node[font=\scriptsize,anchor=west] at (axis cs:205,70) {68.8\%};
+\end{axis}
+\end{tikzpicture}
+\caption{Murphy yield model (\cref{eq:yield}, $Y_{\mathrm{wafer}}=1$) for three illustrative defect densities. The marked points reproduce the worked example in \cref{sec:yield-cost}. Illustrative calculation, not measured processor data.}
+\label{fig:yield-curve}
+\end{figure}

@@ -1,0 +1,250 @@
+% Part III -- Chiplet-based processor architecture (target: about 25 pages)
+\clearpage
+\part{Chiplet-Based Processor Architecture}
+\label{part:chiplets}
+\partbudget{25}{all sections drafted, including organic, 2.5D and 3D connection options; illustrative latency, bandwidth, power and cost estimates need checking against further sources}
+
+\section{Why Large Monolithic Dies Become Costly}
+\label{sec:monolithic-limits}
+
+\subsection{The reticle limit and die size}
+A single die cannot be larger than the area a lithography tool can expose in one field. AMD's Hot Chips~33 presentation plots server CPU and GPU die sizes growing towards this reticle limit over roughly the last fifteen years \cite{swaminathanAdvancedPackagingEnabling2021}. For its second-generation EPYC (``Rome'') processor, AMD states that the 64-core top configuration would not be practical as a monolithic chip and would lie well beyond the maximum reticle size \cite{naffziger2020chiplet}.\index{reticle limit}
+
+\subsection{Manufacturing yield}
+\label{sec:yield-cost}
+
+Manufacturing defects are scattered across a wafer, so a larger die is more likely to contain one. The simplest model assumes that defects fall independently with a fixed average density $D_0$, which gives a Poisson yield $e^{-AD_0}$ for a die of area $A$. Real defect densities vary across a wafer and from wafer to wafer, and the Poisson model ignores this. This paper therefore uses the yield model adopted in the 3D-IC cost analysis of Dong and Xie \cite[Eq.~15]{dongSystemlevelCostAnalysis2009}:
+\begin{equation}
+  Y_{\mathrm{die}} = Y_{\mathrm{wafer}} \cdot \frac{1 - e^{-2 A D_0}}{2 A D_0},
+  \label{eq:yield}
+\end{equation}
+where $A$ is the die area, $D_0$ the average \gls{defect-density} and $Y_{\mathrm{wafer}}$ the wafer yield. This is one of the yield functions derived by Murphy, who averaged the Poisson yield over a defect density that varies from chip to chip; this form assumes the density is spread uniformly between $0$ and $2D_0$ \cite[Eq.~11]{murphyCostsizeOptimaMonolithic1964}. \Cref{app:yield-cost} derives it and compares it with Murphy's preferred intermediate model.\index{yield}\index{Murphy yield model}
+
+\Cref{tab:yield-example} gives an illustrative calculation with $D_0 = 0.2$ defects/cm$^2$ and $Y_{\mathrm{wafer}} = 1$. It is a model result, not a measured processor result.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Illustrative Murphy-model yield for $D_0 = 0.2$ defects/cm$^2$ and $Y_{\mathrm{wafer}} = 1$}
+  \label{tab:yield-example}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Die area} & \textbf{$2 A D_0$} & \textbf{Modelled yield $Y_{\mathrm{die}}$} \\
+    \midrule
+    100 mm$^2$ (1 cm$^2$) & 0.4 & 82.4\% \\
+    200 mm$^2$ (2 cm$^2$) & 0.8 & 68.8\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Doubling the die area lowers the modelled yield from about 82.4\% to 68.8\% (\cref{fig:yield-curve}). Cost per good die rises faster than area for two reasons: fewer dies fit on each wafer, and a smaller fraction of them work. The exact increase depends on wafer cost, process node, defect distribution and test cost; \cref{app:yield-cost} derives the cost-per-good-die expression and shows why partitioning a design into smaller dies can lower the silicon cost even after paying for extra interface area.
+
+\input{"../initial-draft-2/figures/yield-curve.tex"}
+
+AMD's own material makes the same qualitative point. Its Zen~2 presentation lists ``small die improve yield'' among the motivations for the chiplet strategy \cite{suggs2019zen2}, and its Hot Chips~33 presentation shows normalised cost per yielded square millimetre rising at each newer process node \cite{swaminathanAdvancedPackagingEnabling2021}.
+
+\subsection{Uneven scaling of logic, SRAM and analog circuits}
+\label{sec:uneven-scaling}
+Moving a design to a newer node does not shrink every circuit equally. Naffziger \emph{et al.} state that shrink factors at advanced nodes are much lower for analog circuitry than for digital logic and SRAM, and that memory interfaces and SerDes therefore gain very little performance, power or area from moving from 12\,nm to 7\,nm \cite{naffziger2020chiplet}. Building those circuits on the expensive leading-edge node wastes its cost. This observation is the basis of process-node specialisation (\cref{sec:process-specialisation}).
+
+\textbf{Worked example: where the Zen~2 gains came from.} AMD's Zen~2 presentation splits the doubling of instructions per unit of energy over the previous generation into three factors: 1.15$\times$ from higher IPC, 1.17$\times$ from design improvements and 1.47$\times$ from the 7\,nm process \cite[slide~4]{suggs2019zen2}. Multiplied together, $1.15 \times 1.17 \times 1.47 \approx 1.98$, which is AMD's ``2$\times$''. The process contributed the largest single share, but only to the circuits that shrink with it. Logic and SRAM in the cores benefit; memory interfaces and SerDes, by Naffziger \emph{et al.}'s account, barely do \cite{naffziger2020chiplet}. The chiplet split therefore places the 7\,nm process exactly where its 1.47$\times$ applies and spends the cheaper process everywhere else. The related, more recent observation that SRAM is falling behind logic is taken up in \cref{sec:why-cache-capacity}.
+
+\section{Compute Dies, I/O Dies and Core Complexes}
+\label{sec:ccd-iod}
+
+\input{"../initial-draft-2/figures/monolithic-vs-chiplet.tex"}
+
+AMD's Zen~2 products (``Rome'' for servers and ``Matisse'' for desktops) are built from three kinds of die \cite{naffziger2020chiplet,suggs2019zen2}:
+\begin{itemize}
+  \item an eight-core \gls{ccd} of about 74\,mm$^2$ on a 7\,nm process, containing the cores and their L3 cache;
+  \item a server \gls{iod} of about 416\,mm$^2$ on a 12\,nm process;
+  \item a smaller client IOD of about 125\,mm$^2$, which in a standalone package also serves as the X570 chipset.
+\end{itemize}
+The same CCD is reused across server and desktop products; only the IOD and the number of populated CCDs change \cite{naffziger2020chiplet}. Within each Zen~2 CCD, the cores are grouped into two four-core \glspl{ccx}, each with up to 16\,MB of L3 \cite{suggs2019zen2}. Inside a CCX, each core has a private 512\,KB L2, and the 16\,MB L3 is built from four 4\,MB slices, one beside each core, with 32-byte-per-cycle paths throughout; the CCX doubled both the L3 capacity and the L1 load/store bandwidth of the first Zen generation \cite[slide~12]{suggs2019zen2}.
+
+AMD stated the problem and the response in two lists \cite[slide~13]{suggs2019zen2}. The challenges were a higher cost per mm$^2$ at the leading-edge node, analog and I/O circuits that ``do not scale well'' and are hard to port to a new process, and a wide range of markets to serve. The chiplet strategy answered each in turn: small dies to improve yield, analog and I/O on 12\,nm to reduce cost and complexity, and a configurable set of parts.
+
+\textbf{Worked example: how much silicon is a 64-core Rome?} AMD describes Rome as about 1000\,mm$^2$ of cumulative die area in 7\,nm and 12\,nm \cite[slide~19]{suggs2019zen2}. The die sizes reported by Naffziger \emph{et al.} reproduce this: eight CCDs of 74\,mm$^2$ and a 416\,mm$^2$ server IOD give $8 \times 74 + 416 = 1008$\,mm$^2$ \cite{naffziger2020chiplet}. Of that, 592\,mm$^2$ (59\%) is on the expensive 7\,nm process and 416\,mm$^2$ (41\%) on the cheaper 12\,nm. A single die of 1008\,mm$^2$ would be beyond the reticle limit, and even its 592\,mm$^2$ of compute alone would yield poorly (\cref{sec:yield-cost}).
+
+The partition places latency-critical, logic-dense circuits---cores and caches---on the newest node, and places memory controllers, PCIe and other I/O, which scale poorly, on a cheaper mature node (\cref{fig:monolithic-vs-chiplet}).
+
+Naffziger \emph{et al.} describe how this partition was turned into products \cite{naffziger2020chiplet}. The server package places up to eight CCDs around a central IOD, in two-deep columns that were only possible because the organic-package link reaches farther than a silicon interposer would. Each CCD-to-IOD link is routed to the centre of the CCD to shorten the path to its L3. Not every server model populates all eight CCDs, so one package design yields a range of products. The desktop part reuses the same CCDs with a smaller IOD in the existing AM4 socket, and that IOD, packaged on its own, doubles as the platform's chipset. The previous server generation (``Naples'') tied its interface clocks together, whereas Rome decouples the fabric, memory and I/O clocks so that each can be set independently, with a latency-optimised mode when fabric and memory clocks are equal \cite{naffziger2020chiplet}. \Cref{fig:epyc-package} sketches the resulting server package.
+
+\input{"../initial-draft-2/figures/epyc-package.tex"}
+
+\subsection{Inside the I/O die: memory, I/O and NUMA settings}
+\label{sec:iod-detail}
+AMD's EPYC~7003 overview describes what the I/O die of the Zen~3 server generation contains and how software sees it \cite{amd2022epyc7003}. Each CCD connects to the IOD through its own Global Memory Interconnect (GMI) link. The IOD holds eight Unified Memory Controllers, one per DDR4 channel, each supporting up to two DIMMs, for up to 4\,TB of memory per socket; eight x16 I/O links that provide up to 128 lanes of PCIe~4.0; and the Infinity Fabric links that join the dies. The fabric clock can run at up to 1600\,MHz, which lets it run in step with DDR4-3200 memory, whose memory clock is also 1600\,MHz, a pairing AMD says improves memory latency \cite{amd2022epyc7003}. The IOD can be used with four, six or eight populated memory channels; eight is the most common and generally fastest configuration, and the six-channel option, with its own interleave mode, is new in this generation \cite{amd2022epyc7003}. AMD's figure labels this IOD as 14\,nm \cite[Fig.~2-4]{amd2022epyc7003}, while Naffziger \emph{et al.} give 12\,nm for the Rome IOD \cite{naffziger2020chiplet}; the sources used here do not resolve the difference.
+
+\textbf{NUMA settings.} Because a core's distance to each memory controller depends on where both sit on the IOD, EPYC is a non-uniform memory access (NUMA) design, and a BIOS setting called NUMA Nodes Per Socket (NPS) lets the user choose how that structure is presented to software \cite{amd2022epyc7003}. The setting also decides how memory addresses are spread, or \emph{interleaved}, across channels: consecutive blocks of memory go to different channels in turn, so that a stream of accesses uses several channels at once. \Cref{tab:nps-modes} summarises the options.
+
+\begin{table}[htbp]
+  \centering
+  \caption{NUMA settings of an EPYC~7003 processor with eight CCDs and eight memory channels, from AMD's description \cite{amd2022epyc7003}, with peak interleaved bandwidth worked out for DDR4-3200 ($25.6$\,GB/s per channel)}
+  \label{tab:nps-modes}
+  \small
+  \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}X>{\centering\arraybackslash}p{1.6cm}>{\centering\arraybackslash}p{2.4cm}@{}}
+    \toprule
+    \textbf{Setting} & \textbf{Each NUMA domain contains} & \textbf{Channels interleaved} & \textbf{Peak bandwidth per domain} \\
+    \midrule
+    NPS1 & the whole socket: all 8 CCDs, all channels, all PCIe devices & 8 & 204.8\,GB/s \\
+    NPS2 & half the socket: 4 CCDs and 4 channels & 4 & 102.4\,GB/s \\
+    NPS4 & one quadrant: 2 CCDs, 2 channels and 1 I/O hub & 2 & 51.2\,GB/s \\
+    LLC as NUMA & one CCD and its L3 (8 domains per socket) & --- & --- \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\textbf{Worked example: what the setting trades.} In every NPS mode the socket's total memory bandwidth is the same, $8 \times 25.6 = 204.8$\,GB/s, and so is the share per core when all 64 cores are busy, $204.8/64 = 3.2$\,GB/s (\cref{tab:bandwidth-balance}). What changes is locality and reach. Under NPS4, a thread whose memory is allocated in its own quadrant reaches the nearest two controllers, the shortest core-to-memory distance on the die, but its interleaved accesses can draw on at most 51.2\,GB/s. Under NPS1, the same thread's accesses are spread over all eight channels and can draw on the full 204.8\,GB/s, but on average three quarters of them go to controllers outside its own quadrant, including the diagonal quadrant that AMD identifies as the farthest \cite{amd2022epyc7003}. NPS4 therefore suits many independent, well-placed workloads, and NPS1 suits a single program that needs bandwidth more than latency. The ``LLC as NUMA'' option goes one step further and tells the operating system which cores share an L3, so that threads that share data can be kept on one CCD and avoid the cross-die coherence traffic of \cref{sec:multicore} \cite{amd2022epyc7003}. The chiplet structure is thus exposed to software as a tuning choice: none of these settings would exist on a single die with uniform access to its memory controllers.
+
+\section{Infinity Fabric and Die-to-Die Communication}
+\label{sec:d2d}
+
+Splitting a processor into dies turns some on-chip wires into package-level links. AMD connects each CCD to the IOD with an \gls{ifop} serial link routed over 10--20\,mm of organic package \cite{naffziger2020chiplet}. AMD reports, for Rome \cite{naffziger2020chiplet}:\index{Infinity Fabric}
+\begin{itemize}
+  \item about 55\,GB/s of effective bandwidth per IFOP link at a 1.46\,GHz fabric clock;
+  \item a round-trip latency from CCD to IOD and back of 13 fabric clocks, under 9\,ns;
+  \item longer reach than a 2.5D silicon interposer, which allowed two-deep columns of chiplets and hence eight CCDs in one package;
+  \item a 19\% average reduction in memory latency for the socket compared with the previous generation, attributed to the central IOD, decoupled clocks and the latency-optimised link.
+\end{itemize}
+The predecessor ``Zeppelin'' link achieved about 2\,pJ/bit \cite{naffziger2020chiplet}. These are AMD-reported figures for specific configurations and are not independent measurements.
+
+The link is engineered for low latency and power rather than maximum reach. Each IFOP lane runs at 14.6\,GT/s with a 1.46\,GHz fabric clock; it uses single-ended signalling to save power and package routing layers, forwards a clock alongside each bundle of data lanes to track skew, recovers each lane's timing with a digitally controlled clock-and-data-recovery circuit, and avoids active equalisation in favour of passive T-coils, again to save power \cite{naffziger2020chiplet}. The package itself had to be designed with the dies: the Rome package uses a 9-2-9 layer build-up (four signal-routing layers above the core) against 5-2-5 for Matisse, and the dense arrays of package vias must lie outside the footprints of the CCDs and IOD because of the high density of power vias beneath them \cite{naffziger2020chiplet}. These are the costs of a serial, package-level link that the 3D interface of \cref{sec:cache-interface} avoids.
+
+\subsection{Latency, bandwidth and interconnect power}
+The textbook models of Part~\ref{part:foundations} show what these figures mean.
+
+\textbf{Latency.} Every L3 miss in a CCD must now travel to the IOD, where the memory controllers sit, and back. In \cref{eq:amat} this adds the die-to-die round trip (under 9\,ns in Rome) to $\mathrm{penalty}_{\mathrm{LLC}}$ for every access that misses in the L3 \cite{naffziger2020chiplet}. The same hop appears whenever data must move between CCDs, for example when two threads on different CCDs share a cache block and the coherence mechanism of \cref{sec:multicore} has to transfer it. This is why EPYC~7003 lets software treat each CCD's L3 as its own NUMA domain, and why its NPS settings group cores, memory channels and I/O into quadrants: the closest core-to-memory distance is within a quadrant and the farthest is between diagonal quadrants \cite{amd2022epyc7003}. On a monolithic die the same traffic would cross on-chip wires instead.
+
+The central IOD also changed how uneven memory latency is across the socket. In the previous generation, Naples, each of four dies had its own memory controllers, so a core saw three different memory distances; Rome's single IOD reduced this to two (\cref{tab:numa-latency}).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Memory latency by NUMA distance, Naples (EPYC 7001) and Rome (EPYC 7002), as reported by AMD \cite[Fig.~2.2.6]{naffziger2020chiplet}}
+  \label{tab:numa-latency}
+  \small
+  \begin{tabular}{@{}lclc@{}}
+    \toprule
+    \multicolumn{2}{c}{\textbf{Naples: 8 NUMA domains, 3 distances}} & \multicolumn{2}{c}{\textbf{Rome: 2 NUMA domains, 2 distances}} \\
+    \cmidrule(r){1-2}\cmidrule(l){3-4}
+    Domain & Latency (ns) & Domain & Latency (ns) \\
+    \midrule
+    NUMA1 & 90 & Near 2 channels & 94 \\
+    NUMA2 & 141 & NUMA1 & 104 \\
+    NUMA3 & 234 & NUMA2 & 201 \\
+    Average local & 128 & Local average vs Naples & 0.81$\times$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The fastest access became slightly slower (94 against 90\,ns), because every access now crosses the IFOP link to the IOD, but the average fell by about a fifth because no access has to cross to another compute die's memory controller inside the socket. This is the trade the chiplet organisation makes: a small, uniform penalty in place of large, uneven ones.
+
+\textbf{Bandwidth.} A single link limits how much memory bandwidth one CCD can draw. As an illustration, eight 64-bit DDR4-3200 channels, the configuration of both Rome and the most common EPYC~7003 systems \cite[slide~19]{suggs2019zen2}, \cite{amd2022epyc7003}, provide $8 \times 3200 \times 10^6 \times 8\,\mathrm{B} = 204.8$\,GB/s at peak, the figure AMD gives for Rome \cite[slide~19]{suggs2019zen2}. The desktop Matisse part has two such channels and 51.2\,GB/s \cite[slide~15]{suggs2019zen2}; with two CCDs and 16 cores that is $51.2/16 = 3.2$\,GB/s per core, exactly the share of a fully loaded 64-core Rome ($204.8/64$). The memory system was scaled with the number of compute dies, not the other way round. Naffziger \emph{et al.} give about 55\,GB/s of effective bandwidth per Rome CCD link \cite{naffziger2020chiplet}, roughly a quarter of that figure. Both numbers now describe Rome, but one is a peak rate and the other an effective rate, so the ratio is only indicative, but it is consistent with AMD's statement that at least four CCDs are populated in most Rome configurations to balance overall bandwidth \cite{naffziger2020chiplet}.
+
+\textbf{Power.} Moving a bit across the package costs more energy than moving it across a die, because the link drives longer, more capacitive wires (\cref{eq:pdyn}) and needs serialisers and receivers at each end. AMD reports about 2\,pJ/bit for the predecessor link and states that the Rome link was designed to minimise power, avoiding active equalisation for that reason \cite{naffziger2020chiplet}. At 55\,GB/s, 2\,pJ/bit would correspond to roughly $55 \times 10^9 \times 8 \times 2 \times 10^{-12} \approx 0.9$\,W per fully loaded link; this is an order-of-magnitude illustration using the older generation's efficiency, not a measured Rome figure.
+
+\subsection{Scalability}
+The chiplet organisation scales by adding compute dies, but the IOD is shared. Adding CCDs increases core count and total L3 capacity, while memory channels and I/O stay fixed by the IOD and the socket. As more cores share the same memory bandwidth, the bandwidth per core falls, which raises the value of a large L3 that keeps traffic off the memory channels. AMD's own Rome rule of thumb, at least four populated CCDs for bandwidth balance \cite{naffziger2020chiplet}, shows the opposite limit: with too few CCDs, the per-CCD links rather than the memory channels become the bottleneck. A star of point-to-point links to one IOD also has a fixed number of link ports, so the number of CCDs is bounded by the IOD design as well as by package area.
+
+\subsubsection*{Worked example: balancing link and memory bandwidth}
+\label{sec:bandwidth-example}
+Naffziger \emph{et al.} give about 55\,GB/s of effective bandwidth per Rome IFOP link and state that at least four CCDs are populated in most configurations to balance overall bandwidth \cite{naffziger2020chiplet}. \Cref{tab:bandwidth-balance} shows why, comparing the total link bandwidth with the 205\,GB/s peak of eight DDR4-3200 channels computed above. As before, the link figure is effective and the memory figure is peak, so the comparison is indicative only.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Worked example: total CCD--IOD link bandwidth against peak memory bandwidth (55\,GB/s per link \cite{naffziger2020chiplet}; 8 channels of DDR4-3200)}
+  \label{tab:bandwidth-balance}
+  \small
+  \begin{tabular}{@{}ccccc@{}}
+    \toprule
+    \textbf{CCDs} & \textbf{Cores} & \textbf{Total link bandwidth} & \textbf{Limiting side} & \textbf{Memory bandwidth per core} \\
+    \midrule
+    2 & 16 & 110\,GB/s & links & $110/16 \approx 6.9$\,GB/s \\
+    4 & 32 & 220\,GB/s & roughly balanced & $205/32 \approx 6.4$\,GB/s \\
+    8 & 64 & 440\,GB/s & memory channels & $205/64 \approx 3.2$\,GB/s \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+With two CCDs the links, not the memory, are the bottleneck; at four the two sides are roughly matched, which is AMD's rule of thumb; at eight, the memory channels limit, and each core's share of memory bandwidth halves. The last column is the point that connects Part~\ref{part:chiplets} to Part~\ref{part:stacked-cache}: the more cores share a socket's memory channels, the more valuable it is to satisfy requests from a large on-package cache instead.
+
+\subsubsection*{Scaling beyond one socket}
+The same links extend to two sockets. Two identical EPYC~7003 processors connect through their external Global Memory Interconnect (xGMI) Infinity Fabric links, which use the same physical connections as the PCIe lanes \cite{amd2022epyc7003}. Each link uses 16 lanes, so a socket that devotes four links to the other socket gives up 64 of its 128 lanes, leaving $2 \times 64 = 128$ lanes for the whole system; a designer who uses three links instead frees $128 - 48 = 80$ lanes per socket, 160 in total, at the cost of inter-socket bandwidth \cite{amd2022epyc7003}. A dual-socket system has sixteen memory channels and can be configured with between 1 and 16 NUMA domains. The trade between I/O lanes and inter-processor bandwidth is the package-level version of the trade between link width and die area seen within the package (\cref{sec:packaging-options}).
+
+\subsection{How the dies are connected: organic substrate, 2.5D and 3D}
+\label{sec:packaging-options}
+Chiplets can be joined in three broad ways, which differ mainly in how finely their connections can be spaced (\cref{tab:packaging-levels}).\index{2.5D integration}
+\begin{itemize}
+  \item \textbf{On the organic package substrate} (a multi-chip module, sometimes called 2D packaging). Each die is mounted on the substrate with C4 solder bumps, and the substrate's copper traces connect the dies. This is the cheapest option and allows long links, but the connections are coarse.
+  \item \textbf{2.5D integration.} The dies still sit side by side, but they are joined through a finer layer of wiring placed under or between them: a silicon interposer, a small embedded silicon bridge, or a fan-out redistribution layer. Connections are much denser, so a link of the same width carries more bandwidth with less energy per bit, but the extra silicon adds cost and limits how far apart the dies can be.
+  \item \textbf{3D integration.} One die is stacked directly on another and connected through TSVs and micro-bumps or hybrid bonds (Part~\ref{part:stacked-cache}). This gives the densest and shortest connections.
+\end{itemize}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Die-to-die connection methods, with AMD's interconnect pitch targets \cite[slide~13]{lambertHeterogenousIntegrationHigh2025} and AMD examples}
+  \label{tab:packaging-levels}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    \textbf{Method} & \textbf{Pitch} & \textbf{AMD examples} & \textbf{Main trade-off} \\
+    \midrule
+    Organic substrate (C4 bumps) & $<150$\,\textmu m & EPYC~7002 and Ryzen~3000 CCD--IOD links \cite{naffziger2020chiplet} & long reach and low cost; coarse links \\
+    2.5D (interposer, bridge or fan-out) & $<40$\,\textmu m & Fiji GPU with HBM on a silicon interposer (2015) \cite[slide~9]{swaminathanAdvancedPackagingEnabling2021}; Ryzen~AI~Max~PRO~300 \cite[slide~8]{lambertHeterogenousIntegrationHigh2025} & denser, lower-energy links; added silicon and shorter reach \\
+    3D (hybrid bonding) & $<9$\,\textmu m & 3D V-Cache \cite{wuu2022vcache} & densest, shortest links; heat and test complexity \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+AMD's choice for its chiplet CPUs was deliberate. Naffziger \emph{et al.} contrast the organic-package SerDes link with a 2.5D interposer and with Intel's embedded bridge (EMIB), and state that its key benefit is longer reach, which allowed chiplets to be arranged in columns two deep; without that, eight CCDs would not have fitted around one IOD \cite{naffziger2020chiplet}. Rome and Matisse therefore connect their CCDs to the IOD through the organic substrate, and the later Zen CPUs studied in this paper use 3D stacking for the extra cache; the sources used here do not describe a change to the CCD--IOD connection in those later generations (\cref{sec:d2d}, Part~\ref{part:stacked-cache}).
+
+\input{"../initial-draft-2/figures/packaging-timeline.tex"}
+
+2.5D integration is nevertheless part of AMD's wider packaging history (\cref{fig:packaging-timeline}). Its own timeline runs from 2.5D HBM (2015) through the multi-chip module (2017), chiplets (2019) and 3D chiplets (2021) to a 2.5D bridge (EFB), 2.5D high-performance fan-out (2022) and ``3.5D'' chiplets (2023) \cite[slide~5]{lambertHeterogenousIntegrationHigh2025}. The Instinct MI300 accelerator combines both: dies hybrid-bonded on top of I/O dies, which sit side by side on a 2.5D silicon interposer \cite[slide~10]{lambertHeterogenousIntegrationHigh2025}. Among Zen-based processors, the Ryzen~AI~Max~PRO~300 series uses 2.5D fan-out packaging, which AMD describes as a ``continued strategic use of 2.5D advanced packaging to reduce die-to-die power and latency'' \cite[slide~8]{lambertHeterogenousIntegrationHigh2025}. Swaminathan names the parameters that decide between these options: cost and volume, \emph{bandwidth density} (the area spent on die-to-die communication) and \emph{energy per bit} \cite[slide~7]{swaminathanAdvancedPackagingEnabling2021}. The organic substrate wins on cost and reach, 2.5D on bandwidth density and energy, and 3D on both of the latter at the price of the thermal and manufacturing issues of \cref{sec:thermal}.
+
+\section{Yield, Process-Node Specialisation and Cost}
+\label{sec:process-specialisation}
+
+Chiplets combine two cost advantages. First, small dies yield better (\cref{sec:yield-cost}). Second, each die can use the process that suits it: AMD keeps memory interfaces and SerDes on 12\,nm because they would see little benefit at 7\,nm \cite{naffziger2020chiplet}. AMD also tests every CCD before assembly and can down-bin a CCD damaged during assembly, placing it in a known low-power state \cite{naffziger2020chiplet}, which limits the cost of combining several dies in one package.
+
+These benefits are not free. AMD describes the design as requiring package--silicon co-design, new interconnect circuits, a mixed-process package (with copper pillars on the 12\,nm IOD to match die heights), and new test and power-management infrastructure \cite{naffziger2020chiplet}.
+
+The model of \cref{app:yield-cost} gives a rough sense of the silicon saving. Consider eight Rome-sized CCDs of 74\,mm$^2$ each, 592\,mm$^2$ in total, against a hypothetical monolithic die with the same compute area (ignoring the I/O, which in the chiplet design moves to a cheaper node). With $D_0 = 0.2$\,cm$^{-2}$ and the yield model of \cref{eq:yield}, a 74\,mm$^2$ CCD yields about 87\% and the 592\,mm$^2$ die about 38\%, so eight tested CCDs cost about 44\% of the silicon of one good monolithic die; with $D_0 = 0.1$\,cm$^{-2}$ the figure is about 63\%. These numbers are illustrative only: they ignore interface area, packaging, assembly yield and test cost, and Dong and Xie find an analogous effect for 3D stacking, where the extra bonding and test costs outweigh the yield gain for small designs, so that stacking pays only above a size threshold \cite{dongSystemlevelCostAnalysis2009}. They also ignore the separate saving from building the I/O on a mature node \cite{naffziger2020chiplet}. The qualitative conclusion is robust, however: for a design of server size, the yield advantage of small dies is large.
+
+\subsection{Worked example: good dies per wafer}
+\label{sec:dies-per-wafer}
+Yield is only half of the cost story; the other half is how many dies fit on a wafer. Dong and Xie estimate the number of dies per wafer as
+\begin{equation}
+  N_{\mathrm{die}} \;=\; \frac{\pi\,(\phi_{\mathrm{wafer}}/2)^2}{A_{\mathrm{die}}} \;-\; \frac{\pi\,\phi_{\mathrm{wafer}}}{\sqrt{2\,A_{\mathrm{die}}}},
+  \label{eq:dies-per-wafer}
+\end{equation}
+where $\phi_{\mathrm{wafer}}$ is the wafer diameter and $A_{\mathrm{die}}$ the die area \cite[Eq.~14]{dongSystemlevelCostAnalysis2009}. The first term divides the wafer area by the die area; the second subtracts the partial dies lost around the circular edge, a loss that grows with die size. For a 300\,mm wafer, \cref{tab:dies-per-wafer} applies \cref{eq:dies-per-wafer} and the yield model of \cref{eq:yield}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Worked example: dies and good dies per 300\,mm wafer ($D_0 = 0.2$\,cm$^{-2}$, $Y_{\mathrm{wafer}} = 1$; illustrative)}
+  \label{tab:dies-per-wafer}
+  \small
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Die} & \textbf{Dies per wafer} & \textbf{Modelled yield} & \textbf{Good dies} & \textbf{64-core sets per wafer} \\
+    \midrule
+    74\,mm$^2$ CCD & $955.2 - 77.5 \approx 878$ & 86.6\% & 760 & $760/8 = 95$ \\
+    592\,mm$^2$ monolithic & $119.4 - 27.4 \approx 92$ & 38.3\% & 35 & 35 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A wafer of CCDs supplies the compute silicon for about 95 64-core processors, against 35 for the monolithic design, a factor of 2.7. With $D_0 = 0.1$ the factor is about 1.9, and with $D_0 = 0.3$ about 3.5. The edge loss alone is small for the CCD (8\% of the gross count) but noticeable for the large die (23\%). This calculation still ignores the I/O die, packaging and test, and assumes that a 592\,mm$^2$ die could be made at all; at the full 64-core size, Naffziger \emph{et al.} note that the monolithic design would exceed the maximum reticle size \cite{naffziger2020chiplet}.
+
+AMD's own estimate points the same way (\cref{fig:chiplet-cost-chart}). Naffziger \emph{et al.} compare the cost of Rome chiplet products with hypothetical monolithic 7\,nm designs of the same core count \cite[Fig.~2.2.2]{naffziger2020chiplet}. Read from the chart, the monolithic designs cost roughly twice as much at 48 and 32 cores and about 1.8$\times$ at 16 cores, and the chiplet design scales its cost down with core count by leaving CCD positions empty (``depopulation'') and using partly defective dies (``harvesting''). Two details of the chart should be noted: its legend describes the chiplet design as ``7\,nm + 14\,nm'', whereas the paper's text gives 12\,nm for the I/O die, and the chart's axis is a normalised cost without units. The chart is AMD's model, not a disclosed cost, but its factor of about two agrees with the order of magnitude of \cref{tab:dies-per-wafer}.
+
+\input{"../initial-draft-2/figures/chiplet-cost-chart.tex"}
+
+\section{Summary of Part III}
+Applying the paper's three-part test to chiplets:
+\begin{itemize}
+  \item \textbf{Bottleneck addressed.} Die size beyond the reticle limit, falling yield with area, and the poor scaling of analog and I/O circuits on advanced nodes (\cref{sec:monolithic-limits}).
+  \item \textbf{Benefit.} Core counts that would be impractical on one die, much better silicon yield, I/O on a cheaper node, and one compute die reused across server and desktop products \cite{naffziger2020chiplet,suggs2019zen2}.
+  \item \textbf{New trade-offs.} An extra die-to-die hop on every L3 miss and on cross-CCD sharing, per-link bandwidth limits, interconnect power, NUMA effects that software may need to manage, and more complex package design and test.
+\end{itemize}
+One limit is untouched: each CCD still carries its own planar L3. Growing that cache runs into the same area, yield and wire-length costs at the scale of the compute die, which is the problem Part~\ref{part:stacked-cache} takes up.

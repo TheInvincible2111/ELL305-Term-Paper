@@ -1,0 +1,32 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  fld/.style={draw=draftblue,minimum height=0.5cm,font=\scriptsize,align=center},
+  way/.style={draw=draftblue,fill=draftlight,minimum width=1.3cm,minimum height=0.32cm,font=\tiny},
+  lab/.style={font=\scriptsize}]
+% address
+\node[fld,minimum width=3.0cm,fill=white] (tag) at (0,0) {tag};
+\node[fld,minimum width=1.8cm,fill=draftlight,right=0pt of tag] (idx) {index};
+\node[fld,minimum width=1.2cm,fill=white,right=0pt of idx] (off) {offset};
+\node[lab,above=1pt of tag.north west,anchor=south west] {address};
+% sets
+\foreach \s in {0,...,5}{
+  \foreach \w in {0,1,2,3}{\node[way] at (6.4+\w*1.4,0.6-\s*0.42) {};}}
+\foreach \w in {0,1,2,3}{\node[lab] at (6.4+\w*1.4,1.05) {way \w};}
+\draw[draftblue,thick,rounded corners=1pt,fill=todored!15] (5.67,-0.88) rectangle (11.33,-0.6);
+\foreach \w in {0,1,2,3}{\node[font=\tiny] at (6.4+\w*1.4,-0.74) {tag | block};}
+\node[lab,anchor=south east] at (5.55,-0.62) {selected set};
+\draw[-{Stealth},thick,draftblue] (idx.south) |- (5.62,-0.74);
+% comparators
+\foreach \w in {0,1,2,3}{
+  \node[draw=draftblue,circle,inner sep=0.5pt,font=\tiny,fill=white] (c\w) at (6.4+\w*1.4,-2.0) {$=$};
+  \draw[-{Stealth},draftblue] (6.4+\w*1.4,-0.9) -- (c\w.north);}
+\draw[-{Stealth},thick,draftblue] (tag.south) |- (6.0,-2.0) -- (c0.west);
+\draw[draftblue] (c0.east) -- (c1.west) (c1.east) -- (c2.west) (c2.east) -- (c3.west);
+\node[draw=draftblue,fill=white,font=\scriptsize,align=center] (hit) at (8.5,-3.0) {hit? which way?};
+\foreach \w in {0,1,2,3}{\draw[draftblue] (c\w.south) -- (hit.north);}
+\draw[-{Stealth},thick,draftblue] (off.south) |- (hit.west) node[pos=0.75,below,lab]{offset selects the bytes};
+\end{tikzpicture}
+\caption{Lookup in a 4-way set-associative cache. The index bits select one set; the tags stored in all four ways of that set are compared with the address tag in parallel; a match identifies the way holding the block, and the offset selects the bytes within it. After Sarangi \cite[sec.~11.2.2]{sarangi2025basic}.}
+\label{fig:set-assoc}
+\end{figure}

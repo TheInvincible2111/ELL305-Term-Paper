@@ -2,6 +2,8 @@
 
 This folder is the editable home for the paper. Codex can edit, build, and inspect files here in future tasks.
 
+**AI assistants:** read [`CLAUDE.md`](CLAUDE.md) first. It holds the standing rules, project context and workflow.
+
 ## Where things go
 
 - `paper/` - LaTeX manuscript, chapters, and figures
@@ -48,6 +50,19 @@ Create the reproducible Draft 1 submission folder and ZIP with:
 The packaged `.tex` file contains all Draft 1 modules, TikZ diagrams, and bibliography data. The ZIP also carries the three external PNG assets required by that source and the verified PDF.
 
 The build uses `latexmk` when Perl is available. With MiKTeX and no Perl, it automatically runs the equivalent `pdflatex`, `biber`, glossary/index, and repeat-pass sequence. The scripts locate both the standard current-user MiKTeX directory and the installed system-wide MiKTeX 25.12 directory directly, so they do not depend on whether a particular VS Code or Codex process has refreshed its `PATH` yet.
+
+## Building in Claude's Linux workspace
+
+Claude works through a Linux shell on this computer, which cannot run the PowerShell scripts or MiKTeX. Equivalent scripts are provided:
+
+```bash
+scripts/setup-linux-tex.sh          # one time: TeX add-ons into tmp/texlive/ (gitignored)
+scripts/build-linux.sh              # build the active draft into tmp/linux-build/
+scripts/build-linux.sh --install    # also write build/pdf/ELL305-Draft-N.pdf
+scripts/git-remote.sh ls-remote origin   # GitHub access using the local token file
+```
+
+See `CLAUDE.md` for details, including when pushing is allowed.
 
 ## Draft 1
 

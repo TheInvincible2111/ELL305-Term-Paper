@@ -1,0 +1,66 @@
+% Part VI -- Comparative synthesis, limitations and future directions (target: about 20 pages)
+\clearpage
+\part{Comparative Synthesis, Limitations and Future Directions}
+\label{part:synthesis}
+\partbudget{20}{comparison framework and future-directions outline drafted; conclusions await Parts IV--V}
+
+\section{Monolithic, Chiplet-Based and Vertically Stacked Designs Compared}
+\label{sec:comparison}
+
+\Cref{tab:three-way} compares the three organisations against the bottleneck--benefit--trade-off test of \cref{sec:rq}. Entries are qualitative and will be revised against the evidence gathered in Part~\ref{part:case-study}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Qualitative comparison of the three design approaches (provisional)}
+  \label{tab:three-way}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    & \textbf{Monolithic die} & \textbf{Chiplets (2D package)} & \textbf{Chiplets with stacked cache} \\
+    \midrule
+    Main limit addressed & --- & Die size, yield, uneven node scaling & Planar cost and wire length of a large LLC \\
+    Communication & All on-die & Die-to-die links through the package & Adds dense vertical links between cache and compute dies \\
+    Memory latency & Shortest on-die paths & Extra die-to-die hop to memory & Fewer trips to memory for cache-sensitive work \\
+    Cost and yield & Falls steeply with die area & Smaller dies, mixed nodes, tested before assembly & Extra die and bonding step; capacity only where sold \\
+    Thermal & One heat source per die & Heat spread over several dies & Stack alters heat path from cores \\
+    New trade-off & Scaling ceiling & Latency, link power, packaging & Heat, test complexity, workload dependence \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Interactions Between Chiplet Organisation and Cache Design}
+\label{sec:interactions}
+\plannedcontent{Develop the argument that chiplets and stacked cache are complementary: the CCD's small, self-contained die with its own L3 makes it a natural base for a stacked cache, and stacking lets a product line offer large-cache variants without changing the base CCD or the package layout. Discuss the per-CCD L3 boundary: stacked capacity helps threads on that CCD only, which interacts with scheduling and with cross-CCD communication (\cref{sec:d2d}).}
+
+\section{Workload-Dependent Trade-Offs and Remaining Bottlenecks}
+\label{sec:remaining-bottlenecks}
+\plannedcontent{Synthesise Parts~III--V: which workloads favour more cores, which favour more cache, which favour frequency; the remaining bottlenecks (memory bandwidth, die-to-die latency, heat removal from stacked dies).}
+
+\section{Future Directions in Heterogeneous Integration and Advanced Packaging}
+\label{sec:future}
+
+AMD's Hot Chips~33 presentation sketches integration schemes that go beyond stacking cache on cores, including memory stacked on compute, cores stacked on cores or on uncore logic, and splitting or ``folding'' circuits across dies; AMD presents these as schemes that advanced packaging could enable but monolithic design could not \cite{swaminathanAdvancedPackagingEnabling2021}. These are vendor projections, not products.
+
+\plannedcontent{Discuss the architectural questions these raise (heat density of logic-on-logic stacks, testability, design tools, standard die-to-die interfaces). Candidate sources to be identified and read; no claims about specific future products without primary sources.}
+
+\section{Limitations of This Study}
+\label{sec:limitations}
+\begin{itemize}
+  \item The quantitative analysis relies on published measurements and is limited by their experimental conditions and by the availability of comparable data.
+  \item Much of the detailed technical information about AMD designs comes from AMD itself; such claims are attributed to AMD and treated as engineering claims rather than independent results.
+  \item The study works at the architectural level and does not model physical design, packaging processes or thermal behaviour in detail.
+  \item \todo{Add limitations arising from the final evidence set.}
+\end{itemize}
+
+\section{Conclusions}
+\label{sec:conclusions}
+\plannedcontent{Answer RQ1--RQ4 in turn. Write only after Parts IV and V are complete.}
+
+\section{Open Research Questions}
+\label{sec:open-questions}
+\begin{itemize}
+  \item When is the extra complexity of 3D integration worth its reduction in footprint and its denser interconnect, compared with a side-by-side cache chiplet?
+  \item How should operating systems and runtimes place threads and data when L3 capacity differs between compute dies?
+  \item What limits the stacking of logic on logic, as opposed to SRAM on logic, from a thermal and power-delivery point of view?
+  \item \todo{Refine after the evidence review.}
+\end{itemize}

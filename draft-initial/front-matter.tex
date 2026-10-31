@@ -1,0 +1,69 @@
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  \vspace*{0.3cm}
+  \includegraphics[width=2.7cm]{assets/iit-delhi-logo.png}\par
+  \vspace{0.45cm}
+  {\Large\bfseries INDIAN INSTITUTE OF TECHNOLOGY DELHI\par}
+  \vspace{0.2cm}
+  {\large\bfseries Department of Electrical Engineering\par}
+  \vspace{0.65cm}
+  {\large ELL305: Computer Architecture --- Term Paper\par}
+  \vspace{0.45cm}
+  \rule{0.94\textwidth}{0.7pt}\par
+  \vspace{0.45cm}
+  {\Huge\bfseries \drafttitle\par}
+  \vspace{0.35cm}
+  {\Large \draftsubtitle\par}
+  \vspace{0.45cm}
+  {\large\itshape \draftstatusline\par}
+  \vspace{0.45cm}
+  \rule{0.94\textwidth}{0.7pt}\par
+  \vspace{0.75cm}
+  {\large\itshape Submitted by\par}
+  \vspace{0.35cm}
+  \small
+  \begin{tabularx}{0.96\textwidth}{>{\raggedright\arraybackslash}X c >{\raggedleft\arraybackslash}X}
+    \textbf{\authorone} & \entryone & \href{mailto:\emailone}{\emailone}\\[0.4em]
+    \textbf{\authortwo} & \entrytwo & \href{mailto:\emailtwo}{\emailtwo}\\[0.4em]
+    \textbf{\authorthree} & \entrythree & \href{mailto:\emailthree}{\emailthree}
+  \end{tabularx}
+  \vfill
+  {\large \draftdate\par}
+\end{titlepage}
+
+\pagestyle{ell305}
+\hypersetup{pageanchor=true}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{"../draft-initial/front-matter/copyright-assignment.tex"}
+\input{"../draft-initial/front-matter/acknowledgements.tex"}
+
+\clearpage
+\begin{center}
+  {\Large\bfseries Abstract\par}
+\end{center}
+
+\progressabstract{For several decades, processor performance improved largely by integrating more transistors on a single, monolithic die. That approach is now constrained by die size limits, manufacturing yield, the uneven scaling of logic, SRAM and analog circuits, and the power and thermal budget of the package. This paper studies two linked architectural responses to these constraints: chiplet-based processor organisation, which partitions a processor into separately manufactured dies, and three-dimensional stacking of cache, which adds last-level-cache capacity without enlarging the compute die. AMD Zen processors serve as the principal case study, tracing the progression from the compute-die and I/O-die partitioning of Zen~2, through the unified eight-core L3 organisation of Zen~3, to the hybrid-bonded 3D V-Cache products. For each technique the paper asks which bottleneck it addresses, what benefit it provides, and what new cost or trade-off it introduces. The analysis is grounded in the memory-hierarchy and multiprocessor foundations of the course textbook and evaluates published research and benchmark evidence rather than new hardware measurements. \todo{Revise the abstract once Parts V and VI contain completed analysis.}
+
+\noindent\textbf{Keywords:} processor architecture, chiplets, memory hierarchy, last-level cache, 3D-stacked cache, hybrid bonding, AMD Zen, ELL305.}
+
+\clearpage
+\tableofcontents
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{List of Tables}
+\listoftables
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{List of Figures}
+\listoffigures
+
+\clearpage
+\glsaddall
+\printglossary[title={Glossary}]
+\clearpage

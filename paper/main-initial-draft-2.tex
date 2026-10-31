@@ -1,0 +1,31 @@
+% Entry point for initial-draft-2, the second working draft of the full term paper (builds on draft-initial/).
+% paper/main.tex continues to select the milestone draft (Draft 1).
+\documentclass[12pt,a4paper,twoside]{article}
+
+\input{styles/ell305-format.tex}
+\input{"../initial-draft-2/preamble.tex"}
+\input{"../initial-draft-2/metadata.tex"}
+
+\begin{document}
+\input{"../initial-draft-2/front-matter.tex"}
+
+\input{"../initial-draft-2/sections/part1-introduction.tex"}
+\input{"../initial-draft-2/sections/part2-foundations.tex"}
+\input{"../initial-draft-2/sections/part3-chiplets.tex"}
+\input{"../initial-draft-2/sections/part4-stacked-cache.tex"}
+\input{"../initial-draft-2/sections/part5-case-study.tex"}
+\input{"../initial-draft-2/sections/part6-synthesis.tex"}
+
+\clearpage
+\printbibliography[heading=bibintoc,title={References}]
+
+\input{"../initial-draft-2/appendices/appendix-a-plagiarism-report.tex"}
+\input{"../initial-draft-2/appendices/appendix-b-reading-indices.tex"}
+\input{"../initial-draft-2/appendices/appendix-c-yield-cost-model.tex"}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Index}
+\setlength{\columnsep}{24pt}
+\printindex
+\end{document}

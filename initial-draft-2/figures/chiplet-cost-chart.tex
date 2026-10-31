@@ -1,0 +1,18 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=12pt, width=0.86\textwidth, height=6.2cm,
+  ymin=0, ymax=2.1, ylabel={Normalised cost},
+  symbolic x coords={64,48,32,24,16}, xtick=data, xlabel={Cores in product},
+  legend style={font=\small,at={(0.5,1.02)},anchor=south,legend columns=2},
+  ymajorgrids, grid style={draftgray!25}, enlarge x limits=0.15,
+  nodes near coords, nodes near coords style={font=\tiny}, every node near coord/.append style={/pgf/number format/fixed,/pgf/number format/precision=2}]
+\addplot[fill=draftlight,draw=draftblue] coordinates {(64,1.00) (48,0.90) (32,0.77) (24,0.72) (16,0.67)};
+\addplot[fill=todored!25,draw=todored] coordinates {(48,1.88) (32,1.65) (24,1.39) (16,1.19)};
+\legend{Chiplet (7\,nm CCDs + I/O die), Hypothetical monolithic 7\,nm}
+\end{axis}
+\end{tikzpicture}
+\caption{Cost against core count for Rome-generation chiplet products and hypothetical monolithic 7\,nm equivalents, normalised to the 64-core chiplet part. Values were read by eye from AMD's chart \cite[Fig.~2.2.2]{naffziger2020chiplet} and are accurate only to about $\pm 0.05$. AMD shows no monolithic 64-core bar; the text states that such a die would exceed the maximum reticle size.}
+\label{fig:chiplet-cost-chart}
+\end{figure}
