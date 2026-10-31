@@ -1,0 +1,29 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  pkg/.style={draw=draftblue,thick,fill=draftlight,rounded corners=3pt,minimum width=2.0cm,minimum height=1.5cm,font=\scriptsize,align=center},
+  lnk/.style={draftblue,line width=1.4pt},
+  io/.style={draftgray,line width=1.1pt,-{Stealth[length=1.6mm]}},
+  note/.style={font=\scriptsize,align=center}]
+\begin{scope}
+  \node[font=\small\bfseries] at (2.0,1.75) {Four xGMI links};
+  \node[pkg] (A) at (0,0) {Socket 0\\128 lanes};
+  \node[pkg] (B) at (4,0) {Socket 1\\128 lanes};
+  \foreach \y in {-0.45,-0.15,0.15,0.45} \draw[lnk] (1.0,\y) -- (3.0,\y);
+  \node[note,text=draftblue] at (2,0.95) {$4 \times 16 = 64$ lanes each};
+  \foreach \x in {-0.6,-0.2,0.2,0.6} {\draw[io] (\x,-0.75) -- (\x,-1.4); \draw[io] (4+\x,-0.75) -- (4+\x,-1.4);}
+  \node[note] at (2,-1.9) {64 PCIe lanes left per socket\\128 in the system};
+\end{scope}
+\begin{scope}[xshift=7.4cm]
+  \node[font=\small\bfseries] at (2.0,1.75) {Three xGMI links};
+  \node[pkg] (C) at (0,0) {Socket 0\\128 lanes};
+  \node[pkg] (D) at (4,0) {Socket 1\\128 lanes};
+  \foreach \y in {-0.3,0,0.3} \draw[lnk] (1.0,\y) -- (3.0,\y);
+  \node[note,text=draftblue] at (2,0.95) {$3 \times 16 = 48$ lanes each};
+  \foreach \x in {-0.75,-0.45,-0.15,0.15,0.45} {\draw[io] (\x,-0.75) -- (\x,-1.4); \draw[io] (4+\x,-0.75) -- (4+\x,-1.4);}
+  \node[note] at (2,-1.9) {80 PCIe lanes left per socket\\160 in the system};
+\end{scope}
+\end{tikzpicture}
+\caption{The lane trade in a dual-socket EPYC~7003 system: the links between sockets (xGMI, blue) use the same 16-lane connections as PCIe, so each link given to the other socket removes 16 lanes of I/O (grey arrows, schematic) \cite{amd2022epyc7003}. Fewer links mean more I/O but less bandwidth between the sockets.}
+\label{fig:two-socket}
+\end{figure}

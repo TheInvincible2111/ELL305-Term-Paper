@@ -1,0 +1,24 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.8\textwidth, height=5.8cm,
+  xmode=log, xmin=800, xmax=500000, ymin=0.6, ymax=1.7,
+  xlabel={Mesh cells per core (128 cores, log scale)}, ylabel={Milan-X speed-up over Milan},
+  ymajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left,
+  label style={font=\small}, tick label style={font=\small}]
+\fill[draftgray!12] (axis cs:800,0.6) rectangle (axis cs:6000,1.7);
+\node[font=\scriptsize,text=draftgray,align=center] at (axis cs:2300,0.78) {xsmall, small, smid:\\Milan-X slower\\(down to 0.81$\times$)};
+\addplot[draftblue,thick,mark=*,mark size=1.8pt] coordinates {
+  (14822,1.23) (32550,1.50) (52012,1.54) (92972,1.46) (307815,1.22)};
+\node[font=\scriptsize,text=draftblue,anchor=east] at (axis cs:13500,1.23) {mid 1.23$\times$};
+\node[font=\scriptsize,text=draftblue,anchor=east] at (axis cs:30000,1.52) {high 1.50$\times$};
+\node[font=\scriptsize,text=draftblue,anchor=south] at (axis cs:52012,1.57) {mhigh 1.54$\times$};
+\node[font=\scriptsize,text=draftblue,anchor=west] at (axis cs:100000,1.47) {uhigh 1.46$\times$};
+\node[font=\scriptsize,text=draftblue,anchor=south] at (axis cs:307815,1.25) {xhigh 1.22$\times$};
+\addplot[draftgray,thin] coordinates {(800,1)(500000,1)};
+\end{axis}
+\end{tikzpicture}
+\caption{OpenFOAM motorBike: speed-up of a dual-socket EPYC~7773X (Milan-X) system over a dual-socket EPYC~7763 (Milan) system by mesh size, read from Lawenda \emph{et al.}'s Fig.~4, with cells per core from their Table~3 \cite{lawendaEvaluatingImpactL32025}. The gain peaks where the working set fits the larger L3 but not the smaller one, and falls on the largest mesh, which exceeds both. The figure labels the xhigh gain 1.22$\times$ while the article's text gives 1.24$\times$. For the three smallest meshes the figure gives no ratio; the article's Table~6 gives a lowest value of 0.81$\times$. Clocks were not fixed (\cref{tab:clock-correction}).}
+\label{fig:openfoam-sweep}
+\end{figure}

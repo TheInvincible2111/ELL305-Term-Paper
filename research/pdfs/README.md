@@ -35,7 +35,7 @@ its own copy of each attachment, but this folder is the project's copy. This fol
 | liuReviewChipletbasedDesign2024 | Liu-Li-Yin-Chiplet-Review-SciChina-2024.pdf | present |
 | advancedmicrodevicesinc.AMDEPYC90042023 | AMD-EPYC-9004-Datasheet.pdf | present |
 | advancedmicrodevicesinc.4thGenAMD2023 | AMD-4th-Gen-EPYC-Architecture-White-Paper.pdf | present (replaces the unavailable EPYC 9004 overview, AMD doc 58015) |
-| regulyComparativeEvaluationBandwidthbound2023 | Reguly-Bandwidth-Bound-Apps-PMBS-2023.pdf | present (not yet cited) |
+| regulyComparativeEvaluationBandwidthbound2023 | Reguly-Bandwidth-Bound-Apps-PMBS-2023.pdf | present, cited in Part VI |
 | — | AnandTech Zen 3 deep dive (core-to-core latency) | **missing** — site blocks automated and manual saving; do not cite |
 | — | Chiplet Actuary cost model | not downloaded; do not cite |
 | advancedmicrodevicesinc.AMDRyzen30002022 | AMD-Ryzen-3000-5000-Datasheet.pdf | present (3700X, 5800X, 5600X specs) |
@@ -45,3 +45,5 @@ its own copy of each attachment, but this folder is the project's copy. This fol
 | advancedmicrodevicesinc.AMDRyzen72024 | AMD-Ryzen-7-9800X3D-Specs.pdf | present (AMD-Ryzen-7-9800X3D-Specs-collapsed.pdf is a superseded copy without specs) |
 | advancedmicrodevicesinc.UsingSEVAMD2023 | AMD-58207-Using-SEV-with-EPYC.pdf | present (p. 10: EPYC 7003 48-bit physical addressing with SME/SEV off) |
 | 7-cpu.comAMDZen3 | 7cpu-Zen3-Cezanne-latency.pdf | present (Ryzen 5 5600G latency tables, L3 slice latencies) |
+| waltonAMDRyzen72021 | TechSpot-Ryzen-7-5700G-Review-2021.pdf | present, cited in Part III (sec:cezanne) |
+| devtechprofileWhomCezanneCould2021 | CapFrameX-Cezanne-Memory-Latency-2021.pdf | present, cited in Part III (sec:cezanne); AIDA64 screenshot for 5700G only |

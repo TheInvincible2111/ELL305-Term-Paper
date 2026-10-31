@@ -1,0 +1,36 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.62\textwidth, height=7.2cm,
+  xmode=log, xmin=0.75, xmax=4, ymin=0.4, ymax=8.6,
+  xtick={0.8,1,1.25,1.5,2,3,4}, xticklabels={0.8,1,1.25,1.5,2,3,4},
+  ytick={1,...,8}, y dir=reverse,
+  yticklabels={{AMD: 5800X3D vs 5900X, 6 games},{AMD: 3D prototype vs 5900X, fixed clock, 5 games},{AMD: 16-core EPYC, RTL simulation},
+    {Lam: 7950X3D per CCD, IPC, fixed clock},{Chips and Cheese: Milan-X, one CCD},{Lawenda: OpenFOAM, 7773X vs 7763},
+    {Domke: MiniFE, 7773X vs 7763},{Phoronix: 5800X3D vs 5800X, 350 tests}},
+  yticklabel style={font=\scriptsize},
+  xlabel={Ratio of stacked-cache part to comparison part (log scale)},
+  xmajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left,
+  label style={font=\small}, tick label style={font=\small}]
+\draw[todored,dashed] (axis cs:1,0.4) -- (axis cs:1,8.6);
+\fill[draftgray!10] (axis cs:0.75,0.4) rectangle (axis cs:4,3.5);
+% AMD
+\draw[draftblue,line width=3pt] (axis cs:1.0,1) -- (axis cs:1.36,1);
+\draw[draftblue,line width=3pt] (axis cs:1.04,2) -- (axis cs:1.25,2);
+\addplot[only marks,mark=*,mark size=2pt,black] coordinates {(1.15,1) (1.15,2) (1.66,3)};
+% independent
+\draw[draftblue,line width=3pt] (axis cs:1.0,4) -- (axis cs:1.19,4);
+\draw[draftblue,line width=3pt,-{Stealth[length=2.5mm]}] (axis cs:1.19,4) -- (axis cs:1.24,4);
+\draw[draftblue,line width=3pt] (axis cs:1.05,5) -- (axis cs:1.076,5);
+\draw[draftblue,line width=3pt] (axis cs:0.81,6) -- (axis cs:1.54,6);
+\draw[draftblue,line width=3pt] (axis cs:0.89,7) -- (axis cs:3.4,7);
+\draw[draftblue,line width=3pt] (axis cs:0.83,8) -- (axis cs:1.5,8);
+\draw[draftblue,line width=3pt,-{Stealth[length=2.5mm]}] (axis cs:1.5,8) -- (axis cs:1.62,8);
+\node[font=\scriptsize,anchor=west,text=draftgray] at (axis cs:2.2,1.5) {AMD-reported};
+\node[font=\scriptsize,anchor=west,text=draftgray] at (axis cs:2.2,4.0) {independent};
+\end{axis}
+\end{tikzpicture}
+\caption{Range of reported results for the stacked cache, AMD's own (shaded) against independent sources (bars: lowest to highest result; dots: averages or single results; arrows: upper end not stated precisely). The metrics differ (frame rate, jobs per hour, IPC, run time) and so do the comparison parts, so the chart compares spreads, not values. Lam's lower end is a small, unquantified loss and is drawn at 1; Phoronix's lower end is the largest 5800X lead (just under 20\%) and its upper end ``50\% or more''. Sources: \cite{wuu2022vcache,swaminathanAdvancedPackagingEnabling2021,lamAMDs7950X3DZen2023,cozmaDeepDivingZen2022,lawendaEvaluatingImpactL32025,domkeLocusPerformanceQuantifying2023,larabelAMDRyzen72022}.}
+\label{fig:vendor-vs-independent}
+\end{figure}

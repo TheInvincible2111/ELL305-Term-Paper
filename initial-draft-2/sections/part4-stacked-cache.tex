@@ -164,7 +164,10 @@ Lam's fixed-frequency measurements of the Ryzen~9 7950X3D give enough data to ap
   \item \textbf{Cycles added.} Every L3 access pays four more cycles: $3.85 \times 4 \approx 15$ cycles per thousand instructions.
   \item \textbf{Net effect.} About 25 to 105 cycles saved per thousand instructions.
 \end{enumerate}
-At an IPC of 1.36, a thousand instructions take $1000/1.36 \approx 735$ cycles, so the model predicts 3--14\% fewer cycles. The measurement lies inside that range: at an IPC of 1.43 the same work takes about 699 cycles, 4.9\% fewer.
+At an IPC of 1.36, a thousand instructions take $1000/1.36 \approx 735$ cycles, so the model predicts 3--14\% fewer cycles. The measurement lies inside that range: at an IPC of 1.43 the same work takes about 699 cycles, 4.9\% fewer. \Cref{fig:libx264-waterfall} shows how this change divides between the two effects.
+
+\input{"../initial-draft-2/figures/libx264-waterfall.tex"}
+
 
 The measurement can also be turned around. The observed saving of about 36 cycles per thousand instructions, plus the 15 cycles of added L3 latency, implies that each removed miss saved about $(36 + 15)/0.40 \approx 130$ cycles. That is at the low end of the textbook's 100--300-cycle range, which is expected: an out-of-order core overlaps some memory misses with other work (\cref{sec:pipelining-power}), so removing a miss saves less than its full latency. The worked example therefore uses no assumed values except the textbook's range for memory latency, and the measurement narrows even that.
 
@@ -216,7 +219,10 @@ AMD's own naming is inconsistent: one 2024 AMD presentation calls the Zen~4 stac
 
 \subsection{Manufacturing: thinning, assembly, yield and test}
 \label{sec:manufacturing}
-Stacking adds steps that a planar die does not need. The CCD is thinned, to about 20\,\textmu m in the first generation \cite{cozmaAMDs9800X3D2nd2024}; a die that thin cannot support itself, which is one reason for the structural silicon \cite[slide~12]{wuu2022vcache}. Support silicon then restores the stack to the height of an ordinary CCD, so that server packages with and without V-Cache are the same \cite[slide~17]{wuu2022vcache}. Each of these steps costs money and adds a new way for a part to fail.
+Stacking adds steps that a planar die does not need. The CCD is thinned, to about 20\,\textmu m in the first generation \cite{cozmaAMDs9800X3D2nd2024}; a die that thin cannot support itself, which is one reason for the structural silicon \cite[slide~12]{wuu2022vcache}. Support silicon then restores the stack to the height of an ordinary CCD, so that server packages with and without V-Cache are the same \cite[slide~17]{wuu2022vcache}. Each of these steps costs money and adds a new way for a part to fail. \Cref{fig:stack-process} collects the extra steps described in this part.
+
+\input{"../initial-draft-2/figures/stack-process.tex"}
+
 
 \textbf{Die-to-wafer or wafer-to-wafer?} Dies can be bonded one at a time onto a wafer of other dies (die-to-wafer, D2W), or two whole wafers can be bonded together (wafer-to-wafer, W2W). Dong and Xie summarise the trade-off: D2W can achieve a higher yield because each die can be tested first and only \emph{known-good dies} (KGD) stacked, whereas W2W needs no test before bonding and is easier to align, with higher throughput, at the cost of yield \cite[sec.~IV.C]{dongSystemlevelCostAnalysis2009}. AMD's 2024 comparison adds that in D2W the top and bottom dies need not be the same size and that D2W allows more heterogeneous integration, while W2W requires dies of the same or similar size \cite[slide~10]{alam2ndGeneration3D2024}. V-Cache stacks a 41\,mm$^2$ cache die on an 81\,mm$^2$ CCD, dies of different sizes from different wafers, so it falls on the D2W side of this comparison.
 
@@ -245,7 +251,7 @@ while for wafer-to-wafer bonding the die yields multiply:
     \midrule
     Planar CCD with 96\,MB L3 & 122\,mm$^2$ & 79.1\% & 154\,mm$^2$ \\
     Stack, dies tested first (D2W) & 81 + 41\,mm$^2$ & 85.4\% and 92.2\% & $94.8 + 44.5 = 139$\,mm$^2$ $\div\,Y_{\mathrm{bonding}}$ \\
-    Stack, untested (W2W) & 81 + 41\,mm$^2$ & $0.854 \times 0.922 = 78.8\%$ & $122/0.788 = 155$\,mm$^2$ $\div\,Y_{\mathrm{bonding}}$ \\
+    Stack, untested (W2W) & 81 + 41\,mm$^2$ & $0.8542 \times 0.9223 = 78.8\%$ & $122/0.788 = 155$\,mm$^2$ $\div\,Y_{\mathrm{bonding}}$ \\
     \bottomrule
   \end{tabularx}
 \end{table}

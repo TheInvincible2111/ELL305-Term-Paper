@@ -1,0 +1,34 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  ccd/.style={draw=draftblue,fill=white,minimum width=0.55cm,minimum height=0.32cm,font=\tiny,inner sep=0pt},
+  mc/.style={draw=draftgray,fill=draftgray!20,minimum width=0.42cm,minimum height=0.22cm,font=\tiny,inner sep=0pt}]
+\newcommand{\iod}[3]{% x offset, title, mode
+  \begin{scope}[xshift=#1 cm]
+    \node[font=\small\bfseries] at (1.5,3.45) {#2};
+    \ifcase#3
+      \fill[draftblue!18,rounded corners=2pt] (0,0) rectangle (3,3);
+    \or
+      \fill[draftblue!18,rounded corners=2pt] (0,0) rectangle (1.45,3);
+      \fill[todored!15,rounded corners=2pt] (1.55,0) rectangle (3,3);
+    \or
+      \fill[draftblue!18,rounded corners=2pt] (0,0) rectangle (1.45,1.45);
+      \fill[todored!15,rounded corners=2pt] (1.55,0) rectangle (3,1.45);
+      \fill[todored!15,rounded corners=2pt] (0,1.55) rectangle (1.45,3);
+      \fill[draftblue!18,rounded corners=2pt] (1.55,1.55) rectangle (3,3);
+    \fi
+    \draw[draftblue,thick] (0,0) rectangle (3,3);
+    \draw[draftgray,densely dotted] (1.5,0) -- (1.5,3) (0,1.5) -- (3,1.5);
+    \foreach \x in {0.45,1.05,1.95,2.55} {\node[mc] at (\x,2.75) {MC}; \node[mc] at (\x,0.25) {MC};}
+    \foreach \y in {0.8,2.2} {\node[ccd] at (0.45,\y) {CCD}; \node[ccd] at (1.05,\y) {CCD}; \node[ccd] at (1.95,\y) {CCD}; \node[ccd] at (2.55,\y) {CCD};}
+  \end{scope}}
+\iod{0}{NPS1}{0}
+\iod{4}{NPS2}{1}
+\iod{8}{NPS4}{2}
+\node[font=\scriptsize,align=center] at (1.5,-0.7) {1 domain\\8 CCDs, 8 channels\\up to 204.8\,GB/s};
+\node[font=\scriptsize,align=center] at (5.5,-0.7) {2 domains\\4 CCDs, 4 channels each\\up to 102.4\,GB/s};
+\node[font=\scriptsize,align=center] at (9.5,-0.7) {4 domains\\2 CCDs, 2 channels each\\up to 51.2\,GB/s};
+\end{tikzpicture}
+\caption{How the NPS setting divides an eight-CCD EPYC~7003 socket into NUMA domains (shaded), following AMD's description \cite{amd2022epyc7003} and \cref{tab:nps-modes}. The layout is schematic: CCDs are drawn inside the I/O die only to show which compute dies and memory controllers (MC) form each domain; physically the CCDs sit around the I/O die (\cref{fig:epyc-package}).}
+\label{fig:nps-modes}
+\end{figure}

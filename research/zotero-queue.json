@@ -1,0 +1,44 @@
+[
+  {
+    "file": "TechSpot-Ryzen-7-5700G-Review-2021.pdf",
+    "itemType": "webpage",
+    "fields": {
+      "title": "AMD Ryzen 7 5700G APU Review: Radeon GPU Inside",
+      "websiteTitle": "TechSpot",
+      "date": "2021-07-18",
+      "url": "https://www.techspot.com/review/2293-amd-ryzen-5700g/",
+      "accessDate": "2026-11-01"
+    },
+    "creators": [
+      {
+        "firstName": "Steven",
+        "lastName": "Walton",
+        "creatorType": "author"
+      }
+    ],
+    "status": "imported",
+    "zoteroKey": "DEGALSDT",
+    "note": "imported 1 Nov 2026 before the queue existed"
+  },
+  {
+    "file": "CapFrameX-Cezanne-Memory-Latency-2021.pdf",
+    "itemType": "webpage",
+    "fields": {
+      "title": "For whom Cezanne could be disappointing",
+      "websiteTitle": "CapFrameX Blog",
+      "date": "2021-08-14",
+      "url": "https://www.capframex.com/tests/For%20whom%20Cezanne%20could%20be%20disappointing",
+      "accessDate": "2026-11-01"
+    },
+    "creators": [
+      {
+        "lastName": "devtechprofile",
+        "fieldMode": 1,
+        "creatorType": "author"
+      }
+    ],
+    "status": "imported",
+    "zoteroKey": "WH3IKEG8",
+    "note": "imported 1 Nov 2026 before the queue existed"
+  }
+]

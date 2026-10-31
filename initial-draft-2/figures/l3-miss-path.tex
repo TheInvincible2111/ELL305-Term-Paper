@@ -1,0 +1,42 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  blk/.style={draw=draftblue,thick,fill=draftlight,rounded corners=2pt,font=\scriptsize,align=center,minimum height=1.0cm,inner sep=2pt},
+  die/.style={draw=draftgray,dashed,rounded corners=4pt},
+  req/.style={-{Stealth[length=2mm]},draftblue,thick},
+  rsp/.style={-{Stealth[length=2mm]},todored,thick},
+  note/.style={font=\scriptsize,align=center,text=draftgray}]
+% dies
+\draw[die] (-0.35,-0.9) rectangle (4.75,1.25);
+\node[note,anchor=north west] at (-0.3,-0.9) {compute die (CCD)};
+\draw[die] (6.25,-0.9) rectangle (10.45,1.25);
+\node[note,anchor=north east] at (10.4,-0.9) {I/O die (IOD)};
+% blocks
+\node[blk,minimum width=1.3cm] (core) at (0.5,0.2) {core\\L1, L2};
+\node[blk,minimum width=1.5cm] (l3) at (3.2,0.2) {shared L3\\(miss)};
+\node[blk,minimum width=1.5cm] (fab) at (7.2,0.2) {fabric};
+\node[blk,minimum width=1.3cm] (umc) at (9.5,0.2) {memory\\controller};
+\node[blk,minimum width=1.3cm,fill=draftgray!15,draw=draftgray] (dram) at (12.1,0.2) {DRAM};
+% request path (upper) and response path (lower)
+\draw[req] ([yshift=0.18cm]core.east) -- ([yshift=0.18cm]l3.west);
+\draw[req] ([yshift=0.18cm]l3.east) -- node[above,font=\scriptsize,text=draftblue]{package link} ([yshift=0.18cm]fab.west);
+\draw[req] ([yshift=0.18cm]fab.east) -- ([yshift=0.18cm]umc.west);
+\draw[req] ([yshift=0.18cm]umc.east) -- ([yshift=0.18cm]dram.west);
+\draw[rsp] ([yshift=-0.18cm]dram.west) -- ([yshift=-0.18cm]umc.east);
+\draw[rsp] ([yshift=-0.18cm]umc.west) -- ([yshift=-0.18cm]fab.east);
+\draw[rsp] ([yshift=-0.18cm]fab.west) -- ([yshift=-0.18cm]l3.east);
+\draw[rsp] ([yshift=-0.18cm]l3.west) -- ([yshift=-0.18cm]core.east);
+% timing braces
+\draw[decorate,decoration={brace,amplitude=4pt,mirror},draftgray] (2.45,-1.1) -- (7.95,-1.1)
+  node[midway,below=5pt,note]{CCD $\to$ IOD $\to$ CCD round trip:\\13 fabric clocks, under 9\,ns (Rome)};
+\draw[decorate,decoration={brace,amplitude=4pt},draftgray] (-0.2,2.3) -- (12.8,2.3)
+  node[midway,above=5pt,note]{whole miss, core to nearest memory and back: 94\,ns (Rome); 61.8\,ns measured on a Zen~3 Ryzen~7 5800X};
+\draw[decorate,decoration={brace,amplitude=4pt},draftgray] (-0.2,1.45) -- (3.95,1.45)
+  node[midway,above=4pt,note]{L3 hit instead: about 10.9\,ns (5800X)};
+% legend
+\draw[req] (8.6,-1.55) -- (9.2,-1.55) node[right,font=\scriptsize,text=black]{request};
+\draw[rsp] (8.6,-1.95) -- (9.2,-1.95) node[right,font=\scriptsize,text=black]{data returned};
+\end{tikzpicture}
+\caption{The path of a load that misses in the L3 of a chiplet processor. The request leaves the compute die, crosses the package link to the I/O die, where the memory controllers sit, and the data returns the same way. Times from AMD for Rome \cite{naffziger2020chiplet} and from AIDA64 measurements of the Ryzen~7 5800X \cite{justiceAMDRyzen72021}; the figures come from different processors and are shown for scale only.}
+\label{fig:l3-miss-path}
+\end{figure}

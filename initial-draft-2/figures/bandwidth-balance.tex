@@ -1,0 +1,23 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.78\textwidth, height=5.8cm,
+  xmin=0.5, xmax=8.5, ymin=0, ymax=480, xtick={1,...,8},
+  xlabel={Populated CCDs}, ylabel={Bandwidth (GB/s)},
+  ymajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left,
+  legend pos=north west, legend cell align=left, legend style={font=\scriptsize,draw=draftgray!50},
+  label style={font=\small}, tick label style={font=\small}]
+\addplot[draftblue,thick,mark=*,mark size=1.5pt] coordinates {(1,55)(2,110)(3,165)(4,220)(5,275)(6,330)(7,385)(8,440)};
+\addlegendentry{total CCD--IOD link bandwidth ($55$\,GB/s per link, effective)}
+\addplot[todored,thick,domain=0.5:8.5] {204.8};
+\addlegendentry{eight DDR4-3200 channels ($204.8$\,GB/s, peak)}
+\addplot[draftgray,dashed] coordinates {(3.72,0)(3.72,204.8)};
+\node[font=\scriptsize,anchor=north west,text=draftgray,align=left] at (axis cs:1.0,195) {links limit};
+\node[font=\scriptsize,anchor=north west,text=draftgray,align=left] at (axis cs:5.0,195) {memory channels limit};
+\node[font=\scriptsize,anchor=south,text=draftgray] at (axis cs:3.72,215) {$\approx 3.7$ CCDs};
+\end{axis}
+\end{tikzpicture}
+\caption{Which side limits a Rome socket's memory bandwidth as compute dies are added: below about four CCDs the die-to-die links are the bottleneck, above it the memory channels. This is consistent with AMD's statement that at least four CCDs are populated in most configurations \cite{naffziger2020chiplet}. The link figure is effective and the memory figure peak, so the crossing point is indicative (\cref{tab:bandwidth-balance}).}
+\label{fig:bandwidth-balance}
+\end{figure}

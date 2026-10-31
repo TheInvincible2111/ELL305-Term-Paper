@@ -1,0 +1,23 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.8\textwidth, height=5.0cm,
+  xmin=0.7, xmax=1.75, ymin=0.5, ymax=4.5,
+  ytick={1,2,3,4}, yticklabels={MiniFE{,} smallest input,gem5{,} one CCD,OpenFOAM{,} worst mesh,OpenFOAM{,} best mesh},
+  y dir=reverse, xlabel={V-Cache part's speed-up over the plain part},
+  xmajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left,
+  legend style={font=\scriptsize,draw=draftgray!50,at={(0.98,0.97)},anchor=north east}, legend cell align=left,
+  label style={font=\small}, tick label style={font=\small}]
+\addplot[only marks,mark=o,mark size=2.5pt,draftgray,thick] coordinates {(0.89,1) (1.076,2) (0.81,3) (1.54,4)};
+\addlegendentry{measured}
+\addplot[only marks,mark=*,mark size=2.5pt,draftblue] coordinates {(0.99,1) (1.13,2) (0.85,3) (1.62,4)};
+\addlegendentry{clock-corrected (linear)}
+\foreach \a/\b/\y in {0.89/0.99/1,1.076/1.13/2,0.81/0.85/3,1.54/1.62/4}
+  {\edef\tmp{\noexpand\draw[-{Stealth[length=1.5mm]},draftblue] (axis cs:\a,\y) -- (axis cs:\b,\y);}\tmp}
+\draw[todored,dashed] (axis cs:1,0.5) -- (axis cs:1,4.5);
+\end{axis}
+\end{tikzpicture}
+\caption{The comparisons of \cref{tab:clock-correction} before and after a linear clock correction. The correction moves every point to the right, because the V-Cache part ran at a lower clock in each test; MiniFE's smallest input moves to parity, while OpenFOAM's worst mesh stays clearly below it. The true per-clock effect lies between the two markers, since memory-bound code does not speed up in proportion to clock. Sources: \cite{lawendaEvaluatingImpactL32025,cozmaDeepDivingZen2022,domkeLocusPerformanceQuantifying2023}.}
+\label{fig:clock-correction}
+\end{figure}

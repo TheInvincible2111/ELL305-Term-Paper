@@ -89,3 +89,31 @@ Hot Chips 33 prototype details for the confound table.
 ## Update, 31 Oct 2026 (late night): Part III deepened
 - EPYC 7003 overview read in full: new §7.1 "Inside the I/O die" (GMI links, 8 UMCs, 2 DPC, 4 TB, 128 PCIe lanes, FCLK=MEMCLK 1600 MHz, 4/6/8-channel, IOD labelled 14 nm vs Naffziger 12 nm — flagged), NPS modes table + worked bandwidth/locality example, LLC-as-NUMA; dual-socket xGMI lane budget (128 vs 160 lanes).
 - Suggs HC31 slides read (4, 12, 13, 15, 19): 2× perf/energy = 1.15×1.17×1.47 worked example; Zen 2 CCX (4×4 MB slices, 512 KB L2, 32 B/cycle); AMD's challenge/solution list; ~1000 mm² Rome = 8×74+416 = 1008 mm² check; Rome 204.8 GB/s now cited from Suggs; Matisse 51.2 GB/s → 3.2 GB/s per core, same as 64-core Rome.
+
+## Update, 1 November 2026 — Part VI expanded (91 → 97 pages)
+- New cache–clock model (eq:cache-clock-model, tab:cache-clock-model, fig:cache-clock-model): memory stall fixed in ns, calibrated on Lam's libx264 data; break-even 0.12 / 0.35 / 0.50 MPKI removed (equal clocks / measured 4.8 vs 5.15 GHz / linear rule). Clocks are Lam's all-core L3-load values, labelled as an assumption.
+- New sec:bandwidth-wall with tab:per-core-resources (Milan, Milan-X, Genoa, Genoa-X) and Reguly 2023 (now cited): STREAM 310 GB/s, cache:memory bandwidth 14x, tiling 4x on Milan-X; HBM row added to tab:llc-alternatives.
+- New sec:evidence-strength (tab:evidence-strength), sec:case-against (five objections), Limitations rewritten as Threats to Validity (label kept: sec:limitations), new sec:implications.
+- Conclusions RQ4 and open questions extended.
+
+## Update, 1 November 2026 — five new figures (97 → 102 pages)
+- Part III: fig:l3-miss-path (L3-miss path with Rome/5800X timings), fig:bandwidth-balance (link vs memory bandwidth, crossover ≈3.7 CCDs).
+- Part IV: fig:libx264-waterfall (735 → −52 → +15 → 699 cycles; caption notes the 130-cycle stall is inferred from the same measurement), fig:stack-process (extra steps for a stacked CCD; D2W vs W2W branch; order marked indicative).
+- Part V: fig:openfoam-sweep (Milan-X/Milan by mesh, read from Lawenda Fig. 4 labels; xhigh 1.22× in figure vs 1.24× in text noted; small meshes shaded, min 0.81× from Table 6).
+- Four more figures (102 → 105 pages): fig:numa-latency and fig:nps-modes (Part III), fig:zen2-zen3-latency and fig:clock-correction (Part V). All plot values already in the paper's tables.
+
+## Pending — 5600X measurements (Ishan has access from 4 November 2026)
+- Run `tools/measurements/` kit (latency.c sweep with and without `--huge`; AMD uProf L3 miss rates) on the Ryzen 5 5600X; save outputs to `research/measurements/`.
+- Then update wording that assumes no hardware/measurements:
+  - Part V §21 (sec:evidence-method): "the group does not have access to the relevant hardware".
+  - Part I methodology/contributions: "no new measurements".
+  - Part VI threats to validity: "No new measurements" paragraph.
+- Use measured values to replace remaining labelled assumptions: AMAT miss rates 5/30/40% (tab:amat-example), 4 GHz clock in the 2 TB/s check (Part IV).
+- If measurements are not taken, reword the Part V sentence to say no measurements were taken (not that hardware was unavailable).
+- Four optional figures added (→ 106 pages): fig:two-socket (Part III), fig:vendor-vs-independent (Part V), fig:reguly-ratio and fig:thread-placement (Part VI; placement policy labelled as a proposal, not AMD's).
+- Reminder scheduled for 4 Nov 2026, 09:00 IST about the 5600X measurements.
+
+## Update, 1 November 2026 — Cezanne section, second review, Zotero import queue (→ 108 pages)
+- Part III sec:cezanne (tab:cezanne-vermeer): Zen 3 with and without chiplets (TechSpot 5700G review, CapFrameX Cezanne article, 7-cpu, FPS Review).
+- Second independent review (research/review-initial-draft-2-v2.md): G1–G20 all confirmed and applied; see research/review-initial-draft-2-v2-response.md.
+- New source-import workflow: research/zotero-queue.json + scripts/zotero-import.js (one-line loader in research/zotero-queue.md).

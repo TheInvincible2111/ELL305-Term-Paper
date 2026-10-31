@@ -1,0 +1,30 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,
+  st/.style={draw=draftblue,thick,fill=draftlight,rounded corners=2pt,font=\scriptsize,align=center,text width=3.4cm,minimum height=0.95cm},
+  alt/.style={draw=todored,fill=todored!8,rounded corners=2pt,font=\scriptsize,align=center,text width=3.3cm,minimum height=0.95cm},
+  grp/.style={font=\scriptsize\bfseries,text=draftgray,anchor=east},
+  arr/.style={-{Stealth[length=2mm]},draftblue,thick}]
+\node[st] (t1) at (0,0) {Die-to-wafer flow: test CCD and cache dies; keep only known-good dies};
+\node[alt,text width=3.4cm,draw=draftgray,fill=white] (t0) at (0,1.6) {Finished CCD and cache-die wafers};
+\node[st] (t2) at (0,-1.7) {Form TSVs in the CCD and thin it (to about 20\,\textmu m in the first generation)};
+\node[st] (t3) at (0,-3.4) {Prepare bonding surfaces: oxide ending in Si--OH, copper pads slightly recessed};
+\node[st] (b1) at (0,-5.4) {Place cache die on CCD at room temperature: oxide surfaces held by hydrogen bonds};
+\node[st] (b2) at (0,-7.1) {Anneal: Si--O--Si bonds form, water released; copper diffuses and joins the pads};
+\node[st] (f1) at (0,-9.1) {Add structural silicon: supports the thin CCD, conducts heat, restores standard height};
+\node[st] (f2) at (0,-10.8) {Package as an ordinary CCD (same height with or without V-Cache)};
+\foreach \a/\b in {t1/t2,t2/t3,t3/b1,b1/b2,b2/f1,f1/f2} \draw[arr] (\a) -- (\b);
+\node[grp] at (-2.2,-1.7) {prepare};
+\node[grp] at (-2.2,-6.25) {bond};
+\node[grp] at (-2.2,-9.95) {finish};
+\draw[draftgray,thin] (-2.05,0.5) -- (-2.05,-4.0) (-2.05,-4.8) -- (-2.05,-7.7) (-2.05,-8.5) -- (-2.05,-11.4);
+% D2W / W2W branch
+\node[alt] (w2w) at (5.4,2.2) {Wafer-to-wafer: bond whole wafers untested; die yields multiply ($0.8542 \times 0.9223 = 78.8\%$ in \cref{tab:stack-yield})};
+\node[st,text width=3.3cm] (d2w) at (5.4,-0.6) {Die-to-wafer: only tested good dies are bonded; dies may differ in size (V-Cache: 41 on 81\,mm$^2$)};
+\draw[arr] (t0) -- (t1);
+\draw[-{Stealth[length=2mm]},todored,thick,dashed] (t0.east) -- node[above,sloped,font=\scriptsize,text=todored]{no test} (w2w.west);
+\draw[arr,dashed] (t1.east) -- (d2w.west);
+\end{tikzpicture}
+\caption{The steps that a stacked CCD needs and a planar one does not, grouped by purpose. The sources describe the steps but not their exact order in AMD's production flow, so the order shown is indicative. Sources: thinning \cite{cozmaAMDs9800X3D2nd2024}; bonding chemistry \cite[slide~9]{alam2ndGeneration3D2024}; structural silicon and package height \cite[slides~12, 17]{wuu2022vcache}; die-to-wafer against wafer-to-wafer \cite{dongSystemlevelCostAnalysis2009}, \cite[slide~10]{alam2ndGeneration3D2024}.}
+\label{fig:stack-process}
+\end{figure}

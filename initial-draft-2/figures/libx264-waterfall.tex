@@ -1,0 +1,25 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=0.022cm,
+  lab/.style={font=\scriptsize,align=center,anchor=north,text width=2.4cm}]
+\def\base{600}
+\foreach \v in {600,650,700,750} {\draw[draftgray!30] (0,\v) -- (10.2,\v); \node[font=\scriptsize,anchor=east] at (0,\v) {\v};}
+\draw[draftgray] (0,\base) -- (10.2,\base);
+\node[font=\small,rotate=90] at (-0.9,675) {cycles per 1000 instr.};
+\fill[draftblue!70] (0.5,\base) rectangle (2.0,735);
+\node[font=\scriptsize,anchor=south] at (1.25,735) {735};
+\fill[todored!70] (3.0,683) rectangle (4.5,735);
+\node[font=\scriptsize,anchor=north] at (3.75,683) {$-52$};
+\fill[draftgray!60] (5.5,683) rectangle (7.0,698);
+\node[font=\scriptsize,anchor=south] at (6.25,698) {$+15$};
+\fill[draftblue!70] (8.0,\base) rectangle (9.5,699);
+\node[font=\scriptsize,anchor=south] at (8.75,699) {699};
+\draw[draftgray,dashed] (2.0,735) -- (3.0,735) (4.5,683) -- (5.5,683) (7.0,698) -- (8.0,698);
+\node[lab] at (1.25,595) {plain CCD\\(IPC 1.36)};
+\node[lab] at (3.75,595) {0.40 misses removed\\$\times$ about 130 cycles};
+\node[lab] at (6.25,595) {3.85 L3 accesses\\$\times$ 4 extra cycles};
+\node[lab] at (8.75,595) {V-Cache CCD\\(IPC 1.43, measured)};
+\end{tikzpicture}
+\caption{The libx264 worked example of \cref{sec:tradeoff-example} as a sequence: starting from the plain CCD's 735 cycles per thousand instructions, the misses removed by the larger L3 save about 52 cycles and the four extra cycles on every L3 access cost about 15, leaving about 698 against the 699 implied by the measured IPC. The stall of about 130 cycles per removed miss is itself inferred from the measurement, so the chart shows how the measured change divides between the two effects rather than predicting it independently. Both CCDs fixed at 4.2\,GHz; data from Lam \cite{lamAMDs7950X3DZen2023}. The vertical axis starts at 600.}
+\label{fig:libx264-waterfall}
+\end{figure}

@@ -1,0 +1,22 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=14pt, width=0.8\textwidth, height=5.6cm,
+  ymin=0, ymax=16, ylabel={Ratio ($\times$)},
+  symbolic x coords={Milan-X,Xeon 8360Y,Xeon Max 9480}, xtick=data,
+  x tick label style={font=\small,align=center},
+  xticklabels={{AMD EPYC 7V73X\\(Milan-X)},{Intel Xeon 8360Y\\(DDR4)},{Intel Xeon Max 9480\\(HBM)}},
+  nodes near coords, nodes near coords style={font=\scriptsize}, point meta=rawy,
+  ymajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left,
+  legend style={font=\scriptsize,draw=draftgray!50,at={(0.98,0.97)},anchor=north east}, legend cell align=left,
+  enlarge x limits=0.25, label style={font=\small}]
+\addplot[fill=draftlight,draw=draftblue] coordinates {(Milan-X,14) (Xeon 8360Y,6) (Xeon Max 9480,3.8)};
+\addlegendentry{cache bandwidth $\div$ memory bandwidth}
+\addplot[fill=todored!40,draw=todored] coordinates {(Milan-X,4) (Xeon 8360Y,2.7) (Xeon Max 9480,1.84)};
+\addlegendentry{speed-up from cache-blocking tiling (CloverLeaf~2D)}
+\end{axis}
+\end{tikzpicture}
+\caption{The platform with the largest gap between cache and memory bandwidth gains most from code that reuses data in cache. Measurements by Reguly \cite{regulyComparativeEvaluationBandwidthbound2023}; the Xeon 8360Y ratio is given as 6$\times$ in the bandwidth section and 6.3$\times$ in the tiling section of the same paper.}
+\label{fig:reguly-ratio}
+\end{figure}

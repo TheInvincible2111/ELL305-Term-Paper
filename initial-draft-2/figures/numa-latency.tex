@@ -1,0 +1,23 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=14pt, width=0.85\textwidth, height=5.6cm,
+  ymin=0, ymax=300, ylabel={Memory latency (ns)},
+  symbolic x coords={N1,N2,N3,gap,R1,R2,R3},
+  xtick={N1,N2,N3,R1,R2,R3},
+  xticklabels={NUMA1,NUMA2,NUMA3,{Near 2 ch.},NUMA1,NUMA2},
+  x tick label style={font=\small},
+  nodes near coords, nodes near coords style={font=\scriptsize},
+  ymajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left,
+  enlarge x limits=0.08, label style={font=\small}]
+\addplot[fill=todored!45,draw=todored] coordinates {(N1,90) (N2,141) (N3,234)};
+\addplot[fill=draftlight,draw=draftblue] coordinates {(R1,94) (R2,104) (R3,201)};
+\node[font=\small,anchor=south] at (axis cs:N2,262) {Naples (EPYC 7001)};
+\node[font=\small,anchor=south] at (axis cs:R2,262) {Rome (EPYC 7002)};
+\draw[draftgray,dashed] (axis cs:gap,0) -- (axis cs:gap,290);
+\end{axis}
+\end{tikzpicture}
+\caption{Memory latency at each NUMA distance in Naples and Rome, as reported by AMD \cite[Fig.~2.2.6]{naffziger2020chiplet} (labels as in \cref{tab:numa-latency}). Rome's nearest access is slightly slower, because every access crosses the package link to the I/O die, but the spread of latencies within the socket is much narrower, and the average local latency fell to 0.81 of Naples's.}
+\label{fig:numa-latency}
+\end{figure}
