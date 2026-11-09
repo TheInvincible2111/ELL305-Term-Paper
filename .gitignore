@@ -14,3 +14,10 @@ notes/.obsidian/workspace.json
 notes/.obsidian/workspace-mobile.json
 notes/Term Paper ELL305/
 AGENTS.md
+
+
+# cache simulator build output and local results
+tools/cachesim/cachesim
+tools/cachesim/results/
+tools/cachesim-share.zip
+tools/measurements/ELL305-5600X-kit.zip

@@ -1,0 +1,7 @@
+clock_gap_pct,breakeven_misses_removed_per_kinstr
+0,0.041
+2,0.133
+4,0.224
+6,0.316
+7.3,0.376
+10,0.499

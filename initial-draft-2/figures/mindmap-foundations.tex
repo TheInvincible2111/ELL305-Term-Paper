@@ -1,0 +1,42 @@
+% Generated from the original tree by tmp/gen_mindmaps.py; edit the text here directly.
+\mapfigure{%
+\node[mmroot] (r) {Architectural foundations};
+\node[mmbox,mmlevel1,fill=mmCFE0F4] (b0) at (0.00,3.60) {Performance};
+\draw[mmbig] (r) -- (b0);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b0c0) at (-1.52,5.35) {IPC $\times f$ / instructions};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c0.south);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b0c1) at (1.52,5.35) {Baseline organisation};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c1.south);
+\node[mmbox,mmlevel1,fill=mmF4AAA2] (b1) at (4.47,1.36) {Pipelining, power, heat};
+\draw[mmbig] (r) -- (b1);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c0) at (8.07,2.81) {Pipeline depth};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c0.west);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c1) at (8.07,1.36) {Dynamic and leakage power};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c1.west);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c2) at (8.07,-0.09) {Thermal resistance, ED$^2$};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c2.west);
+\node[mmbox,mmlevel1,fill=mmCFE7E1] (b2) at (2.76,-3.56) {Memory hierarchy};
+\draw[mmbig] (r) -- (b2);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c0) at (6.36,-2.11) {SRAM and DRAM};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c0.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c1) at (6.36,-3.56) {AMAT};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c1.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c2) at (6.36,-5.01) {Miss classes};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c2.west);
+\node[mmbox,mmlevel1,fill=mmF9D7AF] (b3) at (-2.76,-3.56) {Cache design};
+\draw[mmbig] (r) -- (b3);
+\node[mmlevel2,mmoval,fill=mmDCCFF6] (b3c0) at (-6.36,-2.11) {Sets and ways};
+\draw[mmsmall] (b3.west) to[out=180,in=0] (b3c0.east);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b3c1) at (-6.36,-3.56) {Replacement and write policy};
+\draw[mmsmall] (b3.west) to[out=180,in=0] (b3c1.east);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b3c2) at (-6.36,-5.01) {Other LLC technologies};
+\draw[mmsmall] (b3.west) to[out=180,in=0] (b3c2.east);
+\node[mmoval,mmlevel1,fill=mmDCCFF6] (b4) at (-4.47,1.36) {Multicore};
+\draw[mmbig] (r) -- (b4);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c0) at (-8.07,2.81) {Amdahl's law};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c0.east);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c1) at (-8.07,1.36) {Coherence: MSI, directory};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c1.east);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c2) at (-8.07,-0.09) {Interconnect topologies};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c2.east);
+}{Overview of Part~\ref{part:foundations}: the textbook concepts that the later parts use to judge chiplets and stacked cache.}{fig:mindmap-foundations}

@@ -1,0 +1,23 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.9\textwidth, height=6.6cm,
+  xmin=0, xmax=1.8, ymin=0.88, ymax=1.34,
+  xlabel={Misses removed by the larger L3 (per 1000 instructions)}, ylabel={Speed-up, stacked over plain},
+  legend pos=north west, legend style={font=\scriptsize}, legend cell align=left,
+  grid=major, grid style={draftgray!20}]
+\addplot[draftgray,thin,forget plot] coordinates {(0,1) (1.8,1)};
+\addplot[draftblue,very thick,mark=*,mark size=1.2pt] coordinates {(0.0117,0.9948) (0.0923,1.009) (0.1688,1.023) (0.2354,1.035) (0.3029,1.046) (0.3662,1.058) (0.4333,1.07) (0.5439,1.089) (0.7394,1.124) (0.8802,1.149) (1.1404,1.196) (1.3415,1.231) (1.6097,1.279) (1.7641,1.306)};
+\addlegendentry{clock gap 0\%}
+\addplot[mmteal,thick,mark=*,mark size=1.2pt] coordinates {(0.0117,0.9634) (0.0923,0.9772) (0.1688,0.9904) (0.2354,1.002) (0.3029,1.014) (0.3662,1.024) (0.4333,1.036) (0.5439,1.055) (0.7394,1.089) (0.8802,1.113) (1.1404,1.158) (1.3415,1.192) (1.6097,1.239) (1.7641,1.265)};
+\addlegendentry{clock gap 4\%}
+\addplot[mmamber,thick,dashed,mark=*,mark size=1.2pt] coordinates {(0.0117,0.9389) (0.0923,0.9524) (0.1688,0.9653) (0.2354,0.9765) (0.3029,0.9878) (0.3662,0.9984) (0.4333,1.01) (0.5439,1.028) (0.7394,1.061) (0.8802,1.085) (1.1404,1.128) (1.3415,1.162) (1.6097,1.207) (1.7641,1.233)};
+\addlegendentry{clock gap 7.3\%}
+\addplot[mmred,thick,dash dot,mark=*,mark size=1.2pt] coordinates {(0.0117,0.9198) (0.0923,0.933) (0.1688,0.9457) (0.2354,0.9566) (0.3029,0.9677) (0.3662,0.9781) (0.4333,0.9892) (0.5439,1.007) (0.7394,1.04) (0.8802,1.063) (1.1404,1.105) (1.3415,1.139) (1.6097,1.183) (1.7641,1.208)};
+\addlegendentry{clock gap 10\%}
+\end{axis}
+\end{tikzpicture}
+\caption{S3: the V-Cache CCD (96\,MB, 51 cycles) at a lower clock against the plain CCD (32\,MB, 47 cycles) at 5.15\,GHz, as the working set grows and the larger cache removes more misses. The access mix is calibrated to Lam's libx264 run (about 3.8 L3 accesses per 1000 instructions, of which about 1.04 per 1000 instructions miss even in the larger cache); the overlap factor is 0.335. A 7.3\% gap is the 4.8 against 5.15\,GHz Lam measured on the 7950X3D. Each curve crosses 1 at the break-even of that clock gap; \cref{tab:sim-breakeven} compares the crossings with the analytical model of \cref{sec:cache-clock-model}.}
+\label{fig:sim-cache-clock}
+\end{figure}

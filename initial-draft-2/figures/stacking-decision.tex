@@ -7,10 +7,10 @@
   arr/.style={-{Stealth[length=2mm]},draftblue,thick},
   lab/.style={font=\scriptsize\itshape,text=draftgray}]
 \node[q] (q1) at (0,0) {Does the program miss often in the plain L3?\\(L3 misses per 1000 instructions)};
-\node[a] (a1) at (5.6,0) {Few misses: prefer the higher-clocked plain die\\(flight simulator, 0.35 MPKI)};
+\node[a] (a1) at (5.6,0) {Few misses: prefer the higher-clocked plain CCD\\(flight simulator, 0.35 MPKI)};
 \node[q] (q2) at (0,-2.0) {Does its working set fit in about three times the base L3?};
-\node[a] (a2) at (5.6,-2.0) {Far larger, or streaming: little change; needs memory bandwidth\\(largest OpenFOAM and MiniFE inputs)};
-\node[q] (q3) at (0,-4.0) {Is the IPC gain at equal clock larger than the plain die's clock advantage (about 5--7\%)?};
+\node[a] (a2) at (5.6,-2.0) {Far larger, or streaming: little change; needs memory bandwidth\\(largest MiniFE inputs)};
+\node[q] (q3) at (0,-4.0) {Is the IPC gain at equal clock larger than the plain CCD's clock advantage (about 5--7\%)?};
 \node[a] (a3) at (5.6,-4.0) {Roughly a tie or a small loss\\(libx264: $+4.9\%$ IPC against $+7\%$ clock)};
 \node[win] (a4) at (0,-6.0) {Stacked cache wins\\(Call of Duty, Cyberpunk~2077, mid-sized OpenFOAM and MiniFE)};
 \draw[arr] (q1) -- node[lab,above]{no} (a1);
@@ -20,6 +20,6 @@
 \draw[arr] (q3) -- node[lab,above]{no} (a3);
 \draw[arr] (q3) -- node[lab,right]{yes} (a4);
 \end{tikzpicture}
-\caption{When does a stacked L3 pay off? A decision sequence summarising the evidence of Parts~\ref{part:stacked-cache} and~\ref{part:case-study}; the examples are measured cases from \cite{lamAMDs7950X3DZen2023,lawendaEvaluatingImpactL32025,domkeLocusPerformanceQuantifying2023}. Cost, which also favours the plain die, is not shown.}
+\caption{When does a stacked L3 pay off? A decision sequence summarising the evidence of Parts~\ref{part:stacked-cache} and~\ref{part:case-study}; the examples are measured cases from \cite{lamAMDs7950X3DZen2023,lawendaEvaluatingImpactL32025,domkeLocusPerformanceQuantifying2023}. Cost, which also favours the plain CCD, is not shown.}
 \label{fig:stacking-decision}
 \end{figure}

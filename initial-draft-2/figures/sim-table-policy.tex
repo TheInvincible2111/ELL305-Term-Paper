@@ -1,0 +1,21 @@
+\begin{table}[htbp]
+  \centering
+  \caption{Replacement policy: the memory-system speed-up of 96 over 32\,MB for three workloads under three policies (overlap 0.335; mean of five seeds). With random accesses every resident line is equally likely to be used next, so no policy can change the result; the policy matters for workloads with reuse or a cyclic order.}
+  \label{tab:sim-policy}
+  \small
+  \begin{tabular}{@{}llccc@{}}
+    \toprule
+    \textbf{Workload} & \textbf{Policy} & \textbf{16\,MB} & \textbf{64\,MB} & \textbf{192\,MB} \\
+    \midrule
+    random & LRU & 0.95 & 2.86 & 1.42 \\
+     & random & 0.95 & 2.86 & 1.42 \\
+     & tree pseudo-LRU & 0.95 & 2.86 & 1.42 \\
+    hot/cold & LRU & 0.96 & 1.16 & 1.22 \\
+     & random & 0.96 & 1.19 & 1.22 \\
+     & tree pseudo-LRU & 0.96 & 1.15 & 1.16 \\
+    sequential (cyclic) & LRU & 0.95 & 4.75 & 0.99 \\
+     & random & 0.95 & 4.27 & 0.99 \\
+     & tree pseudo-LRU & 0.95 & 4.75 & 0.99 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

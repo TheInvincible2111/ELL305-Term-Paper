@@ -1,0 +1,14 @@
+\begin{table}[htbp]
+  \centering
+  \caption{S3: misses the larger L3 must remove per 1000 instructions for the V-Cache CCD to break even, read from \cref{fig:sim-cache-clock} by linear interpolation, against the analytical model of \cref{sec:cache-clock-model} at the same clocks (plain CCD at 5.15\,GHz; the analytical equal-clock value is 0.12 at 4.2\,GHz).}
+  \label{tab:sim-breakeven}
+  \small
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    \textbf{Clock gap} & 0\% & 2\% & 4\% & 6\% & 7.3\% & 10\% \\
+    \midrule
+    Simulation (overlap 0.335) & 0.04 & 0.13 & 0.22 & 0.32 & 0.38 & 0.50 \\
+    Analytical model, \cref{eq:cache-clock-model} & 0.10 & 0.17 & 0.24 & 0.31 & 0.35 & 0.45 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

@@ -9,7 +9,7 @@
   \vspace{0.2cm}
   {\large\bfseries Department of Electrical Engineering\par}
   \vspace{0.65cm}
-  {\large ELL305: Computer Architecture --- Term Paper\par}
+  {\large ELL305: Computer Architecture\par}
   \vspace{0.45cm}
   \rule{0.94\textwidth}{0.7pt}\par
   \vspace{0.45cm}
@@ -29,6 +29,9 @@
     \textbf{\authortwo} & \entrytwo & \href{mailto:\emailtwo}{\emailtwo}\\[0.4em]
     \textbf{\authorthree} & \entrythree & \href{mailto:\emailthree}{\emailthree}
   \end{tabularx}
+  \vspace{0.6cm}
+
+  {\small \href{\repourl}{\nolinkurl{\repourlshort}}\par}
   \vfill
   {\large \draftdate\par}
 \end{titlepage}
@@ -46,7 +49,7 @@
   {\Large\bfseries Abstract\par}
 \end{center}
 
-\progressabstract{For several decades, processor performance improved largely by integrating more transistors on a single, monolithic die. That approach is now constrained by die size limits, manufacturing yield, the uneven scaling of logic, SRAM and analog circuits, and the power and thermal budget of the package. This paper studies two linked architectural responses to these constraints: chiplet-based processor organisation, which partitions a processor into separately manufactured dies, and three-dimensional stacking of cache, which adds last-level-cache capacity without enlarging the compute die. AMD Zen processors serve as the principal case study, tracing the progression from the compute-die and I/O-die partitioning of Zen~2, through the unified eight-core L3 organisation of Zen~3, to the hybrid-bonded 3D V-Cache products. For each technique the paper asks which bottleneck it addresses, what benefit it provides, and what new cost or trade-off it introduces. The analysis is grounded in the memory-hierarchy and multiprocessor foundations of the course textbook and evaluates published research and benchmark evidence rather than new hardware measurements. \todo{Revise the abstract once Parts V and VI contain completed analysis.}
+\progressabstract{For several decades, processor performance improved largely by integrating more transistors on a single, monolithic die. That approach is now constrained by die size limits, manufacturing yield, the uneven scaling of logic, SRAM and analog circuits, and the power and thermal budget of the package. This paper studies two linked architectural responses to these constraints: chiplet-based processor organisation, which partitions a processor into separately manufactured dies, and three-dimensional stacking of cache, which adds last-level-cache capacity without enlarging the compute die. AMD Zen processors serve as the principal case study, tracing the progression from the compute-die and I/O-die partitioning of Zen~2, through the unified eight-core L3 organisation of Zen~3, to the hybrid-bonded 3D V-Cache products. For each technique the paper asks which bottleneck it addresses, what benefit it provides and what new cost or trade-off it introduces, and it grades the published evidence behind each answer. Chiplets answer the cost and size limits of large dies: smaller dies are cheaper per good die, the I/O moves to an older node, and core counts beyond the reticle limit become possible, at the price of a die-to-die hop on every L3 miss and of non-uniform memory access (NUMA) across the socket. Stacking a 64\,MB SRAM die on a Zen~3 compute die expands its L3 from 32 to 96\,MB for about four extra cycles of latency, a cost measured independently, by one outlet, across three generations. The benefit depends strongly on the workload: it is large for working sets between the base and stacked capacities and small or slightly negative otherwise, and in the first two generations (Zen~3 and Zen~4) it is partly offset by lower clocks. A simple model calibrated on published measurements shows that the 7\% clock gap of one Zen~4 part raises the number of misses the larger cache must remove to break even from about 0.1 to about 0.35 per thousand instructions. A trace-driven cache model, calibrated on the same measurements, illustrates these mechanisms with every other factor held fixed and shows which assumptions the conclusions depend on most. Measurements on the group's own Ryzen~5 5600X, a single-CCD chiplet part, show that the published L1 and L2 latencies the model takes as inputs agree with that machine's, and that its L3 and memory latencies are within about 20\%. Close to each cache's capacity, however, the model's latency is too low, by up to 2.4 times (at 32\,MB, measured in a virtual machine). The analysis is grounded in the memory-hierarchy and multiprocessor foundations of the course textbook and uses published research and benchmark evidence, complemented by these measurements on one processor without stacked cache.
 
 \noindent\textbf{Keywords:} processor architecture, chiplets, memory hierarchy, last-level cache, 3D-stacked cache, hybrid bonding, AMD Zen, ELL305.}
 

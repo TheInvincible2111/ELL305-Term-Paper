@@ -1,0 +1,7 @@
+case,breakeven_equal_clock,breakeven_gap_7.3
+calibrated (overlap 0.335),0.041,0.376
+overlap 0.202 (Cyberpunk),0.042,0.578
+overlap 0.105 (GHPC),0.042,1.047
+overlap 1.0,0.041,0.171
+memory 60 ns,0.051,0.463
+memory 90 ns,0.034,0.309

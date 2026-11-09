@@ -20,7 +20,7 @@ Murphy also considered a narrower, ``triangular'' distribution, which gives
 \begin{equation*}
   Y_{\mathrm{triangular}}(A) = \left(\frac{1 - e^{-AD_0}}{AD_0}\right)^{2}.
 \end{equation*}
-He regarded the zero-width (Poisson) and rectangular cases as extremes that are ``almost certainly inappropriate'' and used the triangular form for most of his results, while noting that the three forms differ little at high yields \cite[p.~1539]{murphyCostsizeOptimaMonolithic1964}. This paper keeps the rectangular form because it is the one used in the 3D-IC cost model of Dong and Xie; for the 1 and 2\,cm$^2$ dies of the worked example the choice changes the result by less than one percentage point (82.4 against 82.1\%, 68.8 against 67.9\%), but for the 592\,mm$^2$ monolithic die used in Parts~\ref{part:intro} and~\ref{part:chiplets} the rectangular and triangular forms give 38.3\% and 34.4\%, a gap of about four points that slightly favours the monolithic design. Because the averaged expression is never smaller than $e^{-AD_0}$ for the same mean density, Murphy's model is less pessimistic than the Poisson model for large dies.
+Murphy regarded the zero-width (Poisson) and rectangular cases as extremes that are ``almost certainly inappropriate'' and used the triangular form for most of the paper's results, while noting that the three forms differ little at high yields \cite[p.~1539]{murphyCostsizeOptimaMonolithic1964}. This paper keeps the rectangular form because it is the one used in the 3D-IC cost model of Dong and Xie. For the 1 and 2\,cm$^2$ dies of the example the choice changes the result by less than one percentage point (82.4 against 82.1\%, 68.8 against 67.9\%). For the 592\,mm$^2$ monolithic die used in Parts~\ref{part:intro} and~\ref{part:chiplets} the rectangular and triangular forms give 38.3\% and 34.4\%, a gap of about four points that slightly favours the monolithic design. Because the averaged expression is never smaller than $e^{-AD_0}$ for the same mean density, Murphy's model is less pessimistic than the Poisson model for large dies.
 
 With $D_0 = 0.2$\,cm$^{-2}$ and $Y_{\mathrm{wafer}} = 1$: for $A = 1$\,cm$^2$, $Y = (1-e^{-0.4})/0.4 \approx 0.824$; for $A = 2$\,cm$^2$, $Y = (1-e^{-0.8})/0.8 \approx 0.688$. For comparison, the triangular model gives 0.821 and 0.679, and the Poisson model 0.819 and 0.670.
 
@@ -37,3 +37,56 @@ Suppose a design of area $A$ is split into $k$ chiplets of area $A/k$, each with
   k \cdot C_{\text{good}}\!\left(\tfrac{A}{k} + \delta\right) \approx \frac{C_w}{W}\cdot\frac{A + k\delta}{Y\!\left(\tfrac{A}{k} + \delta\right)}.
 \end{equation*}
 Smaller chiplets yield better, so the denominator grows with $k$, while the overhead term $k\delta$ in the numerator also grows. As an illustration with $D_0 = 0.2$\,cm$^{-2}$, a 4\,cm$^2$ design split into four chiplets of 1\,cm$^2$ plus a 0.05\,cm$^2$ interface each costs about $(4.2/0.817)/(4/0.499) \approx 0.64$ of the monolithic silicon, a saving of roughly 36\%. The saving grows for larger designs and higher defect densities. Dong and Xie reach the same qualitative conclusion for die stacking: it becomes cheaper than a single planar die only above a size threshold, and testing each die before stacking (die-to-wafer bonding) avoids multiplying together the yields of all dies in the stack \cite{dongSystemlevelCostAnalysis2009}. The model omits packaging, assembly yield, test cost and the use of different process nodes for different chiplets, all of which \cref{sec:process-specialisation} discusses qualitatively.
+
+\subsection{Silicon across a product line}
+\label{app:product-line}
+This example supports the summary in \cref{sec:manufacturing}. Suppose a fraction $p$ of the parts a company sells needs 96\,MB of L3 and the rest needs 32\,MB, and compare three ways of building the line, using the silicon per good part from \cref{tab:stack-yield} and a bonding yield of 95\% (an assumed value; at 99\% each stacked part would cost about 140.7\,mm$^2$ instead of 146.6\,mm$^2$):
+\begin{itemize}
+  \item \textbf{(A) One planar die for everything.} Every part uses the 122\,mm$^2$ die with 96\,MB, so every part costs 154\,mm$^2$ of silicon.
+  \item \textbf{(B) Two planar dies.} A 32\,MB die (94.8\,mm$^2$ per good part) and a 96\,MB die (154\,mm$^2$), each designed, verified and made separately.
+  \item \textbf{(C) One CCD with an optional cache die.} Every part uses the 81\,mm$^2$ CCD (94.8\,mm$^2$ per good die). The fraction $p$ is bonded to a cache die, and a failed bond scraps the CCD as well, so each stacked part costs $(94.8 + 44.5)/0.95 \approx 146.6$\,mm$^2$, as in \cref{eq:d2w-cost}.
+\end{itemize}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Average silicon per good part across a product line in which a fraction $p$ of parts needs 96\,MB (from \cref{tab:stack-yield}; bonding yield 95\%, assumed; thinning, bonding and test costs not included).}
+  \label{tab:product-line-silicon}
+  \small
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Strategy} & $p = 0.1$ & $p = 0.25$ & $p = 0.5$ \\
+    \midrule
+    (A) One planar 96\,MB die & 154\,mm$^2$ & 154\,mm$^2$ & 154\,mm$^2$ \\
+    (B) Two planar dies & 101\,mm$^2$ & 110\,mm$^2$ & 124\,mm$^2$ \\
+    (C) One CCD, optional cache die & 100\,mm$^2$ & 108\,mm$^2$ & 121\,mm$^2$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\Cref{tab:product-line-silicon} separates the two parts of AMD's argument. Against strategy~(A), stacking saves a third of the silicon when few parts need the large cache, because the parts that do not need it no longer pay for it. Against strategy~(B), the saving in silicon is small, 0.7--3\%, so stacking's real advantage over two planar dies is not silicon but everything outside this table. Strategy~(B) needs a second die to be designed, verified and given its own masks, and it fixes the product mix when wafers are started, because a wafer of 96\,MB dies cannot later become 32\,MB parts without wasting the extra area. Strategy~(C) needs one CCD design, and the decision to add a cache die is taken at assembly, so the mix can follow demand. The table also shows the limit of the argument. Each V-Cache part costs $139.3/Y_{\mathrm{bonding}}$\,mm$^2$ under (C), against 154\,mm$^2$ under (A) and (B). Below a bonding yield of about $139.3/154 \approx 90\%$, strategy~(C) therefore loses its advantage over (A) for V-Cache parts, and at the same point its small silicon lead over (B).
+
+\subsection{Good dies per wafer}
+\label{app:dies-per-wafer}
+This example supports the summary in \cref{sec:process-specialisation}. Yield is only half of the cost story; the other half is how many dies fit on a wafer. Dong and Xie estimate the number of dies per wafer as
+\begin{equation}
+  N_{\mathrm{die}} \;=\; \frac{\pi\,(\phi_{\mathrm{wafer}}/2)^2}{A_{\mathrm{die}}} \;-\; \frac{\pi\,\phi_{\mathrm{wafer}}}{\sqrt{2\,A_{\mathrm{die}}}},
+  \label{eq:dies-per-wafer}
+\end{equation}
+where $\phi_{\mathrm{wafer}}$ is the wafer diameter and $A_{\mathrm{die}}$ the die area \cite[Eq.~14]{dongSystemlevelCostAnalysis2009}. The first term divides the wafer area by the die area; the second subtracts the partial dies lost around the circular edge, a loss that grows with die size. For a 300\,mm wafer, \cref{tab:dies-per-wafer} applies \cref{eq:dies-per-wafer} and the yield model of \cref{eq:yield}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Dies and good dies per 300\,mm wafer ($D_0 = 0.2$\,cm$^{-2}$, $Y_{\mathrm{wafer}} = 1$; illustrative).}
+  \label{tab:dies-per-wafer}
+  \small
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Die} & \textbf{Dies per wafer} & \textbf{Modelled yield} & \textbf{Good dies} & \textbf{64-core sets per wafer} \\
+    \midrule
+    74\,mm$^2$ CCD & $955.2 - 77.5 \approx 878$ & 86.6\% & 760 & $760/8 = 95$ \\
+    592\,mm$^2$ monolithic & $119.4 - 27.4 \approx 92$ & 38.3\% & 35 & 35 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A wafer of CCDs supplies the compute silicon for about 95 64-core processors, against 35 for the monolithic design, a factor of 2.7. With $D_0 = 0.1$ the factor is about 1.9, and with $D_0 = 0.3$ about 3.5. The edge loss alone is small for the CCD (8\% of the gross count) but noticeable for the large die (23\%). This calculation still ignores the I/O die, packaging and test, and assumes that a 592\,mm$^2$ die could be made at all; at the full 64-core size, Naffziger \emph{et al.} note that the monolithic design would exceed the maximum reticle size \cite{naffziger2020chiplet}.

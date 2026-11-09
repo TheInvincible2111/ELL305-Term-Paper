@@ -1,0 +1,36 @@
+% Generated from the original tree by tmp/gen_mindmaps.py; edit the text here directly.
+\mapfigure{%
+\node[mmroot] (r) {Implications for practice};
+\node[mmbox,mmlevel1,fill=mmCFE0F4] (b0) at (3.32,3.11) {Choosing hardware};
+\draw[mmbig] (r) -- (b0);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b0c0) at (6.92,4.56) {Measure L3 misses first};
+\draw[mmsmall] (b0.east) to[out=0,in=180] (b0c0.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b0c1) at (6.92,3.11) {Few misses: higher clock};
+\draw[mmsmall] (b0.east) to[out=0,in=180] (b0c1.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b0c2) at (6.92,1.66) {Streaming: more bandwidth};
+\draw[mmsmall] (b0.east) to[out=0,in=180] (b0c2.west);
+\node[mmbox,mmlevel1,fill=mmCFE7E1] (b1) at (3.32,-3.11) {Writing software};
+\draw[mmbig] (r) -- (b1);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b1c0) at (6.92,-1.66) {Sharing threads on one CCD};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c0.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b1c1) at (6.92,-3.11) {Allocate memory locally};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c1.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b1c2) at (6.92,-4.56) {Block loops for the cache};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c2.west);
+\node[mmbox,mmlevel1,fill=mmF9D7AF] (b2) at (-3.32,-3.11) {Operating systems};
+\draw[mmbig] (r) -- (b2);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b2c0) at (-6.92,-1.66) {Place threads by miss rate};
+\draw[mmsmall] (b2.west) to[out=180,in=0] (b2c0.east);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b2c1) at (-6.92,-3.11) {Know which CCD has the cache};
+\draw[mmsmall] (b2.west) to[out=180,in=0] (b2c1.east);
+\node[mmlevel2,mmoval,fill=mmDCCFF6] (b2c2) at (-6.92,-4.56) {Re-check by phase};
+\draw[mmsmall] (b2.west) to[out=180,in=0] (b2c2.east);
+\node[mmoval,mmlevel1,fill=mmDCCFF6] (b3) at (-3.32,3.11) {Evaluating processors};
+\draw[mmbig] (r) -- (b3);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b3c0) at (-6.92,4.56) {Fix the clock};
+\draw[mmsmall] (b3.west) to[out=180,in=0] (b3c0.east);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b3c1) at (-6.92,3.11) {Report counters};
+\draw[mmsmall] (b3.west) to[out=180,in=0] (b3c1.east);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b3c2) at (-6.92,1.66) {State clocks reached};
+\draw[mmsmall] (b3.west) to[out=180,in=0] (b3c2.east);
+}{Overview of the guidance in \cref{sec:implications}, one branch per group of readers.}{fig:mindmap-implications}

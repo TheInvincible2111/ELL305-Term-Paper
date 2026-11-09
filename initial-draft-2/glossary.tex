@@ -110,3 +110,23 @@
   name={yield},
   description={The fraction of manufactured dies that function correctly; larger dies generally yield worse for a given defect density}
 }
+
+\newglossaryentry{d2d-hop}{
+  name={die-to-die hop},
+  description={The extra latency of a transfer between two dies in a package, such as between a CCD and the I/O die. In the simulations of Part~V a hop is one CCD--IOD round trip, by default AMD's 9\,ns}
+}
+
+\newglossaryentry{l3d}{
+  name={L3D (L3 die)},
+  description={AMD's name for the stacked SRAM die of 3D V-Cache, called the cache die in this paper. A CCD carrying one is a V-Cache CCD; a CCD without one is a plain CCD. A product built from V-Cache CCDs is a V-Cache part}
+}
+
+\newglossaryentry{tlb}{
+  name={TLB (translation lookaside buffer)},
+  description={A small cache of recent virtual-to-physical address translations, consulted on every memory access}
+}
+
+\newglossaryentry{mlp}{
+  name={memory-level parallelism},
+  description={The overlap of several outstanding cache misses, which lets an out-of-order core wait roughly once for several misses}
+}

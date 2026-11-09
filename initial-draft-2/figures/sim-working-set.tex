@@ -1,0 +1,37 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  name=hit, width=0.42\textwidth, height=5.8cm,
+  xmode=log, log basis x=2, xmin=2, xmax=256, ymin=0, ymax=105,
+  xtick={2,8,32,96,256}, xticklabels={2,8,32,96,256},
+  xlabel={Working set (MB, log scale)}, ylabel={L3 hit rate (\%)},
+  title={\small (a) L3 hit rate}, legend style={font=\scriptsize,at={(0.03,0.03)},anchor=south west},
+  grid=major, grid style={draftgray!20}]
+\addplot[draftgray,thick] coordinates {(2,100) (4,100) (8,100) (16,100) (24,100) (32,100) (40,79.77) (48,66.33) (64,49.65) (80,39.63) (96,33) (128,24.74) (192,16.49) (256,12.36)};
+\addlegendentry{32\,MB, random}
+\addplot[draftblue,very thick] coordinates {(2,100) (4,100) (8,100) (16,100) (24,100) (32,100) (40,100) (48,100) (64,100) (80,100) (96,100) (128,74.94) (192,49.88) (256,37.41)};
+\addlegendentry{96\,MB, random}
+\addplot[draftgray,thick,dashed] coordinates {(2,100) (4,100) (8,100) (16,100) (24,100) (32,100) (40,97.74) (48,96.24) (64,94.18) (80,92.63) (96,91.26) (128,88.82) (192,84.98) (256,82.41)};
+\addlegendentry{32\,MB, hot/cold}
+\addplot[draftblue,very thick,dashed] coordinates {(2,100) (4,100) (8,100) (16,100) (24,100) (32,100) (40,100) (48,100) (64,100) (80,100) (96,100) (128,97.25) (192,93.66) (256,90.58)};
+\addlegendentry{96\,MB, hot/cold}
+\end{axis}
+\begin{axis}[
+  at={(hit.east)}, anchor=west, xshift=2.3cm, width=0.42\textwidth, height=5.8cm,
+  xmode=log, log basis x=2, xmin=2, xmax=256, ymin=0.9, ymax=4.6,
+  xtick={2,8,32,96,256}, xticklabels={2,8,32,96,256},
+  xlabel={Working set (MB, log scale)}, ylabel={Speed-up, 96 over 32\,MB},
+  title={\small (b) Speed-up of the memory system}, legend style={font=\scriptsize,at={(0.03,0.97)},anchor=north west},
+  grid=major, grid style={draftgray!20}]
+\fill[draftblue!8] (axis cs:32,0.9) rectangle (axis cs:96,4.6);
+\addplot[draftblue,very thick] coordinates {(2,0.9557) (4,0.9519) (8,0.9502) (16,0.9494) (24,0.9491) (32,0.949) (40,1.714) (48,2.223) (64,2.857) (80,3.239) (96,3.491) (128,1.95) (192,1.419) (256,1.267)};
+\addlegendentry{random}
+\addplot[draftblue,very thick,dashed] coordinates {(2,0.9922) (4,0.987) (8,0.9653) (16,0.9558) (24,0.9532) (32,0.952) (40,1.033) (48,1.088) (64,1.165) (80,1.223) (96,1.275) (128,1.241) (192,1.223) (256,1.19)};
+\addlegendentry{hot/cold}
+\addplot[draftgray,thin] coordinates {(2,1) (256,1)};
+\end{axis}
+\end{tikzpicture}
+\caption{S1: the effect of tripling the L3 against the size of the working set, all else equal (one thread; overlap factor 0.335; mean of five seeds). (a) The L3 hit rate. (b) The model's memory-system time (exposed latency plus one cycle of other work per access) with 32\,MB divided by that with 96\,MB; values below 1 are the four extra cycles. The gain is confined to working sets between the two capacities (shaded) and fades beyond 96\,MB, the three regimes of \cref{fig:working-set}. Because almost every access in these synthetic workloads reaches the L3 or memory once the working set is well above the L2, the speed-ups are those of the memory system, not of a program.}
+\label{fig:sim-working-set}
+\end{figure}

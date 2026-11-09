@@ -1,0 +1,81 @@
+\clearpage
+\section{Further Calculations}
+\label{app:worked-examples}
+
+This appendix holds three calculations whose results are summarised in the main text.
+
+\subsection{A directory protocol, step by step}
+\label{app:directory-example}
+This example supports \cref{sec:multicore}.
+
+\Cref{tab:directory-example} repeats the five accesses of \cref{tab:msi-example} with a directory instead of a bus. The textbook specifies that caches send their requests to the directory, that the directory fetches a block from a cache that holds it before forwarding it to the requester, and that it sends invalidations only to the caches on the sharer list \cite[sec.~12.4.6]{sarangi2025basic}. It does not fix the exact messages, so the table counts them under three assumptions made for this example: each request goes to the directory; the directory sends one message to each cache that must act, and each such cache replies once; and the directory then answers the requester. The count is an illustration of the textbook's scheme, not a description of AMD's protocol.
+
+\begin{table}[htbp]
+  \centering
+  \caption{The accesses of \cref{tab:msi-example} under a directory protocol (D is the directory; counting assumptions in the text).}
+  \label{tab:directory-example}
+  \small
+  \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}Xc@{}}
+    \toprule
+    & \textbf{Access} & \textbf{Directory entry after} & \textbf{Messages} & \textbf{Count} \\
+    \midrule
+    1 & A reads $x$ & sharers \{A\} & A$\to$D request; D$\to$A data from memory & 2 \\
+    2 & B reads $x$ & sharers \{A, B\} & B$\to$D; D$\to$A forward; A$\to$D data; D$\to$B data & 4 \\
+    3 & A writes $x$ & owner A & A$\to$D; D$\to$B invalidate; B$\to$D acknowledge; D$\to$A permission & 4 \\
+    4 & B reads $x$ & sharers \{A, B\} & B$\to$D; D$\to$A forward; A$\to$D data (written back); D$\to$B data & 4 \\
+    5 & B writes $x$ & owner B & B$\to$D; D$\to$A invalidate; A$\to$D acknowledge; D$\to$B permission & 4 \\
+    \midrule
+    & & & \textbf{Total} & \textbf{18} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+The comparison with snooping shows what a directory buys and what it costs. On a bus, each of the five steps is one broadcast that every other cache must examine: with $N$ caches, $5(N-1)$ deliveries, or 35 for eight caches and 315 for 64. The directory sends 18 messages whatever the number of caches, because only A and B ever hold the block. The price is indirection. A bus transaction is a single step, whereas each of steps 2 to 5 passes through a third party and takes two sequential round trips: requester to directory, directory to owner or sharer, and back again. The textbook also notes that the sharer list is in general a superset of the caches that actually hold the block \cite[sec.~12.4.6]{sarangi2025basic}; an extra entry costs an unnecessary message, not a wrong result.
+
+\subsection{TLB reach against cache capacity}
+\label{app:tlb-reach}
+This example supports \cref{sec:virtual-memory}. The memory a TLB can translate without a miss, its \emph{reach}, is its number of entries times the page size. 7-cpu.com reports a 64-entry first-level and a 2048-entry second-level data TLB for Zen~3 \cite{7-cpu.comAMDZen3}, and Chips and Cheese also gives the 64-entry first level \cite{cozmaDeepDivingZen2022}. \Cref{tab:tlb-reach} compares the resulting reach with the cache capacities.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Data-TLB reach of Zen~3 (entries from \cite{7-cpu.comAMDZen3}) against its cache capacities.}
+  \label{tab:tlb-reach}
+  \small
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    & \textbf{4\,KB pages} & \textbf{2\,MB pages} \\
+    \midrule
+    First-level DTLB, 64 entries & 256\,KB & 128\,MB \\
+    Second-level DTLB, 2048 entries & 8\,MB & 4\,GB \\
+    \midrule
+    \multicolumn{3}{@{}l}{\emph{For comparison:} L2 512\,KB; L3 32\,MB per CCD; L3 with V-Cache 96\,MB} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The table multiplies entries by page size. 7-cpu.com's own page gives ``about 800\,KB'' for the first-level TLB with 4\,KB pages, more than $64 \times 4$\,KB; it does not say why \cite{7-cpu.comAMDZen3}. The group's own measurement on a Ryzen~5 5600X favours the 256\,KB figure (\cref{app:5600x}). With 4\,KB pages, the latency of a pointer chase starts to rise just above 256\,KB, whereas with 2\,MB pages it stays at the L2 latency up to the 512\,KB capacity of the L2. From about 7\,MB the 4\,KB curve rises again, near the reach of the second-level TLB, and at 1\,GB address translation adds about 17\,ns to every access under WSL2, whose nested translation probably inflates the figure. With ordinary 4\,KB pages, the second-level TLB covers 8\,MB, a quarter of a 32\,MB L3 and a twelfth of a 96\,MB stacked L3. A working set that fills the stacked cache spans $96\,\text{MB}/4\,\text{KB} = 24\,576$ pages, twelve times as many as the TLB can hold, so a program that touches it at random can hit in the L3 and still miss in both TLBs. With 2\,MB pages the first-level TLB alone covers 128\,MB, more than either L3. This is why Chips and Cheese repeated its latency tests with 2\,MB pages, which removes TLB penalties for test sizes below 128\,MB \cite{cozmaDeepDivingZen2022}. With 2\,MB pages, 7-cpu.com measured a penalty of 7 cycles for a first-level TLB miss and 24 cycles for a second-level miss \cite{7-cpu.comAMDZen3}; the second figure is about half of a 47-cycle L3 hit.
+
+\subsection{Calibration of the cache--clock model}
+\label{app:cache-clock}
+This example calibrates \cref{eq:cache-clock-model} of \cref{sec:cache-clock-model}. The libx264 example of \cref{sec:tradeoff-example} supplies every input. On the plain CCD, $A = 3.85$, $M = 1.48$ and an IPC of 1.36 give 735 cycles per thousand instructions; the apparent stall of about 130 cycles per removed miss at 4.2\,GHz gives $s \approx 130/4.2 \approx 31$\,ns and $C \approx 735 - 1.48 \times 130 \approx 543$ cycles. The clocks are those Lam measured under an all-core load on an L3-sized data set, 4.8\,GHz for the V-Cache CCD and 5.15\,GHz for the plain one, a ratio of 1.073 \cite{lamAMDs7950X3DZen2023}; Lam did not report the clocks during the libx264 run itself, so these are an assumption. At equal clocks and $\Delta M = 0.40$ the model gives a 5.2\% gain, against the 4.9\% Lam reports, a difference within the rounding of the inputs.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Net speed-up of the V-Cache CCD over the plain CCD for the libx264 profile, from \cref{eq:cache-clock-model} (calibration and clocks as in the text).}
+  \label{tab:cache-clock-model}
+  \small
+  \begin{tabular}{@{}cccc@{}}
+    \toprule
+    \textbf{Misses removed} & \textbf{Equal clocks} & \textbf{4.8 against 5.15\,GHz,} & \textbf{4.8 against 5.15\,GHz,} \\
+    \textbf{per 1000 instr.} & \textbf{(both 4.2\,GHz)} & \textbf{memory time fixed} & \textbf{linear rule} \\
+    \midrule
+    0 & $-2.1\%$ & $-6.7\%$ & $-8.7\%$ \\
+    0.2 & $+1.5\%$ & $-3.0\%$ & $-5.4\%$ \\
+    0.4 (libx264) & $+5.2\%$ & $+1.0\%$ & $-1.9\%$ \\
+    0.6 & $+9.3\%$ & $+5.3\%$ & $+1.9\%$ \\
+    1.0 & $+18.5\%$ & $+15.3\%$ & $+10.4\%$ \\
+    \midrule
+    Break-even & 0.12 & 0.35 & 0.50 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

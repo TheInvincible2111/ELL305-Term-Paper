@@ -18,6 +18,6 @@
 \draw[draftgray,dashed] (axis cs:gap,0) -- (axis cs:gap,290);
 \end{axis}
 \end{tikzpicture}
-\caption{Memory latency at each NUMA distance in Naples and Rome, as reported by AMD \cite[Fig.~2.2.6]{naffziger2020chiplet} (labels as in \cref{tab:numa-latency}). Rome's nearest access is slightly slower, because every access crosses the package link to the I/O die, but the spread of latencies within the socket is much narrower, and the average local latency fell to 0.81 of Naples's.}
+\caption{Memory latency at each NUMA distance in Naples and Rome, as reported by AMD \cite[Fig.~2.2.6]{naffziger2020chiplet} (labels as in \cref{tab:numa-latency}). Rome's nearest access is slightly slower, probably because every memory access crosses the package link to the I/O die, but the spread of latencies within the socket is much narrower, and the average local latency fell to 0.81 of Naples's.}
 \label{fig:numa-latency}
 \end{figure}

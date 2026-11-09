@@ -1,0 +1,637 @@
+{
+ "wl_base": {
+  "kind": "random",
+  "ws_mb": 16,
+  "threads": 1,
+  "shared": 0,
+  "write_frac": 0,
+  "stride": 4096,
+  "n": 128,
+  "block": 0,
+  "degree": 8,
+  "pp_a": 0,
+  "pp_b": 1,
+  "iters": 2000
+ },
+ "experiments": [
+  {
+   "id": "e1",
+   "tag": "Experiment 1",
+   "rq": "RQ2 · Zen 2 → Zen 3",
+   "title": "L3 hit rate against working-set size: two CCXs or one",
+   "desc": "One thread, random accesses. A splits the 32 MB L3 into two 16 MB halves; B unifies it.",
+   "diff": "L3 split and L3 latency (39 vs 47 cycles)",
+   "series": [
+    {
+     "name": "Two CCXs, 2 × 16 MB",
+     "preset": "zen2_2ccx"
+    },
+    {
+     "name": "One CCX, 32 MB",
+     "preset": "zen3_1ccx"
+    }
+   ],
+   "wl": {
+    "kind": "random",
+    "threads": 1
+   },
+   "param": "wl.ws_mb",
+   "values": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    40
+   ],
+   "metrics": [
+    "l3_hit_rate",
+    "amat_ns",
+    "dram_per_kacc",
+    "l3_miss_rate"
+   ],
+   "look": "Below 16 MB both fit and the split design is slightly faster, because its smaller L3 has the shorter latency. Between 16 and 32 MB a single thread can only use its own 16 MB half in A, so its hit rate falls while B's stays high. That is the capacity a unified L3 gives one thread."
+  },
+  {
+   "id": "e1b",
+   "tag": "Experiment 1, controlled",
+   "rq": "RQ4 · isolating one factor",
+   "title": "The same comparison with equal L3 latency",
+   "desc": "As Experiment 1, but A's L3 latency is set to B's 47 cycles, so only the split changes.",
+   "diff": "L3 split only",
+   "series": [
+    {
+     "name": "Two CCXs, 2 × 16 MB, 47 cycles",
+     "preset": "zen2_2ccx",
+     "extra": {
+      "l3_lat": 47
+     }
+    },
+    {
+     "name": "One CCX, 32 MB, 47 cycles",
+     "preset": "zen3_1ccx"
+    }
+   ],
+   "wl": {
+    "kind": "random",
+    "threads": 1
+   },
+   "param": "wl.ws_mb",
+   "values": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    40
+   ],
+   "metrics": [
+    "l3_hit_rate",
+    "amat_ns"
+   ],
+   "look": "With latency held equal the two curves coincide below 16 MB, so the remaining gap above 16 MB is due to the split alone. Compare with Experiment 1 to see how much of the difference latency accounted for."
+  },
+  {
+   "id": "e1c",
+   "tag": "Experiment 1, shared data",
+   "rq": "RQ2",
+   "title": "Eight threads reading one shared array",
+   "desc": "All eight cores read the same working set. In A each half of the L3 holds its own copy of shared lines.",
+   "diff": "L3 split and L3 latency",
+   "series": [
+    {
+     "name": "Two CCXs, 2 × 16 MB",
+     "preset": "zen2_2ccx"
+    },
+    {
+     "name": "One CCX, 32 MB",
+     "preset": "zen3_1ccx"
+    }
+   ],
+   "wl": {
+    "kind": "random",
+    "threads": 8,
+    "shared": 1
+   },
+   "param": "wl.ws_mb",
+   "values": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    40
+   ],
+   "metrics": [
+    "l3_hit_rate",
+    "amat_ns",
+    "cross_per_kacc"
+   ],
+   "look": "Shared data is duplicated in both halves of A's L3, so A behaves like a 16 MB cache even with all cores busy. Lines missing from the local half are fetched from the other CCX, which shows up as transfers between groups."
+  },
+  {
+   "id": "e2",
+   "tag": "Experiment 2",
+   "rq": "RQ2",
+   "title": "Core-to-core round trip",
+   "desc": "Core 0 and core N exchange a line and a reply. The partner moves from core 1 to core 7.",
+   "diff": "L3 split and L3 latency",
+   "series": [
+    {
+     "name": "Two CCXs",
+     "preset": "zen2_2ccx"
+    },
+    {
+     "name": "One CCX",
+     "preset": "zen3_1ccx"
+    }
+   ],
+   "wl": {
+    "kind": "pingpong",
+    "pp_a": 0,
+    "iters": 2000
+   },
+   "param": "wl.pp_b",
+   "values": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "metrics": [
+    "roundtrip"
+   ],
+   "look": "In A the round trip jumps when the partner is core 4 or higher, because the line then crosses between CCXs: two L3 latencies plus the hop for each transfer. In B every pair costs the same."
+  },
+  {
+   "id": "e3",
+   "tag": "Experiment 3",
+   "rq": "RQ2 · bandwidth",
+   "title": "All cores streaming: which limit binds?",
+   "desc": "Each thread loops over its own 40 MB array, with miss overlap 0.05 for both. Threads rise from 1 to 8.",
+   "diff": "L3 split and L3 latency",
+   "series": [
+    {
+     "name": "Two CCXs",
+     "preset": "zen2_2ccx",
+     "extra": {
+      "overlap": 0.05
+     }
+    },
+    {
+     "name": "One CCX",
+     "preset": "zen3_1ccx",
+     "extra": {
+      "overlap": 0.05
+     }
+    }
+   ],
+   "wl": {
+    "kind": "sequential",
+    "ws_mb": 40,
+    "shared": 0
+   },
+   "param": "wl.threads",
+   "values": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "metrics": [
+    "dram_bw",
+    "speedup",
+    "time_us"
+   ],
+   "look": "Miss overlap is set to 0.05 here, to stand in for the hardware prefetching that lets a streaming core keep many misses in flight. Every access misses the L3, so after a few threads DRAM bandwidth becomes the binding limit: the bandwidth curve flattens at 51.2 GB/s and adding threads stops helping. The L3 arrangement makes almost no difference, because neither L3 holds the data."
+  },
+  {
+   "id": "e4",
+   "tag": "Experiment 4",
+   "rq": "RQ2 · scaling",
+   "title": "Graph traversal from 1 to 8 threads",
+   "desc": "A 32 MB vertex array with 8 edges per vertex; vertices are split across threads, and each thread does the same amount of work.",
+   "diff": "L3 split and L3 latency",
+   "series": [
+    {
+     "name": "Two CCXs",
+     "preset": "zen2_2ccx"
+    },
+    {
+     "name": "One CCX",
+     "preset": "zen3_1ccx"
+    }
+   ],
+   "perThread": true,
+   "wl": {
+    "kind": "graph",
+    "ws_mb": 32,
+    "degree": 8
+   },
+   "param": "wl.threads",
+   "values": [
+    1,
+    2,
+    4,
+    6,
+    8
+   ],
+   "metrics": [
+    "throughput",
+    "speedup",
+    "l3_hit_rate",
+    "dram_per_kacc",
+    "cross_per_kacc"
+   ],
+   "look": "With 1 to 4 threads, all of A's threads sit in CCX 0, so only one 16 MB half of its L3 is in use: its L3 hit rate is about 41 % against 70 % for B's unified cache. From 6 threads the second half comes into use, so A's DRAM reads drop and its scaling looks better than linear, but lines held by the other CCX must be fetched across, which shows up as transfers between groups. In absolute throughput B stays ahead at every thread count."
+  },
+  {
+   "id": "e4b",
+   "tag": "Experiment 4, kernels",
+   "rq": "Part II · blocking",
+   "title": "Matrix multiply: naive against blocked",
+   "desc": "C = A × B with n = 128 on 8 threads; the block size changes.",
+   "diff": "none (same hardware); only the loop order changes",
+   "series": [
+    {
+     "name": "One CCX, 32 MB",
+     "preset": "zen3_1ccx"
+    }
+   ],
+   "wl": {
+    "kind": "matmul",
+    "n": 128,
+    "threads": 8
+   },
+   "param": "wl.block",
+   "values": [
+    0,
+    8,
+    16,
+    32,
+    64
+   ],
+   "metrics": [
+    "l1_hit_rate",
+    "amat_ns",
+    "time_us"
+   ],
+   "look": "Blocks of 8 or 16 keep a tile of each matrix in L1 while it is reused, so the L1 hit rate rises from about 50 % to 99 % and the average access time halves on the same hardware. At block 32 the three tiles no longer fit the 32 KB L1, and at 64 the benefit is gone. This is the software side of using a cache well (Reguly's tiling result in Part VI)."
+  },
+  {
+   "id": "e5",
+   "tag": "Experiment 5",
+   "rq": "Energy (illustrative)",
+   "title": "Energy per access against working-set size",
+   "desc": "Uses the placeholder energy values; set real ones under Time and energy model before quoting.",
+   "diff": "L3 split and L3 latency",
+   "series": [
+    {
+     "name": "Two CCXs",
+     "preset": "zen2_2ccx"
+    },
+    {
+     "name": "One CCX",
+     "preset": "zen3_1ccx"
+    },
+    {
+     "name": "Stacked 96 MB",
+     "preset": "vcache"
+    }
+   ],
+   "wl": {
+    "kind": "random",
+    "threads": 1
+   },
+   "param": "wl.ws_mb",
+   "values": [
+    4,
+    8,
+    16,
+    24,
+    32,
+    48,
+    64,
+    96,
+    128
+   ],
+   "metrics": [
+    "energy",
+    "dram_per_kacc"
+   ],
+   "look": "Energy follows DRAM traffic, because a DRAM access costs far more than a cache access. A larger L3 saves energy exactly where it removes DRAM reads. The absolute numbers depend on the placeholder values."
+  },
+  {
+   "id": "v1",
+   "tag": "3D stacking",
+   "rq": "RQ3",
+   "title": "Four ways to reach about 96 MB of cache",
+   "desc": "Plain 32 MB L3, 96 MB stacked (+4 cycles), 96 MB planar (assumed +12) and a 64 MB side-by-side L4.",
+   "diff": "L3 size, L3 latency, L4",
+   "series": [
+    {
+     "name": "32 MB L3 (baseline)",
+     "preset": "zen3_1ccx"
+    },
+    {
+     "name": "96 MB stacked, 51 cycles",
+     "preset": "vcache"
+    },
+    {
+     "name": "96 MB planar, 59 cycles (assumed)",
+     "preset": "planar96",
+     "dash": true
+    },
+    {
+     "name": "32 MB L3 + 64 MB L4 die",
+     "preset": "sidecar"
+    }
+   ],
+   "wl": {
+    "kind": "random",
+    "threads": 1
+   },
+   "param": "wl.ws_mb",
+   "values": [
+    8,
+    16,
+    24,
+    32,
+    48,
+    64,
+    80,
+    96,
+    128,
+    192
+   ],
+   "metrics": [
+    "amat_ns",
+    "l3_hit_rate",
+    "dram_per_kacc"
+   ],
+   "look": "Below 32 MB the stacked cache costs a little, only its four extra cycles. Between 32 and 96 MB it is far ahead of the baseline. The side-by-side die reaches the same capacity but each of its hits costs about three times an L3 hit. The planar line depends entirely on its assumed latency; test that with the next experiment."
+  },
+  {
+   "id": "v2",
+   "tag": "3D stacking",
+   "rq": "RQ3",
+   "title": "How slow must a planar 96 MB L3 be to lose?",
+   "desc": "64 MB working set. The planar L3's latency rises; the stacked L3 stays at 51 cycles.",
+   "diff": "L3 latency of the planar design only",
+   "series": [
+    {
+     "name": "Planar 96 MB (latency varies)",
+     "preset": "planar96"
+    },
+    {
+     "name": "Stacked 96 MB, 51 cycles",
+     "preset": "vcache",
+     "sweep": false,
+     "dash": true
+    }
+   ],
+   "wl": {
+    "kind": "random",
+    "threads": 1,
+    "ws_mb": 64
+   },
+   "param": "cfg.l3_lat",
+   "values": [
+    47,
+    51,
+    55,
+    59,
+    63,
+    71,
+    79,
+    95
+   ],
+   "metrics": [
+    "amat_ns"
+   ],
+   "look": "The lines cross at 51 cycles, where the two designs are identical. Every cycle of extra wire delay in a planar design adds directly to the average access time, because nearly every access that reaches the L3 hits there."
+  },
+  {
+   "id": "v3",
+   "tag": "3D stacking",
+   "rq": "RQ4 · Part VI model",
+   "title": "Stacked cache at 4.8 GHz against plain L3 at 5.15 GHz",
+   "desc": "The 7950X3D's measured clock gap, with miss overlap 0.36 as calibrated in the paper.",
+   "diff": "L3 size and latency, clock",
+   "series": [
+    {
+     "name": "Plain 32 MB at 5.15 GHz",
+     "preset": "zen3_1ccx",
+     "extra": {
+      "clock_ghz": 5.15,
+      "overlap": 0.36
+     }
+    },
+    {
+     "name": "Stacked 96 MB at 4.8 GHz",
+     "preset": "vcache",
+     "extra": {
+      "clock_ghz": 4.8,
+      "overlap": 0.36
+     }
+    }
+   ],
+   "wl": {
+    "kind": "random",
+    "threads": 1
+   },
+   "param": "wl.ws_mb",
+   "values": [
+    2,
+    4,
+    8,
+    16,
+    24,
+    32,
+    48,
+    64,
+    96,
+    128
+   ],
+   "metrics": [
+    "time_us",
+    "amat_ns"
+   ],
+   "look": "With a small working set the faster clock wins, because both designs hit in cache. Once the working set outgrows 32 MB the stacked cache wins despite its lower clock. The crossover is the working-set version of the break-even in the paper's cache–clock model."
+  },
+  {
+   "id": "p1",
+   "tag": "Cache design",
+   "rq": "Part II · conflict misses",
+   "title": "Associativity and conflict misses",
+   "desc": "A 4 KB stride over 64 KB: 16 distinct lines that all map to one L1 set.",
+   "diff": "L1 ways",
+   "series": [
+    {
+     "name": "One CCX, 32 MB",
+     "preset": "zen3_1ccx"
+    }
+   ],
+   "wl": {
+    "kind": "stride",
+    "ws_mb": 0.0625,
+    "stride": 4096,
+    "threads": 1
+   },
+   "param": "cfg.l1_ways",
+   "values": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+   ],
+   "metrics": [
+    "l1_hit_rate",
+    "amat_ns"
+   ],
+   "look": "The data is only 1 KB of useful lines, far smaller than the L1, yet it misses until the set has 16 ways. These are conflict misses: more capacity would not help, more associativity does."
+  },
+  {
+   "id": "p2",
+   "tag": "Cache design",
+   "rq": "Part II · replacement",
+   "title": "Replacement policies on a loop and on random data",
+   "desc": "40 MB of data against a 32 MB L3: a sequential loop and random accesses.",
+   "diff": "replacement policy",
+   "series": [
+    {
+     "name": "Sequential loop, 40 MB",
+     "preset": "zen3_1ccx",
+     "wl": {
+      "kind": "sequential",
+      "ws_mb": 40
+     }
+    },
+    {
+     "name": "Random, 40 MB",
+     "preset": "zen3_1ccx",
+     "wl": {
+      "kind": "random",
+      "ws_mb": 40
+     }
+    }
+   ],
+   "wl": {
+    "threads": 1
+   },
+   "param": "cfg.policy",
+   "values": [
+    "lru",
+    "fifo",
+    "random",
+    "plru"
+   ],
+   "metrics": [
+    "l3_hit_rate",
+    "amat_ns"
+   ],
+   "look": "On a loop slightly larger than the cache, LRU and FIFO always evict the line needed next and never hit. Random replacement keeps a large share of the loop, and tree pseudo-LRU falls in between. On random data the policies hardly differ."
+  },
+  {
+   "id": "c1",
+   "tag": "Chiplets",
+   "rq": "RQ2 · the chiplet cost",
+   "title": "Sixteen cores sharing data: two dies or one",
+   "desc": "Hot/cold shared data with 5 % writes. The hop between the two dies rises from 0 to 40 ns.",
+   "diff": "L3 split (2 × 32 vs 1 × 64 MB) and the hop",
+   "series": [
+    {
+     "name": "Two chiplets, 2 × 32 MB",
+     "preset": "twoccd"
+    },
+    {
+     "name": "Monolithic, 64 MB (hypothetical)",
+     "preset": "mono16",
+     "sweep": false,
+     "dash": true
+    }
+   ],
+   "wl": {
+    "kind": "hotcold",
+    "ws_mb": 48,
+    "threads": 16,
+    "shared": 1,
+    "write_frac": 0.05
+   },
+   "param": "cfg.hop_ns",
+   "values": [
+    0,
+    3,
+    6,
+    9,
+    15,
+    25,
+    40
+   ],
+   "metrics": [
+    "amat_ns",
+    "cross_per_kacc"
+   ],
+   "look": "Even with no hop the two dies are slower: shared lines are held twice, once in each L3, and a line found in the other die costs two L3 latencies. Every nanosecond of hop is then added to each transfer, so the gap widens steadily. Heavily shared data is where the chiplet design pays its cost; compare the next experiment."
+  },
+  {
+   "id": "c2",
+   "tag": "Chiplets",
+   "rq": "RQ2 · private work",
+   "title": "Sixteen cores on private data: the split costs only the trip to memory",
+   "desc": "Each thread works on its own 8 MB of random data (128 MB in all, more than either L3); the hop rises from 0 to 40 ns and, on the chiplet design, is also charged on every memory access.",
+   "diff": "L3 split and the hop",
+   "series": [
+    {
+     "name": "Two chiplets, 2 × 32 MB",
+     "preset": "twoccd"
+    },
+    {
+     "name": "Monolithic, 64 MB (hypothetical)",
+     "preset": "mono16",
+     "sweep": false,
+     "dash": true
+    }
+   ],
+   "wl": {
+    "kind": "random",
+    "ws_mb": 8,
+    "threads": 16,
+    "shared": 0
+   },
+   "param": "cfg.hop_ns",
+   "values": [
+    0,
+    3,
+    6,
+    9,
+    15,
+    25,
+    40
+   ],
+   "metrics": [
+    "amat_ns",
+    "cross_per_kacc"
+   ],
+   "look": "No data is shared, so there are no transfers between dies; the chiplet design pays the hop only on its trips to memory, which adds about 9% to the raw latency at a 9 ns hop because almost every access misses both L3s. Compare with the previous experiment: sharing data between dies costs more, and it does so even when the data fits in the caches."
+  }
+ ]
+}

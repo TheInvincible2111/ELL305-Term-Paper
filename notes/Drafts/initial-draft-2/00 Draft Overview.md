@@ -117,3 +117,92 @@ Hot Chips 33 prototype details for the confound table.
 - Part III sec:cezanne (tab:cezanne-vermeer): Zen 3 with and without chiplets (TechSpot 5700G review, CapFrameX Cezanne article, 7-cpu, FPS Review).
 - Second independent review (research/review-initial-draft-2-v2.md): G1–G20 all confirmed and applied; see research/review-initial-draft-2-v2-response.md.
 - New source-import workflow: research/zotero-queue.json + scripts/zotero-import.js (one-line loader in research/zotero-queue.md).
+
+## Update, 3 November 2026 — 13 mind maps (108 → 121 pages)
+- Shared style `initial-draft-2/mindmap-style.tex` (TikZ mindmap library, `\mindmapfigure[width]{body}{caption}{label}`), loaded from `preamble.tex`.
+- One overview map at the start of each part: fig:mindmap-foundations, -chiplets, -stacked, -case-study, -synthesis; whole-paper map fig:mindmap-paper (sec:organisation) and research-question map fig:mindmap-rq (after tab:rq-map).
+- Topic maps: fig:mindmap-misses (after tab:cache-optimisations), fig:mindmap-chiplet-tradeoff (Summary of Part III), fig:mindmap-stack-costs (sec:thermal), fig:mindmap-confounds (sec:confounds), fig:mindmap-future (end of sec:future), fig:mindmap-implications (end of sec:implications).
+- Maps only restate content already in the text; captions point to the sections that hold the sources.
+
+## 3 November 2026 — Cache Hierarchy Lab (software model, Option B)
+- `tools/cachesim/`: C++ trace-driven simulator (`src/cachesim.cpp`), browser GUI (`gui/index.html`, offline copy `gui/index-offline.html`), experiment runner (`run_experiments.py` → CSV/PNG), C++ vs JS cross-check (identical on 12 cases), self-test.
+- Presets: zen2_2ccx (2×16 MB, 39 cyc), zen3_1ccx (32 MB, 47), vcache (96 MB, 51), planar96 (96 MB, 59 assumed), sidecar (32 MB + 64 MB L4), twoccd, mono16. Sources in tools/cachesim/README.md.
+- 15 ready-made experiments (group plan Exp 1–5 plus 3D, cache-design and chiplet ones); every "what to look for" text checked against model output (test/experiments.js).
+- Energy defaults are placeholders; IPC not modelled (no pipeline). Paper section on the model still to write once results are run on Ishan's machine.
+
+## 5 November 2026 — third review applied (→ 122 pages)
+- research/review-initial-draft-2-v3.md (H1–H24, W1–W18) and response file. New Appendix D (app:l3d-organisation). Abstract rewritten with findings.
+- Open for Ishan: H18 (reviewer suggests keeping only 3–4 mind maps, leaf text ~5–6 pt) and whether to move the Cezanne detail to an appendix (H19).
+
+## 5 November 2026 — mind-map text enlarged; content added per the third review (122 → 138 pages)
+- Mind maps: all 13 kept (Ishan's decision on H18); text enlarged in `mindmap-style.tex` (root \normalsize, level 1 \footnotesize, level 2 \scriptsize, larger circles); chiplet-tradeoff map resized to fit. All 13 render-checked, no overlaps.
+- Part II (+7 pp.): sec:writes-inclusion (write-through/write-back, write buffer, critical word first, inclusion; tab:op-sequence, write-traffic worked example, tab:inclusion-example), sec:virtual-memory (pages, page tables, TLB, MMU; tab:tlb-reach from 7-cpu and Chips and Cheese), sec:mlp (overlapping misses, eq:mlp-stall, what the 130-cycle saving implies, 7-cpu parallel TLB misses, multithreading and SMT), directory worked example (tab:directory-example).
+- Part III (+4 pp.): sec:cross-ccd (Reguly core-to-core latency on Milan-X, tab:core-to-core: 58.6 ns same CCD vs ~265 ns across CCDs; shared-counter worked example); sec:power-flexibility with sec:chiplet-power (decoupled clocks, uncore DVFS, down-binning, one or two links per CCD; illustrative link-power bound ~2% of TDP) and sec:product-flexibility (tab:product-matrix from the Ryzen and EPYC 9004 datasheets; 9124 vs 9174F). Summary bullets updated.
+- Part V (+4 pp.): sec:evidence-ledger (tab:evidence-ledger), sec:lam-detail (tab:lam-detail from Lam's charts; geometric mean +11.4% over five workloads, ≤ +9.4% with DCS; tab:lam-per-miss: ~50/80/130 cycles per removed miss; Call of Duty pipeline-slot breakdown; stock-clock bounds), sec:genoax (Genoa-X 0.98–1.60×, same 12 MB L3 per core as Milan-X, Genoa 64c beats Milan-X; Lawenda Table 5 row labels appear misprinted — flagged in text). fig:lam-ipc Call of Duty value now 19.7% from the chart.
+- Part I: sec:related-work (Liu et al., Mittal–Vetter, Black, Dong–Xie, Domke) and sec:findings.
+- Part VI: RQ2 answer cites the new sections; three rows added to tab:evidence-strength (cross-CCD sharing, product range, link power); table columns widened.
+- Page counts now (PDF): I 21–28, II 29–51, III 52–72, IV 73–92, V 93–111, VI 112–129. Still under target: III (−4), V (−6), IV (−5).
+
+## 5 November 2026 (evening) — further content after resuming (138 → 141 pages)
+- Part IV: worked example "silicon across a product line" (tab:product-line-silicon: one planar die vs two planar dies vs one CCD with optional stack; plus the 7 nm cache die / 5 nm CCD node argument from AMD's cost-per-yielded-mm² chart, read approximately); "What the remaining deficit suggests" (Zen 5: equal 1.4 V limit yet 300 MHz ≈ 5.5% boost deficit, so voltage tolerance and support silicon explain less than half of the first-generation clock penalty). Part IV summary updated.
+- Part V: sec:cross-check (tab:cross-check: 7-Zip agrees ~10% on Zen 3 and Zen 4; libx264 differs by half — possible reasons incl. Zen 4's 1 MB L2; 9800X3D SPEC fotonik3d +7.5%, roms +15% despite ~9% clock deficit).
+- Page counts now: I 21–28, II 29–51, III 52–72, IV 73–94, V 95–114, VI 115+.
+
+## 5 November 2026 (night) — simulation study and 5600X kit (141 → 155 pages)
+- New Part V section sec:sim-study "A Controlled Software Model" (S0–S6 + sensitivity), 7 figures (fig:sim-latency, -working-set, -designs, -cache-clock, -pingpong, -zen2-zen3, -streaming) and 6 tables (tab:sim-plan, -calibration, -planar, -breakeven, -split, -sensitivity); new Appendix E app:sim-setup (tab:sim-parameters, workloads, reproduction).
+- Figures and tables are generated from CSVs by tools/cachesim/study/make_figures.py; runs by tools/cachesim/study/sims.py (5 seeds, 10^6 accesses). Raw CSVs in research/measurements/cachesim/.
+- Calibrations: overlap 0.42 ↔ 127 cycles per removed miss (Lam libx264 130); crossing cost 37 ns ↔ Reguly's 4.5× cross-CCD ratio (AMD's 9 ns gives 2.2×).
+- Key results: S1 window 32–96 MB (memory-system speed-up up to 3.8×, −5–6% when data fits); S2 planar 96 MB break-even latency 107–245 cycles vs 32 MB baseline; S3 break-even 0.04 (equal) → 0.29 (7.3% gap) vs analytical 0.12 → 0.35; S3 libx264 check overstates (≈8% vs 4.9%); S4 two dies 1.29–1.52× slower on shared data, 1.00× on private; S5 unification helps only 16–32 MB; S6 96 MB keeps scaling to 2.1 G lines/s, 32 MB falls to DRAM limit 0.8.
+- Valgrind traces of real programs tried and abandoned (too slow); stated as a limitation.
+- Part I methodology/contributions, Part V method and summary, Part VI threats paragraph updated to mention the model.
+- 5600X kit: tools/measurements/5600x-kit/ (latency sweep 4K/2M ×3, MLP chains, bandwidth 1/3/6/12 threads, core-to-core all pairs, clock estimate, model prediction, sysinfo) and tools/measurements/ELL305-5600X-kit.zip (gitignored). Results go to research/measurements/5600X/.
+
+## 8 November 2026 — fourth review applied; rerun review items J19, J21, J24, J27 (155 → 160 pages)
+- research/review-initial-draft-2-v4.md (I1–I43) applied except I43 (simulation section kept at full length, Ishan's decision); see `-v4-response.md`. Simulator fixed and the whole study rerun: raw vs exposed latency, overlap recalibrated to 0.335 (0.202 / 0.105 for Cyberpunk / GHPC), hop charged on DRAM accesses in the two-die preset, victim L4 and side-die latency sweep (new tab:sim-side-die), far region in the S3 mix, S3 sensitivity table (tab:sim-s3-sensitivity). Compiled binary rebuilt; 5600X kit model updated and kit zip rebuilt.
+- Second pass on the corrected draft: research/review-initial-draft-2-v4-rerun.md (J1–J33). Applied so far:
+  - J19: the cache-against-clock worked example and the analytical model (sec:cache-clock-model, tab:cache-vs-clock, tab:cache-clock-model, fig:cache-clock-model) moved from Part VI into a new Part V section sec:cache-against-clock, before sec:sim-study; Part VI keeps a one-paragraph summary.
+  - J21: directory worked example moved to new Appendix F (app:directory-example); product-line silicon example moved to Appendix C (app:product-line); analytical-model calibration shortened. Part II and Part IV keep short summaries.
+  - J24: text for fig:numa-latency, fig:bandwidth-balance and fig:clock-correction now says what each chart adds.
+  - J27: terminology — "cache die" for the SRAM die, "V-Cache CCD" / "plain CCD" for the CCDs, "V-Cache part" for products; glossary entry l3d states the convention.
+  - All other J items applied later the same day (see the next entry).
+- Page counts now (PDF): I 24–33, II 34–54, III 55–75, IV 76–96, V 97–130, VI 131–146; 160 pages in all; 0 overfull boxes, no undefined references.
+
+## 8 November 2026 (afternoon) — all J items fixed; 5600X measurements added (160 → 169 pages)
+- research/review-initial-draft-2-v4-rerun.md (J1–J33): all applied; see `-v4-rerun-response.md`. Main changes: product-line silicon corrected (stack scrapped with a failed bond: 0.7–3% saving vs two dies, ~90% bonding break-even); 37 ns hop compared with the 18 ns of two link round trips; replacement policy tested on hot/cold and cyclic workloads (new tab:sim-policy, s1_policy.csv); headline "roughly triples" restated as 0.1 → 0.35 (0.38 simulated); analytical break-even row filled (agrees within 0.05 from 2 to 10%); calibration table shows gross 103 cycles; S0 renamed sec:sim-calibration.
+- 5600X results (research/measurements/5600X) integrated, framed positively with mismatches kept: S0 out-of-sample check with fig:m5600x-latency (L1/L2 exact; L3 51–55 vs 47 cycles; 1 GB 98.6 vs 82 ns; refit within 5% / 1%), overlap check tab:m5600x-mlp (fitted 0.335/0.202/0.105 ≈ 3/5/10 misses in flight), TLB reach in Part II, same-CCD hand-over ~49 ns in Part III, 41 GB/s DRAM wall in S6, new Appendix G (app:5600x). Abstract, Findings, methodology (five kinds of evidence), threats and evidence table updated. Figures from tools/cachesim/study/compare_5600x.py (reproduces byte for byte).
+- Page counts now (PDF): I 25–34, II 35–56, III 57–77, IV 78–98, V 99–135, VI 136–152; 169 pages; 0 overfull boxes, no undefined references.
+
+
+## 8 November 2026 (evening) — fifth review K1–K19 and writing items fixed (169 pages)
+- research/review-initial-draft-2-v5.md (K1–K21) and `-v5-response.md`. The 5600X result is now stated as the unfitted comparison (L1/L2 agree; L3 and memory within about 20%; up to 2.4× off at 32 MB); the 54-cycle / 90 ns refit is labelled a calibration; "real gain larger" limited to latency sweeps; overlap check called weak. Also: Part VI/RQ4 break-even 0.1; Zen 4 range limited to the product table (9224, Zen 4c noted); model vs 5600X core-to-core round trip (49 vs 98.5 ns); ω for the overlap factor; "round trip" vs "transfer"; terminology, numbers and long sentences. K20, K21, float placement and \partbudget lines deferred to the submission pass.
+- Follow-up ("fix the remaining part"): K20 (`sec:evidence-method` now opens Part V); K21 (dies-per-wafer working to App. C, TLB reach and cache–clock calibration to App. F, which is renamed "Further Worked Examples", and S0 shape detail to App. G, each leaving its result in the main text); float placement tuned in the preamble; all `\partbudget` lines removed. 164 pages; Parts I 25–34, II 35–54, III 55–74, IV 75–95, V 96–130, VI 131–145; 0 overfull boxes, no undefined references.
+
+## 9 November 2026 — sixth review L1–L29 (165 pages)
+- research/review-initial-draft-2-v6.md and `-v6-response.md`. All items fixed except L24 (four worked examples kept in the main text, Ishan's decision); L22 cut ED² to one sentence. 5600X wording now separates input comparison (plateaus, within ~20%) from the model's own behaviour (up to 2.4× optimistic between plateaus); S4 split rerun with an 18 ns row (shared 1.26×); evidence-table grading rule restated; AMD's 19% attributed with its three causes.
+- Node.js-free crosscheck for reviewers: `tools/cachesim/test/check_golden.py` against `test/crosscheck-golden.json` (written by `node test/crosscheck.js ./cachesim --write-golden`).
+
+## 9 November 2026 — seventh review M1–M29 (164 pages)
+- research/review-initial-draft-2-v7.md (A−, close to A) and `-v7-response.md`. M1–M28, ten long sentences and an RQ3 power sentence fixed; M29 (half-page rule for two worked examples) left for submission. Main changes: 37 ns hop described as a ratio fit, not a physical cost (~97 ns would match the absolute cost); 5600X called a single-CCD chiplet part; simulated 0.38 marked "not an independent check"; AMD attribution completed; one vocabulary for generations ("cache-on-top stack") and hops; 5600X kit documents aligned with App. G.
+
+## 9 November 2026 — eighth review N1–N12 and own review pass (164 pages)
+- research/review-initial-draft-2-v8.md (A−, close to A) and `-v8-response.md`. All N items fixed. Main ones: the App. C product-line limit (~90% bonding yield), lost in the M27 trim, is restored; the RQ3/Threats thermal sentence now names the 9800X3D at 95 °C and calls 400/360 W rated defaults; the bond-pitch argument is limited to C4 versus micro-bump/2.5D. The v7 response's M27/M28 rows are corrected.
+- Own full review pass: several "every access" slips changed to "every memory access"; the 5600X refit is described as fitted (90 ns beyond L3); the one-outlet caveat is added to the abstract and Findings; six more long sentences are split; layout is tightened back to 164 pages. The kit zip is rebuilt. Open style choice: full captions in the List of Figures and List of Tables (short captions would shorten the front matter).
+
+## 9 November 2026 (evening): presentation changes requested by Ishan (162 pages)
+- **Front matter:**
+  - The cover no longer says "Term Paper" and now carries the repository link.
+  - The copyright page is signed with the three authors' names.
+  - The acknowledgements thank Prof. Subrat Kar ("for his support"; the wording is a placeholder until his role is confirmed).
+  - The running header now carries the topic, "Chiplets and 3D-Stacked Cache in AMD Zen Processors". It is redefined in `preamble.tex` only, so Draft 1's shared style is unchanged.
+  - The repository link is also in Apps E and G.
+- **New data figures** (values read from AMD's charts and labelled approximate):
+  - `fig:reticle-sizes` (sec. 6.1): Rome's 1008 mm² against the reticle limit of about 800 mm² drawn in Swaminathan's slide 3;
+  - `fig:area-scaling` (sec. 6.3, cited from the Part I bullet): Wuu slide 6, area scaling by function (shape only) and cost per yielded mm² (1.0 → 4.9);
+  - `fig:isscc-charts` (sec. 13): Wuu slide 5, IPC uplift (shape only), and slide 6, node against year.
+- **Part II:**
+  - New DRAM cell and array figure (`fig:dram-array`, Sarangi sec. 7.4.3), with a paragraph on DRAM.
+  - The pipeline-depth and write-traffic examples are cut to their conclusions.
+  - "Worked example" is removed everywhere. App. F is now "Further Calculations".
+- **Simulation naming:** "controlled software model" is now "simulation"; sec. 28 is titled "Simulation".
+- **Mind maps:** all 13 are regenerated in the box-and-arrow style Ishan supplied. The generator is `tmp/gen_mindmaps.py`, and the originals are in `tmp/mindmap-orig/`. Captions now start "Overview of …", not "Mind map of …".
+- **Block diagrams:** `fig:zen-ccd-evolution` is redrawn as colour block diagrams of the Zen 2, Zen 3 and V-Cache CCDs; `fig:epyc-package` uses the same colours.

@@ -1,0 +1,20 @@
+\begin{table}[htbp]
+  \centering
+  \caption{Overlap of independent misses on the group's Ryzen~5 5600X: time per load when the core follows $k$ independent pointer chains through memory (1\,GB) or through the L3 (16\,MB), and that time as a fraction of the single-chain latency (median of three runs; \cref{app:5600x}). The fraction is what the model's overlap factor stands for.}
+  \label{tab:m5600x-mlp}
+  \small
+  \begin{tabular}{@{}ccccc@{}}
+    \toprule
+    \textbf{Chains $k$} & \textbf{Memory (ns/load)} & \textbf{Fraction} & \textbf{L3 (ns/load)} & \textbf{Fraction} \\
+    \midrule
+    1 & 104.9 & 1.000 & 11.88 & 1.000 \\
+    2 & 53.5 & 0.510 & 6.65 & 0.560 \\
+    3 & 36.6 & 0.349 & 4.47 & 0.376 \\
+    4 & 27.8 & 0.265 & 3.37 & 0.284 \\
+    6 & 18.8 & 0.179 & 2.29 & 0.192 \\
+    8 & 14.8 & 0.141 & 1.74 & 0.147 \\
+    10 & 11.9 & 0.113 & 1.41 & 0.119 \\
+    16 & 7.5 & 0.071 & 0.91 & 0.077 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

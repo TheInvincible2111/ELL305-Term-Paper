@@ -1,0 +1,44 @@
+% Generated from the original tree by tmp/gen_mindmaps.py; edit the text here directly.
+\mapfigure{%
+\node[mmroot] (r) {Chiplets and stacked cache: what do they fix, and at what cost?};
+\node[mmbox,mmlevel1,fill=mmF4AAA2] (b0) at (0.00,3.60) {RQ1\\Why one die is costly};
+\draw[mmbig] (r) -- (b0);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b0c0) at (-3.05,5.35) {Yield and area};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c0.south);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b0c1) at (0.00,5.35) {Reticle limit};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c1.south);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b0c2) at (3.05,5.35) {Analog and SRAM scale poorly};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c2.south);
+\node[mmbox,mmlevel1,fill=mmCFE7E1] (b1) at (4.47,1.36) {RQ2\\Compute and I/O dies};
+\draw[mmbig] (r) -- (b1);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b1c0) at (8.07,2.81) {Memory latency};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c0.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b1c1) at (8.07,1.36) {Bandwidth and power};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c1.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b1c2) at (8.07,-0.09) {Product flexibility};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c2.west);
+\node[mmbox,mmlevel1,fill=mmCFE0F4] (b2) at (2.76,-3.56) {RQ2a\\How the dies connect};
+\draw[mmbig] (r) -- (b2);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c0) at (6.36,-2.11) {Organic substrate};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c0.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c1) at (6.36,-3.56) {2.5D interposer or bridge};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c1.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c2) at (6.36,-5.01) {3D stacking};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c2.west);
+\node[mmbox,mmlevel1,fill=mmF9D7AF] (b3) at (-2.76,-3.56) {RQ3\\Why LLC capacity};
+\draw[mmbig] (r) -- (b3);
+\node[mmlevel2,mmoval,fill=mmDCCFF6] (b3c0) at (-6.36,-2.11) {Capacity misses};
+\draw[mmsmall] (b3.west) to[out=180,in=0] (b3c0.east);
+\node[mmlevel2,mmoval,fill=mmDCCFF6] (b3c1) at (-6.36,-3.56) {Planar limits};
+\draw[mmsmall] (b3.west) to[out=180,in=0] (b3c1.east);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b3c2) at (-6.36,-5.01) {What stacking changes};
+\draw[mmsmall] (b3.west) to[out=180,in=0] (b3c2.east);
+\node[mmoval,mmlevel1,fill=mmDCCFF6] (b4) at (-4.47,1.36) {RQ4\\Where it helps};
+\draw[mmbig] (r) -- (b4);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c0) at (-8.07,2.81) {Working set};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c0.east);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c1) at (-8.07,1.36) {Frequency, cores, memory};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c1.east);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c2) at (-8.07,-0.09) {Isolating the cache};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c2.east);
+}{Overview of the research questions of \cref{sec:rq}. Every branch is answered with the same test: which bottleneck the technique addresses, what it gains, and what new trade-off it creates.}{fig:mindmap-rq}

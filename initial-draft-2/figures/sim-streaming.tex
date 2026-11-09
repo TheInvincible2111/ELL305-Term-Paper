@@ -1,0 +1,23 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\textwidth, height=6.2cm, xmin=1, xmax=8, ymin=0, ymax=2.3,
+  xlabel={Threads, each streaming through its own data}, ylabel={Lines delivered (10$^9$ per second)},
+  legend pos=north west, legend style={font=\scriptsize}, legend cell align=left,
+  grid=major, grid style={draftgray!20}]
+\addplot[mmred,thin,dashed,forget plot] coordinates {(1,0.8) (8,0.8)};
+\node[font=\scriptsize,mmred,anchor=south east] at (axis cs:8,0.8) {DRAM limit: 51.2\,GB/s $\div$ 64\,B};
+\addplot[draftgray,thick,mark=*,mark size=1.2pt] coordinates {(1,0.2712) (2,0.5424) (3,0.8136) (4,1.085) (5,0.6768) (6,0.8) (7,0.8) (8,0.8)};
+\addlegendentry{32\,MB L3, 8\,MB per thread}
+\addplot[draftblue,very thick,mark=*,mark size=1.2pt] coordinates {(1,0.2676) (2,0.5351) (3,0.8027) (4,1.07) (5,1.338) (6,1.605) (7,1.873) (8,2.14)};
+\addlegendentry{96\,MB L3, 8\,MB per thread}
+\addplot[draftgray,thick,dashed,mark=*,mark size=1.2pt] coordinates {(1,0.2712) (2,0.2707) (3,0.4061) (4,0.5415) (5,0.6768) (6,0.8) (7,0.8) (8,0.8)};
+\addlegendentry{32\,MB L3, 20\,MB per thread}
+\addplot[draftblue,very thick,dashed,mark=*,mark size=1.2pt] coordinates {(1,0.2676) (2,0.5351) (3,0.8027) (4,1.07) (5,0.7731) (6,0.8) (7,0.8) (8,0.8)};
+\addlegendentry{96\,MB L3, 20\,MB per thread}
+\end{axis}
+\end{tikzpicture}
+\caption{S6: up to eight cores streaming through private data (sequential reads; overlap 0.05, for a core whose prefetchers hide most latency; 51.2\,GB/s of DRAM bandwidth; mean of five seeds). While the combined data fits in the L3, throughput grows with the number of threads; once it does not, every configuration meets the same DRAM limit. With 8\,MB per thread, the 96\,MB L3 holds all eight threads' data and keeps scaling to 2.1 billion lines per second, while the 32\,MB L3 overflows at five threads and falls back to the DRAM limit.}
+\label{fig:sim-streaming}
+\end{figure}

@@ -1,0 +1,26 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  name=one,  width=0.42\textwidth, height=5.8cm, xmin=4, xmax=40, ymin=0,
+  xlabel={Working set (MB)}, ylabel={Exposed latency per access (ns)}, title={\small (a) One thread}, legend columns=3, legend style={font=\scriptsize,at={(1.12,-0.30)},anchor=north,column sep=6pt}, legend cell align=left,
+  grid=major, grid style={draftgray!20}]
+\addplot[draftgray,thick] coordinates {(4,4.963) (8,5.112) (12,5.162) (16,5.187) (20,10.16) (24,13.47) (28,15.84) (32,17.62) (40,20.11)};
+\addlegendentry{2 $\times$ 16\,MB, 39 cycles (Zen~2)}
+\addplot[mmamber,thick,dashed] coordinates {(4,5.549) (8,5.74) (12,5.804) (16,5.836) (20,10.82) (24,14.12) (28,16.5) (32,18.28) (40,20.77)};
+\addlegendentry{2 $\times$ 16\,MB, 47 cycles}
+\addplot[draftblue,very thick] coordinates {(4,5.549) (8,5.74) (12,5.804) (16,5.836) (20,5.855) (24,5.867) (28,5.877) (32,5.884) (40,10.84)};
+\addlegendentry{1 $\times$ 32\,MB, 47 cycles (Zen~3)}
+\end{axis}
+\begin{axis}[
+  name=eight, at={(one.east)}, anchor=west, xshift=2.3cm, width=0.42\textwidth, height=5.8cm, xmin=4, xmax=40, ymin=0,
+  xlabel={Working set (MB)}, ylabel={Exposed latency per access (ns)}, title={\small (b) Eight threads, shared data},
+  grid=major, grid style={draftgray!20}]
+\addplot[draftgray,thick,forget plot] coordinates {(4,4.97) (8,5.15) (12,5.241) (16,5.311) (20,7.551) (24,9.926) (28,11.97) (32,13.68) (40,16.31)};
+\addplot[mmamber,thick,dashed,forget plot] coordinates {(4,5.557) (8,5.782) (12,5.892) (16,5.974) (20,8.308) (24,10.72) (28,12.78) (32,14.49) (40,17.11)};
+\addplot[draftblue,very thick,forget plot] coordinates {(4,5.549) (8,5.74) (12,5.804) (16,5.836) (20,5.855) (24,5.868) (28,5.877) (32,5.884) (40,10.85)};
+\end{axis}
+\end{tikzpicture}
+\caption{S5: the Zen~2 to Zen~3 change of L3 organisation, separated from the latency change (random accesses; average latency after the overlap factor of 0.335; mean of five seeds). Comparing the dashed line with the thick one isolates the unification itself, since both have a 47-cycle L3; comparing the thin solid line with the dashed one isolates the latency change.}
+\label{fig:sim-zen2-zen3}
+\end{figure}

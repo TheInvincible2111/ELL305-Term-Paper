@@ -19,7 +19,7 @@
 \node[blk,minimum width=1.3cm,fill=draftgray!15,draw=draftgray] (dram) at (12.1,0.2) {DRAM};
 % request path (upper) and response path (lower)
 \draw[req] ([yshift=0.18cm]core.east) -- ([yshift=0.18cm]l3.west);
-\draw[req] ([yshift=0.18cm]l3.east) -- node[above,font=\scriptsize,text=draftblue]{package link} ([yshift=0.18cm]fab.west);
+\draw[req] ([yshift=0.18cm]l3.east) -- node[pos=0.6,above,align=center,font=\scriptsize,text=draftblue]{package\\link} ([yshift=0.18cm]fab.west);
 \draw[req] ([yshift=0.18cm]fab.east) -- ([yshift=0.18cm]umc.west);
 \draw[req] ([yshift=0.18cm]umc.east) -- ([yshift=0.18cm]dram.west);
 \draw[rsp] ([yshift=-0.18cm]dram.west) -- ([yshift=-0.18cm]umc.east);

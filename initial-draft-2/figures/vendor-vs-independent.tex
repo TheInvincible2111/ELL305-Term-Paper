@@ -20,17 +20,15 @@
 \draw[draftblue,line width=3pt] (axis cs:1.04,2) -- (axis cs:1.25,2);
 \addplot[only marks,mark=*,mark size=2pt,black] coordinates {(1.15,1) (1.15,2) (1.66,3)};
 % independent
-\draw[draftblue,line width=3pt] (axis cs:1.0,4) -- (axis cs:1.19,4);
-\draw[draftblue,line width=3pt,-{Stealth[length=2.5mm]}] (axis cs:1.19,4) -- (axis cs:1.24,4);
+\draw[draftblue,line width=3pt] (axis cs:1.0,4) -- (axis cs:1.197,4);
 \draw[draftblue,line width=3pt] (axis cs:1.05,5) -- (axis cs:1.076,5);
 \draw[draftblue,line width=3pt] (axis cs:0.81,6) -- (axis cs:1.54,6);
 \draw[draftblue,line width=3pt] (axis cs:0.89,7) -- (axis cs:3.4,7);
-\draw[draftblue,line width=3pt] (axis cs:0.83,8) -- (axis cs:1.5,8);
-\draw[draftblue,line width=3pt,-{Stealth[length=2.5mm]}] (axis cs:1.5,8) -- (axis cs:1.62,8);
+\draw[draftblue,line width=3pt] (axis cs:0.83,8) -- (axis cs:3.94,8);
 \node[font=\scriptsize,anchor=west,text=draftgray] at (axis cs:2.2,1.5) {AMD-reported};
 \node[font=\scriptsize,anchor=west,text=draftgray] at (axis cs:2.2,4.0) {independent};
 \end{axis}
 \end{tikzpicture}
-\caption{Range of reported results for the stacked cache, AMD's own (shaded) against independent sources (bars: lowest to highest result; dots: averages or single results; arrows: upper end not stated precisely). The metrics differ (frame rate, jobs per hour, IPC, run time) and so do the comparison parts, so the chart compares spreads, not values. Lam's lower end is a small, unquantified loss and is drawn at 1; Phoronix's lower end is the largest 5800X lead (just under 20\%) and its upper end ``50\% or more''. Sources: \cite{wuu2022vcache,swaminathanAdvancedPackagingEnabling2021,lamAMDs7950X3DZen2023,cozmaDeepDivingZen2022,lawendaEvaluatingImpactL32025,domkeLocusPerformanceQuantifying2023,larabelAMDRyzen72022}.}
+\caption{Range of reported results for the stacked cache, AMD's own (shaded) against independent sources (bars: lowest to highest result; dots: averages or single results). The metrics differ (frame rate, jobs per hour, IPC, run time) and so do the comparison parts, so the chart compares spreads, not values. Lam's lower end is a small, unquantified loss and is drawn at 1; Phoronix's lower end is the largest 5800X lead (just under 20\%) and its upper end the largest single result, 294\% (3.94$\times$). Sources: \cite{wuu2022vcache,swaminathanAdvancedPackagingEnabling2021,lamAMDs7950X3DZen2023,cozmaDeepDivingZen2022,lawendaEvaluatingImpactL32025,domkeLocusPerformanceQuantifying2023,larabelAMDRyzen72022}.}
 \label{fig:vendor-vs-independent}
 \end{figure}

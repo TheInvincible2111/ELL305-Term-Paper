@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+  \centering
+  \caption{Sensitivity of S1: the memory-system speed-up of 96 over 32\,MB (as in \cref{fig:sim-working-set}b, random accesses) when one assumed input is changed at a time. A 16\,MB working set fits in both caches, 64\,MB lies between them and 192\,MB exceeds both.}
+  \label{tab:sim-sensitivity}
+  \small
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Changed input} & \textbf{16\,MB} & \textbf{64\,MB} & \textbf{192\,MB} \\
+    \midrule
+    none (calibrated defaults) & 0.95 & 2.86 & 1.42 \\
+    overlap 0.105 (GHPC) & 0.98 & 1.89 & 1.30 \\
+    overlap 0.202 (Cyberpunk) & 0.96 & 2.40 & 1.38 \\
+    overlap 1.0 & 0.92 & 3.78 & 1.47 \\
+    memory 60 ns & 0.95 & 2.50 & 1.38 \\
+    memory 90 ns & 0.95 & 3.27 & 1.45 \\
+    stacked L3 55 cycles & 0.90 & 2.72 & 1.39 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

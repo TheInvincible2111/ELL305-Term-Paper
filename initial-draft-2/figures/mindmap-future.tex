@@ -1,0 +1,42 @@
+% Generated from the original tree by tmp/gen_mindmaps.py; edit the text here directly.
+\mapfigure{%
+\node[mmroot] (r) {Beyond cache on compute};
+\node[mmbox,mmlevel1,fill=mmF4AAA2] (b0) at (0.00,3.60) {Logic on logic};
+\draw[mmbig] (r) -- (b0);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b0c0) at (-1.52,5.35) {15\% faster, 15\% less power (sim.)};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c0.south);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b0c1) at (1.52,5.35) {Peak $+14$\,\textdegree C};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c1.south);
+\node[mmbox,mmlevel1,fill=mmF9D7AF] (b1) at (4.07,2.20) {Memory on compute};
+\draw[mmbig] (r) -- (b1);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b1c0) at (7.67,2.92) {Cache below the cores (Zen~5)};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c0.west);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b1c1) at (7.67,1.47) {Specialised units on the CPU die?};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c1.west);
+\node[mmbox,mmlevel1,fill=mmCFE7E1] (b2) at (4.07,-2.20) {Standard die-to-die links};
+\draw[mmbig] (r) -- (b2);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c0) at (7.67,-1.47) {UCIe};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c0.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c1) at (7.67,-2.92) {Each hop adds latency};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c1.west);
+\node[mmbox,mmlevel1,fill=mmCFE0F4] (b3) at (0.00,-3.60) {Bigger packages};
+\draw[mmbig] (r) -- (b3);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b3c0) at (-3.05,-5.35) {Co-packaged optics};
+\draw[mmsmall] (b3.south) to[out=-90,in=90] (b3c0.north);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b3c1) at (0.00,-5.35) {Larger modules};
+\draw[mmsmall] (b3.south) to[out=-90,in=90] (b3c1.north);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b3c2) at (3.05,-5.35) {Testing each die matters more};
+\draw[mmsmall] (b3.south) to[out=-90,in=90] (b3c2.north);
+\node[mmoval,mmlevel1,fill=mmDCCFF6] (b4) at (-4.07,-2.20) {Finer pitch};
+\draw[mmbig] (r) -- (b4);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c0) at (-7.67,-1.47) {3D below 9\,\textmu m};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c0.east);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c1) at (-7.67,-2.92) {2.5D below 40\,\textmu m};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c1.east);
+\node[mmbox,mmlevel1,fill=mmD6EBC6] (b5) at (-4.07,2.20) {Co-design};
+\draw[mmbig] (r) -- (b5);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b5c0) at (-7.67,2.92) {Package and architecture};
+\draw[mmsmall] (b5.west) to[out=180,in=0] (b5c0.east);
+\node[mmlevel2,mmoval,fill=mmDCCFF6] (b5c1) at (-7.67,1.47) {Design tools};
+\draw[mmsmall] (b5.west) to[out=180,in=0] (b5c1.east);
+}{Overview of the future directions of \cref{sec:future}: AMD's stated directions \cite{swaminathanAdvancedPackagingEnabling2021,advancedmicrodevicesinc.4thGenAMD2023,lambertHeterogenousIntegrationHigh2025}, Black \emph{et al.}'s simulated logic-on-logic stack \cite{blackStacking3DMicroarchitecture2006} and the co-design conclusion of Liu \emph{et al.}'s review \cite{liuReviewChipletbasedDesign2024}. These are projections and simulations, not products, except where a product is named.}{fig:mindmap-future}

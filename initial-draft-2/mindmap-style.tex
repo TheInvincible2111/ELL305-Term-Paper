@@ -1,0 +1,39 @@
+% Overview-map style shared by the map figures: a central box, coloured branch boxes
+% and smaller leaf boxes or ovals, joined by dark arrows.
+\usetikzlibrary{shapes.geometric,arrows.meta}
+\definecolor{mmink}{HTML}{2B3A36}
+\definecolor{mmroot}{HTML}{A99BE0}
+\definecolor{mmF4AAA2}{HTML}{F4AAA2}
+\definecolor{mmCFE7E1}{HTML}{CFE7E1}
+\definecolor{mmF9D7AF}{HTML}{F9D7AF}
+\definecolor{mmDCCFF6}{HTML}{DCCFF6}
+\definecolor{mmF4C2BB}{HTML}{F4C2BB}
+\definecolor{mmCFE0F4}{HTML}{CFE0F4}
+\definecolor{mmD6EBC6}{HTML}{D6EBC6}
+\definecolor{mmE3E5E9}{HTML}{E3E5E9}
+% Names kept for any figure that still refers to the old branch colours.
+\definecolor{mmteal}{HTML}{1F6F6B}
+\definecolor{mmamber}{HTML}{8A5A00}
+\definecolor{mmpurple}{HTML}{5B3C88}
+\definecolor{mmgreen}{HTML}{3E6B2A}
+\definecolor{mmred}{HTML}{9C2F2F}
+\definecolor{mmsteel}{HTML}{2F5D8A}
+\definecolor{mmslate}{HTML}{4A4F57}
+\tikzset{
+  mmnohyph/.style={execute at begin node={\hyphenpenalty=10000\exhyphenpenalty=10000}},
+  mmroot/.style={mmnohyph, rectangle, rounded corners=8pt, fill=mmroot, text=white, font=\sffamily\large\bfseries,
+    align=center, text width=3.1cm, minimum height=1.6cm, inner sep=5pt},
+  mmlevel1/.style={mmnohyph, text=mmink, font=\sffamily\small\bfseries, align=center, text width=2.55cm,
+    minimum height=1.05cm, inner sep=4pt},
+  mmlevel2/.style={mmnohyph, text=mmink, font=\sffamily\footnotesize, align=center, text width=2.45cm,
+    minimum height=0.8cm, inner sep=3pt},
+  mmbox/.style={rectangle, rounded corners=6pt},
+  mmoval/.style={ellipse, inner sep=0pt, text width=2.05cm},
+  mmbig/.style={-{Stealth[length=3.2mm,width=3mm]}, line width=1.6pt, draw=mmink, shorten <=3pt, shorten >=4pt},
+  mmsmall/.style={-{Stealth[length=2mm,width=2mm]}, line width=0.9pt, draw=mmink, shorten <=2pt, shorten >=2pt},
+}
+\newcommand{\mapfigure}[4][\textwidth]{% [#1 = width], #2 = tikz body, #3 = caption, #4 = label
+  \begin{figure}[htbp]\centering
+  \resizebox{#1}{!}{\begin{tikzpicture}#2\end{tikzpicture}}
+  \caption{#3}\label{#4}\end{figure}}
+\let\mindmapfigure\mapfigure

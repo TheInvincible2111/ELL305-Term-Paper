@@ -2,8 +2,6 @@
 \clearpage
 \part{Introduction and Research Framing}
 \label{part:intro}
-\partbudget{10}{opening argument, research questions, scope and method drafted; contributions finalised}
-
 \section{Introduction}
 \label{sec:intro}
 
@@ -21,7 +19,7 @@ Three pressures now make it harder to keep growing a single \gls{monolithic-die}
 
 \begin{itemize}
   \item \textbf{Die size and yield.} A lithography system can only pattern a die up to the \gls{reticle-limit}, and the probability that a die contains a fatal defect rises with its area. AMD states that the 64-core server configuration of its second-generation EPYC processors would lie well beyond the maximum reticle size if built as one chip \cite{naffziger2020chiplet}. \Cref{sec:yield-cost} quantifies the yield effect with a simple model.
-  \item \textbf{Uneven scaling of circuit types.} Logic, \gls{sram} and analog/I-O circuits do not shrink equally when moving to a new process node. Naffziger \emph{et al.} note that analog circuitry shrinks far less than digital logic and SRAM, so memory interfaces and SerDes gain little from an advanced node \cite{naffziger2020chiplet}. More recent AMD material indicates that SRAM itself now scales more slowly than logic (\cref{sec:why-cache-capacity}).
+  \item \textbf{Uneven scaling of circuit types.} Logic, \gls{sram} and analog/I-O circuits do not shrink equally when moving to a new process node. Naffziger \emph{et al.} note that analog circuitry shrinks far less than digital logic and SRAM, so memory interfaces and serialiser--deserialiser (SerDes) links gain little from an advanced node \cite{naffziger2020chiplet}. AMD's 2022 charts show SRAM, too, falling behind logic from 7\,nm, while the cost of each yielded square millimetre rose to almost five times its 45\,nm value at 5\,nm (\cref{fig:area-scaling}) \cite[slide~6]{wuu2022vcache}.
   \item \textbf{Power and temperature.} Dynamic power grows with switched capacitance, the square of the supply voltage and clock frequency, while leakage power is consumed even when circuits are idle and itself rises with temperature \cite[sec.~10.10]{sarangi2025basic}. Every additional square millimetre of active silicon must be powered and cooled within a fixed package budget.
 \end{itemize}
 
@@ -37,7 +35,7 @@ Using AMD's Zen~2 dimensions, with the compute dies at 74\,mm$^2$ each and a mon
 
 \begin{table}[htbp]
   \centering
-  \caption{One die or eight: the 64-core thought experiment, answered from later sections (model results are illustrative)}
+  \caption{One die or eight: the 64-core thought experiment, answered from later sections (model results are illustrative).}
   \label{tab:thought-experiment}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.7cm}@{}}
@@ -46,17 +44,17 @@ Using AMD's Zen~2 dimensions, with the compute dies at 74\,mm$^2$ each and a mon
     \midrule
     Can it be built? & For 64 cores with I/O, beyond the maximum reticle size \cite{naffziger2020chiplet} & Yes; each die is small & \cref{sec:monolithic-limits} \\
     Modelled yield ($D_0 = 0.2$\,cm$^{-2}$) & 38\% & 87\% per compute die & \cref{sec:yield-cost} \\
-    64-core sets per 300\,mm wafer & about 35 & about 95 & \cref{sec:dies-per-wafer} \\
+    64-core sets per 300\,mm wafer & about 35 & about 95 & \cref{sec:process-specialisation} \\
     AMD's cost estimate & roughly 2$\times$ at 32 and 48 cores & 1$\times$ (reference) & \cref{fig:chiplet-cost-chart} \\
     Manufacturing process & everything on the newest node & cores on 7\,nm, I/O on cheaper 12\,nm & \cref{sec:ccd-iod} \\
-    Communication & on-die network only & every memory access crosses a die-to-die link (under 9\,ns round trip) & \cref{sec:d2d} \\
-    Memory latency & not available for comparison & Rome's average about 0.81$\times$ that of its multi-die predecessor & \cref{tab:numa-latency} \\
+    Communication & on-die network only & every memory access crosses a die-to-die link (AMD: under 9\,ns round trip \cite{naffziger2020chiplet}) & \cref{sec:d2d} \\
+    Memory latency & not available for comparison & AMD reports Rome's average at about 0.81$\times$ that of its multi-die predecessor \cite{naffziger2020chiplet} & \cref{tab:numa-latency} \\
     Cache per core & one shared design choice & each die has its own L3; can be enlarged per die by stacking & Part~\ref{part:stacked-cache} \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-The answers are not all in favour of B. It is far cheaper and the only option that can be built at all, but it pays for that with a die-to-die hop on every memory access and with caches that are private to each die. The rest of the paper examines both sides of this trade, and how 3D stacking changes the cache side of it.
+The answers are not all in favour of B. By AMD's account the full 64-core design could not be built as one die at all, and the models of Part~\ref{part:chiplets} make B far cheaper, but it pays for that with a die-to-die hop on every memory access and with caches that are private to each die. The rest of the paper examines both sides of this trade, and how 3D stacking changes the cache side of it.
 
 \subsection{Two linked scaling problems}
 \label{sec:two-problems}
@@ -71,7 +69,7 @@ The problems are linked: the chiplet organisation makes the CCD a small, self-co
 
 \begin{enumerate}
   \item Monolithic CPUs face die-size, yield and scaling limits; chiplets address compute scaling \cite{naffziger2020chiplet}.
-  \item Chiplets alone leave the cost of large on-die caches unsolved: AMD's ISSCC~2022 presentation names SRAM scaling and cost as the barriers to large on-die caches, in cost, product flexibility and latency, and argues that 2.5D chiplets address only part of the problem \cite[slides~6--7]{wuu2022vcache}.
+  \item Chiplets alone leave the cost of large on-die caches unsolved: AMD's ISSCC~2022 presentation names the slowing scaling and rising cost of SRAM as barriers to large on-die caches, in cost, product flexibility and latency, and argues that 2.5D chiplets address only part of the problem \cite[slides~6--7]{wuu2022vcache}.
   \item Vertical stacking addresses those cache-specific limits \cite{wuu2022vcache,swaminathanAdvancedPackagingEnabling2021}.
   \item Evaluation evidence shows where the stacked cache improves performance, and which thermal, packaging and cost trade-offs it introduces (Part~\ref{part:case-study}).
 \end{enumerate}
@@ -101,21 +99,26 @@ For every technique the paper applies the same three-part test: \emph{which bott
 
 \begin{table}[htbp]
   \centering
-  \caption{Where the research questions are answered}
+  \caption{Where the research questions are answered.}
   \label{tab:rq-map}
   \small
   \begin{tabularx}{\textwidth}{@{}lX>{\raggedright\arraybackslash}p{4.2cm}@{}}
     \toprule
     \textbf{Question} & \textbf{Main evidence} & \textbf{Sections} \\
     \midrule
-    RQ1 & Reticle limit, yield and dies-per-wafer models, uneven scaling of circuit types & Part~\ref{part:chiplets} (\cref{sec:monolithic-limits,sec:yield-cost,sec:dies-per-wafer}) \\
-    RQ2, RQ2a & AMD's chiplet disclosures, die-to-die link figures, NUMA latencies, packaging options & Part~\ref{part:chiplets} (\cref{sec:ccd-iod,sec:d2d,sec:packaging-options}) \\
-    RQ3 & Planar limits, hybrid bonding, the stacked-cache interface, thermal and manufacturing evidence & Part~\ref{part:stacked-cache} \\
-    RQ4 & AMD-reported and independent measurements, graded for confounding factors & Part~\ref{part:case-study} \\
+    RQ1 & Reticle limit, yield and dies-per-wafer models, uneven scaling of circuit types & Part~\ref{part:chiplets} (\cref{sec:monolithic-limits,sec:yield-cost}); \cref{app:dies-per-wafer} \\
+    RQ2, RQ2a & AMD's chiplet disclosures, die-to-die link figures, non-uniform memory access (NUMA) latencies, packaging options; the chiplet simulation & Part~\ref{part:chiplets} (\cref{sec:ccd-iod,sec:d2d,sec:packaging-options}); \cref{sec:sim-chiplet} \\
+    RQ3 & Planar limits, hybrid bonding, the stacked-cache interface, thermal and manufacturing evidence; the simulated design comparison & Part~\ref{part:stacked-cache}; \cref{sec:sim-designs} \\
+    RQ4 & AMD-reported and independent measurements, graded for confounding factors; the simulations & Part~\ref{part:case-study} (\cref{sec:sim-study}) \\
     All & Comparison, interactions and conclusions & Part~\ref{part:synthesis} \\
     \bottomrule
   \end{tabularx}
 \end{table}
+
+\Cref{fig:mindmap-rq} shows the same questions at a glance.
+
+\input{"../initial-draft-2/figures/mindmap-rq.tex"}
+
 
 \subsection{Scope}
 \label{sec:scope}
@@ -131,32 +134,58 @@ The following are deliberately outside scope:
   \item vendor contests. Comparisons are always tied to a stated workload, metric and time period, and the paper makes no general claim that one vendor ``beats'' another.
 \end{itemize}
 
+\subsection{Related work}
+\label{sec:related-work}
+Earlier surveys cover each technique on its own. Liu, Li and Yin review chiplet-based design as a whole, dividing it into system architecture and interconnection. They identify as the main challenges the mapping of functions onto chiplets, the co-optimisation of package and architecture, the added latency of communication between dies, and keeping independently designed chiplets deadlock-free when they are combined \cite{liuReviewChipletbasedDesign2024}. Their review is broad and spans many vendors and accelerators, rather than tracing one product family through its generations. Mittal and Vetter survey techniques for building large last-level caches from DRAM, motivated by the low density and high leakage of SRAM \cite{mittalSurveyTechniquesArchitecting2016}. Their survey predates hybrid-bonded SRAM stacking in products, so it treats a different technology from the one AMD chose (\cref{sec:sram}). At the level of individual designs, Black \emph{et al.} simulated stacking SRAM and DRAM caches on a processor in 2006, including their thermal cost \cite{blackStacking3DMicroarchitecture2006}, and Dong and Xie built a system-level cost model for 3D integrated circuits, which finds that stacking pays only above a certain design size \cite{dongSystemlevelCostAnalysis2009}. Domke \emph{et al.} come closest to this paper's subject. They measured Milan-X against Milan on high-performance computing (HPC) proxy applications, and simulated a hypothetical future processor with very large stacked SRAM, reporting an average 9.56$\times$ per-chip gain for cache-sensitive HPC applications \cite{domkeLocusPerformanceQuantifying2023}. Their focus is HPC and future designs, not the trade-offs of the products already shipped.
+
+This paper differs from these works in three ways. It treats chiplets and stacked cache as two answers to related limits of one design, the AMD Zen family, rather than as separate topics. It explains both with the models of an undergraduate textbook, so that each claim can be checked by hand. And it grades the published evidence by what each comparison controls, rather than quoting headline figures.
+
 \subsection{Methodology}
 \label{sec:method-overview}
 
-The study combines three kinds of evidence:
+The study combines five kinds of evidence:
 
 \begin{enumerate}
   \item \textbf{Textbook foundations.} Chapters 9--12 of Sarangi's \emph{Basic Computer Architecture} supply the models used throughout: the performance equation, pipelining limits, power and temperature, the memory hierarchy and average memory access time, and multicore coherence and interconnects \cite{sarangi2025basic}.
   \item \textbf{Primary technical disclosures.} Peer-reviewed conference papers and vendor technical presentations describe what was built and why. Vendor presentations are attributed to the vendor and treated as engineering claims rather than independent measurements.
-  \item \textbf{Published research and benchmarks.} Part~\ref{part:case-study} analyses published measurements of chiplet and stacked-cache processors. The paper does not perform new hardware measurements; its quantitative contribution lies in organising, normalising and critically comparing existing results (\cref{sec:evidence-method}).
+  \item \textbf{Published research and benchmarks.} Part~\ref{part:case-study} analyses published measurements of chiplet and stacked-cache processors. Apart from the one set of measurements on a single-CCD part described below, the paper performs no new measurements of these processors; its quantitative contribution lies in organising, normalising and critically comparing existing results (\cref{sec:evidence-method}).
+  \item \textbf{A simulation.} A trace-driven model of the cache hierarchy, built by the group and calibrated against published measurements, changes one factor at a time where no published comparison does (\cref{sec:sim-study}). Its results are labelled as model outputs throughout.
+  \item \textbf{The group's own measurements.} Latency, overlap of misses, bandwidth and core-to-core tests on the group's Ryzen~5 5600X, a single-CCD Zen~3 chiplet processor without stacked cache, compare the model with a machine it was not built from (\cref{app:5600x}).
 \end{enumerate}
 
-Two practices run through the analysis. First, \emph{worked examples} apply the textbook's models to published numbers: yield and cost per wafer, connection density, average memory access time, the stacked-cache trade-off and clock correction. Each states its inputs, and any assumed value is labelled as such. Second, sources are graded. Vendor presentations are used for what was built; independent measurements, preferably with fixed clocks or performance counters, are used for what it achieves; and where a value had to be read from a published chart rather than a table, the text says so and gives the reading accuracy.
+Two practices run through the analysis. First, \emph{calculations} apply the textbook's models to published numbers: yield and cost per wafer, connection density, average memory access time, the stacked-cache trade-off and clock correction. Each states its inputs, and any assumed value is labelled as such. Second, sources are graded. Vendor presentations are used for what was built; independent measurements, preferably with fixed clocks or performance counters, are used for what it achieves; and where a value had to be read from a published chart rather than a table, the text says so and gives the reading accuracy.
 
 \subsection{Contributions}
 \label{sec:contributions}
 
-This paper contributes no new measurements; its contributions are analytical:
+This paper makes no new measurements of stacked-cache processors or of traffic between CCDs, and one set on a Ryzen~5 5600X, a single-CCD chiplet part without stacked cache; its contributions are otherwise analytical and, in one part, computational:
 \begin{itemize}
   \item a single argument linking chiplet partitioning and 3D-stacked cache as responses to two related scaling limits, die cost and last-level cache capacity;
   \item an explanation of both techniques in terms of the textbook's performance, power, thermal and memory-hierarchy models;
   \item a structured comparison of planar, side-by-side and vertically stacked cache expansion;
   \item a synthesis of AMD-reported and independent performance evidence for stacked cache across three Zen generations, graded by which confounding factors each comparison controls (\cref{tab:confound-grid});
-  \item an account of how AMD's move to an inverted stack in Zen~5 bears on the thermal cost of the first design.
+  \item an account of how AMD's move to an inverted stack in Zen~5 bears on the thermal cost of the first design;
+  \item seven simulations, most changing one factor at a time, with the model, scripts and raw results on GitHub for repetition (\href{\repourl}{\nolinkurl{\repourlshort}}; \cref{sec:sim-study,app:sim-setup});
+  \item measurements on the group's own Ryzen~5 5600X, compared with the model on a machine it was not built from (\cref{sec:sim-calibration,app:5600x}).
+\end{itemize}
+
+\subsection{Main findings}
+\label{sec:findings}
+The main findings, each developed in the part cited, are as follows.
+\begin{itemize}
+  \item \textbf{Chiplets trade a small latency cost on every L3 miss for cost and flexibility.} Smaller dies yield far better, I/O moves to a cheaper node (\cref{sec:yield-cost}), and within each generation one compute die serves a wide range of products, from desktop parts to 64-core (Zen~3) or 96-core (Zen~4) servers (\cref{sec:product-flexibility}). Every L3 miss pays a die-to-die round trip that AMD gives as under 9\,ns, yet AMD reports that Rome's average memory latency was 19\% lower than its predecessor's (\cref{sec:d2d}). The largest cost is in sharing: in the one measurement available, passing data between cores on different CCDs took about 4.5 times as long as within one (\cref{sec:cross-ccd}). The power cost can only be estimated, at about 2\% of a Genoa processor's power budget for memory traffic alone (\cref{sec:chiplet-power}).
+  \item \textbf{Stacking triples the L3 for about four cycles.} AMD's first cache die expands a Zen~3 CCD's L3 from 32 to 96\,MB for about four extra cycles of latency, a cost measured in three generations by one independent outlet (Part~\ref{part:stacked-cache}, \cref{sec:milanx-latency}).
+  \item \textbf{The benefit depends on the working set.} At equal clock, the best-controlled study finds gains in instructions per cycle (IPC) of 4.9--19.7\% in five workloads, a geometric mean of 11.4\% by the authors' calculation, and a small loss in a sixth (\cref{sec:lam-detail}). Memory-bound computational fluid dynamics (OpenFOAM) gains up to 1.5--1.6$\times$ and one HPC proxy up to 3.4$\times$ at favourable problem sizes, while working sets that already fit gain nothing (Part~\ref{part:case-study}).
+  \item \textbf{A removed miss is worth less than a memory access.} In the measured workloads each counted miss removed was worth an apparent 50 to 130 cycles, well below the memory latency. Overlap of misses by out-of-order cores and the counting of prefetches as misses are two candidate explanations; the sources do not separate them (\cref{sec:tradeoff-example,sec:lam-detail}).
+  \item \textbf{Clock speed is the hidden price.} In the first two generations the V-Cache parts clocked lower. A simple model calibrated on published measurements shows that a 7\% clock gap raises the number of misses the larger cache must remove to break even from about 0.1 to about 0.35 per thousand instructions. The simulation, built on the same calibration and so not an independent check, gives 0.38 at that gap (\cref{sec:cache-clock-model,sec:sim-clock}).
+  \item \textbf{A simulation illustrates these mechanisms.} A trace-driven cache model, calibrated on the same measurements, reproduces the working-set window, the small latency cost and the weight of the clock gap with every other factor fixed. It also shows which inputs matter: across the overlap factors fitted to Lam's workloads the break-even at a realistic clock gap changes about threefold, and the two link round trips of one transfer between CCDs explain only part of the measured cost of sharing (\cref{sec:sim-study}). Its results are model outputs, not measurements.
+  \item \textbf{The group's own measurements check the model's inputs and expose its limits.} On a Ryzen~5 5600X, the published Zen~3 L1 and L2 latencies the model uses agree with the measured ones, its L3 and memory latencies are within about 20\%, and the core keeps at least sixteen misses in flight, enough for the overlap the calibration implies. Between the cache plateaus, where the model's own behaviour shows, its latency close to each cache's capacity is too low, by up to 2.4 times (at 32\,MB, measured under the Windows Subsystem for Linux, WSL2; \cref{sec:sim-calibration}).
 \end{itemize}
 
 \subsection{Organisation of the paper}
 \label{sec:organisation}
 
-Part~\ref{part:foundations} reviews the architectural foundations. Part~\ref{part:chiplets} analyses chiplet-based organisation. Part~\ref{part:stacked-cache} examines 3D-stacked cache and AMD 3D V-Cache. Part~\ref{part:case-study} presents the AMD case study and quantitative analysis, and Part~\ref{part:synthesis} compares the approaches, identifies limitations and outlines future directions. Self-contained derivations longer than about half a page appear as appendices.
+Part~\ref{part:foundations} reviews the architectural foundations. Part~\ref{part:chiplets} analyses chiplet-based organisation. Part~\ref{part:stacked-cache} examines 3D-stacked cache and AMD 3D V-Cache. Part~\ref{part:case-study} presents the AMD case study and quantitative analysis, and Part~\ref{part:synthesis} compares the approaches, identifies limitations and outlines future directions. Self-contained derivations longer than about half a page appear as appendices. \Cref{fig:mindmap-paper} maps the whole paper.
+
+\input{"../initial-draft-2/figures/mindmap-paper.tex"}
+

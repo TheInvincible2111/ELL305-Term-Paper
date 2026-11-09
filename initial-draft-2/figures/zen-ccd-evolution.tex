@@ -1,39 +1,61 @@
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[
-  core/.style={draw=draftblue,fill=white,minimum width=0.5cm,minimum height=0.5cm,font=\tiny},
-  l3/.style={draw=draftblue,fill=draftlight,align=center,font=\scriptsize},
-  ccd/.style={draw=draftblue,thick,dashed,rounded corners=2pt},
-  lab/.style={font=\small\bfseries,text=draftblue,align=center}]
-% Zen 2
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[x=1cm,y=1cm,
+  frame/.style={draw=ccdframe,line width=3pt,fill=ccdframe!35},
+  core/.style={draw=ccdcore!70!black,fill=ccdcore,text=white,font=\sffamily\scriptsize\bfseries,align=center,minimum width=1.25cm,minimum height=0.78cm,inner sep=1pt},
+  l2/.style={draw=ccdl2!70!black,fill=ccdl2,text=white,font=\sffamily\tiny,align=center,minimum width=0.62cm,minimum height=0.78cm,inner sep=0.5pt},
+  l3/.style={draw=ccdl3!60!black,fill=ccdl3,text=white,font=\sffamily\small\bfseries,align=center},
+  fab/.style={draw=ccdif!70!black,fill=ccdif,text=white,font=\sffamily\scriptsize\bfseries,minimum height=0.36cm},
+  ttl/.style={font=\sffamily\Large\bfseries}]
+% one core with its L2: #1 = x of the left edge, #2 = y centre, #3 = core label, #4 = 1 if L2 on the left
+\providecommand{\corepair}[4]{%
+  \ifnum#4=1
+    \node[l2] at (#1+0.31,#2) {L2\\512\,KB}; \node[core] at (#1+1.25,#2) {#3\\Core};
+  \else
+    \node[core] at (#1+0.625,#2) {#3\\Core}; \node[l2] at (#1+1.56,#2) {L2\\512\,KB};
+  \fi}
+% ---------- Zen 2 ----------
 \begin{scope}
-\foreach \c in {0,1}{
-  \node[l3,minimum width=1.2cm,minimum height=1.25cm] (z2l3\c) at (\c*2.2,0) {16 MB\\L3};
-  \foreach \i/\dx/\dy in {0/-0.85/0.35,1/-0.85/-0.35,2/0.85/0.35,3/0.85/-0.35}{
-    \node[core] at (\c*2.2+\dx,\dy) {C};}
-  \node[draw=draftgray,minimum width=2.15cm,minimum height=1.55cm] at (\c*2.2,0) {};}
-\node[ccd,fit={(-1.25,-0.95) (3.45,0.95)}] (z2) {};
-\node[lab,above=0.1cm of z2] {Zen 2 CCD\\two 4-core CCXs};
+\node[ttl] at (3.15,4.85) {Zen~2 CCD};
+\draw[frame] (0,0) rectangle (6.3,4.3);
+\foreach \y in {2.75,3.6}{\corepair{0.12}{\y}{Zen~2}{1}\corepair{4.31}{\y}{Zen~2}{0}}
+\foreach \y in {0.7,1.55}{\corepair{0.12}{\y}{Zen~2}{1}\corepair{4.31}{\y}{Zen~2}{0}}
+\node[l3,minimum width=2.25cm,minimum height=1.62cm] at (3.15,3.175) {L3 cache\\[-1pt]{\normalfont\footnotesize 16\,MB}};
+\node[l3,minimum width=2.25cm,minimum height=1.62cm] at (3.15,1.125) {L3 cache\\[-1pt]{\normalfont\footnotesize 16\,MB}};
+\node[fab,minimum width=6.0cm] at (3.15,2.15) {Infinity Fabric};
+\node[font=\sffamily\scriptsize,align=center] at (3.15,-0.45) {two 4-core CCXs; each core sees only its CCX's 16\,MB};
 \end{scope}
-% Zen 3
-\begin{scope}[xshift=6.1cm]
-\node[l3,minimum width=1.4cm,minimum height=1.6cm] (z3l3) at (0,0) {32 MB\\shared\\L3};
-\foreach \i in {0,1,2,3}{\node[core] at (-1.05,0.9-\i*0.6) {C}; \node[core] at (1.05,0.9-\i*0.6) {C};}
-\node[ccd,fit={(-1.45,-1.25) (1.45,1.25)}] (z3) {};
-\node[lab,above=0.1cm of z3] {Zen 3 CCD\\one 8-core CCX};
+% ---------- Zen 3 ----------
+\begin{scope}[xshift=7.1cm]
+\node[ttl] at (3.15,4.85) {Zen~3 CCD};
+\draw[frame] (0,0) rectangle (6.3,4.3);
+\node[fab,minimum width=6.0cm] at (3.15,3.95) {Infinity Fabric};
+\foreach \y in {0.5,1.38,2.26,3.14}{\corepair{0.12}{\y}{Zen~3}{1}\corepair{4.31}{\y}{Zen~3}{0}}
+\node[l3,minimum width=2.25cm,minimum height=3.48cm] at (3.15,1.82) {L3 cache\\[-1pt]{\normalfont\footnotesize 32\,MB}};
+\node[font=\sffamily\scriptsize,align=center] at (3.15,-0.45) {one 8-core CCX; every core sees all 32\,MB};
 \end{scope}
-% Zen 3 + V-Cache
-\begin{scope}[xshift=10.4cm]
-\node[l3,minimum width=1.4cm,minimum height=1.6cm] (vl3) at (0,0) {};
-\node[font=\tiny,align=center] at (0,-0.55) {32 MB base};
-\foreach \i in {0,1,2,3}{\node[core] at (-1.05,0.9-\i*0.6) {C}; \node[core] at (1.05,0.9-\i*0.6) {C};}
-\fill[pattern=north east lines,pattern color=draftblue!45] (-0.62,-0.32) rectangle (0.62,0.72);
-\draw[draftblue,thick] (-0.62,-0.32) rectangle (0.62,0.72);
-\node[font=\tiny,fill=white,inner sep=1pt,align=center] at (0,0.2) {+64 MB\\stacked};
-\node[ccd,fit={(-1.45,-1.25) (1.45,1.25)}] (v) {};
-\node[lab,above=0.1cm of v] {Zen 3 CCD with\\3D V-Cache (96 MB L3)};
+% ---------- Zen 3 with V-Cache ----------
+\begin{scope}[xshift=3.55cm,yshift=-6.2cm]
+\node[ttl] at (3.15,4.85) {Zen~3 CCD with V-Cache};
+\draw[frame] (0,0) rectangle (6.3,4.3);
+\node[fab,minimum width=6.0cm] at (3.15,3.95) {Infinity Fabric};
+\foreach \y in {0.5,1.38,2.26,3.14}{\corepair{0.12}{\y}{Zen~3}{1}\corepair{4.31}{\y}{Zen~3}{0}}
+\node[l3,minimum width=2.25cm,minimum height=3.48cm] at (3.15,1.82) {};
+% structural silicon over the cores (seen from above)
+\fill[white,opacity=0.55] (0.12,0.08) rectangle (2.0,3.56);
+\fill[white,opacity=0.55] (4.3,0.08) rectangle (6.18,3.56);
+\fill[pattern=north east lines,pattern color=ccdframe] (0.12,0.08) rectangle (2.0,3.56);
+\fill[pattern=north east lines,pattern color=ccdframe] (4.3,0.08) rectangle (6.18,3.56);
+% stacked cache die over the L3
+\draw[fill=ccdl3!55!white,draw=ccdl3!60!black,line width=1.2pt,dashed] (2.1,0.2) rectangle (4.2,3.45);
+\node[font=\sffamily\small\bfseries,text=ccdl3!50!black,align=center] at (3.15,2.15) {+64\,MB\\cache die};
+\node[font=\sffamily\scriptsize,text=ccdl3!50!black,align=center] at (3.15,1.05) {stacked on\\the 32\,MB L3\\(96\,MB in all)};
+\node[font=\sffamily\tiny,align=center,fill=white,inner sep=1pt] at (1.06,1.82) {structural\\silicon\\over cores};
+\node[font=\sffamily\tiny,align=center,fill=white,inner sep=1pt] at (5.24,1.82) {structural\\silicon\\over cores};
+\node[font=\sffamily\scriptsize,align=center] at (3.15,-0.45) {seen from above: cache die over the L3 only};
 \end{scope}
-\end{tikzpicture}
-\caption{Schematic progression of L3 organisation per compute die from Zen~2 to Zen~3 and Zen~3 with 3D V-Cache, based on AMD's descriptions \cite{suggs2019zen2,amd2022epyc7003,wuu2022vcache}. Logical organisation only; not a floorplan.}
+\end{tikzpicture}}
+\caption{Compute die (CCD) organisation from Zen~2 to Zen~3 and Zen~3 with 3D V-Cache: cores (orange), private L2 caches (blue), L3 (purple) and the Infinity Fabric interface (green). Zen~2 splits the CCD into two four-core complexes with 16\,MB of L3 each; Zen~3 gives all eight cores one 32\,MB L3; V-Cache stacks a 64\,MB cache die over the central L3 and covers the cores only with structural silicon. Drawn from AMD's descriptions \cite{suggs2019zen2,amd2022epyc7003,wuu2022vcache}; a schematic, not a floorplan, and not to scale.}
 \label{fig:zen-ccd-evolution}
 \end{figure}

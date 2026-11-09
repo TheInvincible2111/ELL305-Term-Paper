@@ -1,0 +1,76 @@
+\clearpage
+\section{Simulation Set-up and Reproduction}
+\label{app:sim-setup}
+
+This appendix records what the model of \cref{sec:sim-study} contains and how to repeat every result. The simulator, the experiment scripts and the raw results are in the paper's GitHub repository (\href{\repourl}{\nolinkurl{\repourlshort}}): the simulator in \ghdir{tools/cachesim}, the scripts in \ghdir{tools/cachesim/study}, and one CSV file per experiment in \ghdir{research/measurements/cachesim}. A script generates the figures and tables of \cref{sec:sim-study} from those CSV files. The only values typed by hand are the measured Milan and Milan-X points in \cref{fig:sim-latency}, read from \cref{fig:milanx-latency}, and Reguly's measured ratio in \cref{fig:sim-pingpong}.
+
+\subsection*{What the model contains}
+The model is trace-driven and functional: it follows every memory access through the caches but does not model a pipeline.
+\begin{itemize}
+  \item \textbf{Caches.} Each core has a private L1 data cache and a private L2 that contains everything in its L1. Cores are divided evenly into L3 groups (a CCX or a CCD), each sharing one L3. The L3 is filled on every miss; the sources used here do not state how Zen's L3 is filled, and real fill policies may differ. An optional L4, the side die of S2, is shared by all groups. It is either filled on every miss, so that it holds copies of L3 data (\emph{inclusive}), or filled only by L3 evictions and emptied when a line moves back up (\emph{victim}). It is looked up after an L3 miss. Replacement is least-recently-used unless stated otherwise.
+  \item \textbf{Placement.} A working set occupies consecutive line numbers, so it spreads evenly over the sets of each cache and has no conflict misses below capacity. Real programs with 4\,KB pages are scattered over physical memory, which causes some conflict misses before a cache is full; the 5600X measurement shows that other effects also make a real L3 slow down before it is full (\cref{sec:sim-calibration}).
+  \item \textbf{Coherence.} A directory records which cores hold each line (\cref{sec:multicore}). A read of a line that another core has modified is served core to core. A write invalidates all other copies. A write that hits in the writer's own caches while other cores hold the line is charged one extra L3 latency, plus the hop if any of them is on another die. A write that misses pays for fetching the line, as a read does, plus a further hop if a holder is on another die. Copies held only in another group's L3, by no core, are invalidated at no cost.
+  \item \textbf{Latency.} An access is charged the latency of the level that served it. An L1, L2 or L3 hit costs that level's latency. Another group's L3 or core costs two L3 latencies plus the hop. An L4 hit costs the L3 latency plus the L4 latency. DRAM costs the L3 latency plus a fixed time in nanoseconds, plus the hop in the two-die configuration of S4, where every memory access crosses to the I/O die.
+  \item \textbf{Overlap.} The part of any latency beyond an L2 hit is multiplied by an \emph{overlap factor} $\omega$, the fraction an out-of-order core cannot hide; it is the complement of the hidden fraction $h$ of \cref{sec:mlp}, $\omega = 1 - h$, so 1 means no overlap and smaller values mean more overlap. The model reports both the raw average latency, which a latency sweep measures, and the \emph{exposed} average latency after the overlap factor, which the experiments compare.
+  \item \textbf{Time.} The estimated time is the largest of three limits: the slowest core's latency-bound time (exposed latency plus a fixed number of cycles of other work per access), L3 traffic over L3 bandwidth, and DRAM traffic over DRAM bandwidth. The model can also limit die-to-die link bandwidth, but that limit is switched off in every experiment here.
+  \item \textbf{Warm-up.} Every run except the ping-pong test warms the caches before measuring and resets the statistics afterwards, so compulsory misses do not distort small working sets. The ping-pong test has no separate warm-up; it ignores its first 40 accesses.
+\end{itemize}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Default model parameters and their sources.}
+  \label{tab:sim-parameters}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    \textbf{Parameter} & \textbf{Value and source} \\
+    \midrule
+    L1D, L2 & 32\,KB 8-way, 4 cycles; 512\,KB 8-way, 12 cycles; 64-byte lines \cite{7-cpu.comAMDZen3} \\
+    L3, one CCD (Zen~3) & 32\,MB 16-way, 47 cycles \cite{7-cpu.comAMDZen3} \\
+    L3, two CCXs (Zen~2 style) & 2 $\times$ 16\,MB, 39 cycles: 47 cycles minus the 7--8 cycles that unifying the L3 added \cite{cozmaDeepDivingZen2022} (derived) \\
+    L3 with cache die & 96\,MB, 51 cycles, four more than the planar L3 \cite{wuu2022vcache} \\
+    Planar 96\,MB L3 & 59 cycles: an assumption, varied in \cref{tab:sim-planar} \\
+    Side die (L4) & 64\,MB, 22\,ns, so that a hit totals about 34\,ns, in line with the more than 30\,ns Lam measured for Broadwell's eDRAM \cite{lamAMDs7950X3DZen2023}; an assumption, varied from 5 to 22\,ns in \cref{tab:sim-side-die} \\
+    DRAM & L3 latency plus 74\,ns \cite{7-cpu.comAMDZen3}; 51.2\,GB/s, two DDR4-3200 channels \\
+    Hop between dies & 9\,ns, AMD's CCD--IOD round trip \cite{naffziger2020chiplet}; 37\,ns when fitted to Reguly's measured ratio (\cref{fig:sim-pingpong}); also 18 and 60\,ns in \cref{tab:sim-split} \\
+    L3 bandwidth per core & 32\,bytes per cycle \cite[slide~20]{wuu2022vcache} \\
+    Overlap factor & 0.335, fitted to Lam's libx264 measurement (\cref{tab:sim-calibration}); 0.05 in S6 \\
+    Other work per access & 1 cycle; 0.48 in S3 (assumption, see below) \\
+    Clock & 4\,GHz unless stated \\
+    Seeds; measured accesses per point & 5 seeds; $10^6$ accesses after warm-up ($2.5 \times 10^5$ per thread in S6) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection*{Calibration of the overlap factor}
+Lam's libx264 measurement gives, per thousand instructions, 3.85 L3 accesses, 0.40 misses removed by the V-Cache and a net saving of about 36 cycles (\cref{sec:tradeoff-example}). In the model, a removed miss saves $\omega\,(L3 + t_{\mathrm{mem}} - L3_{\mathrm{stacked}})$ cycles and each L3 access costs $4\omega$ more, where $\omega$ is the overlap factor, because the model overlaps the four extra cycles too. Requiring $0.40 \times 306.8\,\omega - 3.85 \times 4\,\omega = 36$ at 4.2\,GHz gives $\omega = 0.335$; the same equation gives 0.202 for Cyberpunk~2077 and 0.105 for GHPC. These are fitted values. They inherit the caveats of the 130-cycle estimate, in particular that Lam's counters include prefetch and speculative L3 accesses.
+
+\subsection*{Workloads}
+\emph{Random} accesses lines uniformly at random within the working set. A latency sweep instead follows a cyclic chain through its working set: within a cache's capacity the two give the same latency, but above it the random workload keeps some hits that a cyclic chase loses (\cref{sec:sim-calibration,tab:sim-policy}). \emph{Hot/cold} sends a fixed share of accesses to a small hot region, and the rest to the whole working set or, optionally, to a separate far region beyond it. \emph{Sequential} streams through private data. \emph{Ping-pong} has two cores write one line in turn.
+
+The S3 mix is built to match Lam's libx264 run:
+\begin{itemize}
+  \item 98.889\% of accesses go to a 16\,KB hot region that stays in the L1;
+  \item 0.799\% go to a cold region whose size is swept;
+  \item 0.312\% go to a 1\,GB far region that misses in both caches, so that the V-Cache CCD keeps about 1.04 misses per thousand instructions where Lam measured 1.08;
+  \item one access in three instructions is a memory access, the textbook's typical figure \cite[sec.~11.1.1]{sarangi2025basic} (an assumption here);
+  \item L1 hits are charged one cycle, standing for loads the pipeline hides (an assumption);
+  \item each access adds 0.48 cycles of other work (an assumption), chosen so that the plain CCD runs at about 730 cycles per thousand instructions at Lam's operating point, against the 735 measured.
+\end{itemize}
+At that operating point the mix gives about 3.8 L3 accesses and 1.44 misses per thousand instructions on the plain CCD. Because the mix and the overlap factor are both fitted to the same measurement, its agreement with Lam's 4.9\% gain at equal clocks (\cref{sec:sim-clock}) is a check of the construction, not an independent test.
+
+\subsection*{How to repeat the study}
+After cloning the GitHub repository, on Linux or WSL with a C++ compiler and Python~3:
+\begin{lstlisting}[language=bash]
+cd tools/cachesim
+g++ -O2 -std=c++17 -o cachesim src/cachesim.cpp
+./cachesim --selftest
+node test/crosscheck.js ./cachesim     # C++ and JavaScript give identical results
+python3 test/check_golden.py ./cachesim  # without Node.js: against stored JavaScript results
+python3 study/sims.py --bin ./cachesim --out results
+python3 study/make_figures.py results figures
+python3 study/compare_5600x.py --bin ./cachesim \
+    --results ../../research/measurements/5600X/results-20261108-0724 \
+    --csv model-comparison.csv --figures figures   # App. G comparison
+\end{lstlisting}
+The full study takes about seven minutes on a 16-thread desktop and, with the same seeds, reproduces the stored CSV files exactly. The same model also runs in the browser, in \ghfile{tools/cachesim/gui/index.html} on GitHub, where its parameters can be changed with sliders and experiments like S1, S2 and S4--S6 rerun.

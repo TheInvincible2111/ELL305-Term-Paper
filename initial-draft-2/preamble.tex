@@ -2,10 +2,33 @@
 \usepackage{placeins}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.17}
-\usetikzlibrary{arrows.meta,positioning,fit,calc,shapes.geometric,decorations.pathreplacing,patterns}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,shapes.geometric,decorations.pathreplacing,patterns,mindmap}
+\input{"../initial-draft-2/mindmap-style.tex"}
+% Block-diagram colours (CCD and package figures)
+\definecolor{ccdcore}{HTML}{F26B2A}
+\definecolor{ccdl2}{HTML}{2E86C1}
+\definecolor{ccdl3}{HTML}{7D2E8E}
+\definecolor{ccdif}{HTML}{27924A}
+\definecolor{ccdframe}{HTML}{8C8C8C}
 \input{"../initial-draft-2/glossary.tex"}
 
 \hypersetup{pdftitle={ELL305 Term Paper - initial-draft-2 (working draft)}}
+
+% Running header with the topic (initial-draft-2 only; the shared style is left unchanged for Draft 1).
+\fancypagestyle{ell305}{%
+  \fancyhf{}%
+  \fancyhead[C]{\parbox{\headwidth}{\small ELL305: Computer Architecture \textperiodcentered\ \emph{\runningtopic}\hfill IIT Delhi}}%
+  \fancyfoot[C]{\thepage}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[C]{\parbox{\headwidth}{\small ELL305: Computer Architecture \textperiodcentered\ \emph{\runningtopic}\hfill IIT Delhi}}%
+  \fancyfoot[C]{\thepage}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
 
 % Article class has no chapters: Parts are \part, chapters are \section.
 \titleformat{\part}[display]
@@ -23,6 +46,18 @@
   \begin{center}\small\itshape\color{draftgray}
   Target length: about #1 pages. Draft status: #2.
   \end{center}}
+% Float pages: stack floats from the top with a fixed gap instead of spreading them over the page.
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{18pt plus 2pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+% Let floats share pages with text more readily, so fewer pages hold only floats.
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.12}
+\renewcommand{\floatpagefraction}{0.75}
+
 \newcommand{\plannedcontent}[1]{%
   \par\noindent\fcolorbox{draftgray}{white}{%
     \begin{minipage}{0.96\textwidth}\small

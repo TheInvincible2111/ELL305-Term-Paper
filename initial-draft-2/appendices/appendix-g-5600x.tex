@@ -1,0 +1,75 @@
+\clearpage
+\section{Measurements on the Group's Ryzen 5 5600X}
+\label{app:5600x}
+
+This appendix records the one set of hardware measurements made for this paper. The group ran them on its own Ryzen~5 5600X, a single-CCD Zen~3 chiplet processor without stacked cache, so that the model of \cref{sec:sim-study} could be compared with a machine it was not built from. The results are used in \cref{sec:sim-calibration} (latency and overlap of misses), \cref{sec:virtual-memory} (TLB reach), \cref{sec:cross-ccd} (core-to-core hand-over) and \cref{sec:sim-bandwidth} (memory bandwidth). The raw results, the run notes and an analysis are on GitHub (\href{\repourl}{\nolinkurl{\repourlshort}}), in \ghdir{research/measurements/5600X}, and the measurement programs in \ghdir{tools/measurements/5600x-kit}.
+
+\subsection*{Machine and conditions}
+\Cref{tab:m5600x-conditions} records the machine and the conditions of the run.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Conditions of the 5600X measurements (8 November 2026), as recorded in the run notes and by the kit's system report.}
+  \label{tab:m5600x-conditions}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    \textbf{Item} & \textbf{Value} \\
+    \midrule
+    Processor & AMD Ryzen~5 5600X: one CCD, six cores, twelve threads, 32\,MB L3, 512\,KB L2 per core \\
+    Board, cooling & MSI B550 Gaming Edge WiFi; DeepCool AS500 air cooler \\
+    Firmware settings & Precision Boost Overdrive (PBO) enabled; no Curve Optimizer and no other overclock \\
+    Memory & 32\,GB of DDR4-3200, CL16-20-20-40, command rate 1T; Infinity Fabric clock 1600\,MHz, 1:1 with the memory clock \\
+    Core clock & 4.614\,GHz, estimated by the kit from a chain of dependent additions before and after the run; Task Manager showed 4.6\,GHz \\
+    Software & Windows with the High performance power plan; tests run in Ubuntu under the Windows Subsystem for Linux (WSL2); transparent huge pages on request (\texttt{madvise}); no other programs deliberately running \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection*{Method}
+The kit runs four C programs and the model, and takes about ten minutes.
+\begin{itemize}
+  \item \textbf{Latency sweep.} A pointer chase walks a randomly ordered cyclic chain of 64-byte lines through a buffer of increasing size; each load depends on the previous one, so the time per step is the latency of the level that holds the buffer. It runs three times with 4\,KB pages and three times with 2\,MB pages. The paper uses the median of the three runs.
+  \item \textbf{Overlap of misses.} The same chase follows $k$ independent chains at once, $k = 1$ to 16, through a 1\,GB buffer (memory) and a 16\,MB buffer (L3), with 2\,MB pages.
+  \item \textbf{Bandwidth.} A read kernel and a triad kernel run over buffers from 16\,KB to 256\,MB with 1, 3, 6 and 12 threads.
+  \item \textbf{Core-to-core.} Two threads pinned to two logical CPUs pass a cache line back and forth by writing a shared counter in turn; every pair of the twelve logical CPUs is measured, and each pair's value is the fastest of three trials.
+  \item \textbf{Model.} The model of \cref{sec:sim-study} is run at the measured clock with its default inputs, and again with its L3 and memory latencies set to this machine's values (\cref{fig:m5600x-latency}).
+\end{itemize}
+
+\subsection*{Results}
+\begin{table}[htbp]
+  \centering
+  \caption{Latency at each level on the 5600X (pointer chase, median of three runs, 2\,MB pages unless stated; cycles at 4.614\,GHz) against the model's default inputs.}
+  \label{tab:m5600x-levels}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.4cm}@{}}
+    \toprule
+    \textbf{Level} & \textbf{Measured} & \textbf{Model's default input} \\
+    \midrule
+    L1 (up to 32\,KB) & 0.87\,ns, 4.0 cycles & 4 cycles \\
+    L2 (64--512\,KB) & 2.61--2.69\,ns, 12.0--12.4 cycles & 12 cycles \\
+    L3 (4--16\,MB) & 11.1--12.0\,ns, 51--55 cycles & 47 cycles \\
+    Memory (1\,GB) & 98.6\,ns; 115.3\,ns with 4\,KB pages & L3 + 74\,ns, 84\,ns at this clock (the model gives 82\,ns at 1\,GB, where a few accesses still hit) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\Cref{tab:m5600x-levels} gives the latency of each level. The L1 and L2 agree with the model's inputs, which were measured on another Zen~3 chip. The L3 plateau of 51--55 cycles agrees with the about 53 cycles reported for the Ryzen~7 5800X (\cref{tab:cezanne-vermeer}) and is 4--8 cycles above the 47 cycles the model takes from a Ryzen~5 5600G. Memory latency is about 14\,ns above the model's input (17\,ns above its output at 1\,GB), which was measured on another machine with other memory. The overlap measurements are in \cref{tab:m5600x-mlp}. Their single-chain value at 1\,GB, 104.9\,ns, is about 6\% above the sweep's 98.6\,ns. The two are separate runs of the same program in different modes, and the fractions in that table use 104.9\,ns as their base. The time per step grows only from 105 to 120\,ns between one and sixteen chains, so the core overlaps at least sixteen memory accesses with little loss.
+
+Bandwidth behaved as expected. One thread read 108\,GB/s from the L3, about 23 bytes per cycle against AMD's figure of 32 bytes per cycle per core \cite[slide~20]{wuu2022vcache}, and 30\,GB/s from memory. Six threads read 280--296\,GB/s from the L3 (8--16\,MB in all) and 41\,GB/s from memory, 80\% of the 51.2\,GB/s peak of two DDR4-3200 channels, or 6.8\,GB/s per core.
+
+The core-to-core round trip was 98.5\,ns (median over the 132 ordered pairs, each the fastest of three trials), about 49\,ns for each hand-over of the line. The model's same-CCD round trip, 49\,ns at 4\,GHz, is about half this (\cref{sec:sim-chiplet}).
+
+\subsection*{Where the model and the 5600X differ}
+\label{app:5600x-shapes}
+Near each capacity edge the model and the hardware differ, on the 5600X as on Milan, in two ways. First, just above each capacity the measured latency is higher than the model's: at 64\,MB the 5600X measures 66.9\,ns against 56.6\,ns for the refitted model, and the same happens just above the 32\,KB L1, where pages and the virtual machine play no part. A likely partial explanation is the order of access. A latency sweep visits its lines in a fixed cycle, which least-recently-used replacement handles badly once the data no longer fits, whereas the model's random accesses keep hitting in a share of the cache equal to its capacity divided by the working set. The model shows the same effect when it is given a cyclic workload (\cref{tab:sim-policy}): the 32\,MB L3 then misses on every access at 64\,MB, and the gain of the larger cache rises from 2.86 to 4.75 times. The explanation is only partial: at 64\,MB the 5600X measures 66.9\,ns, between the random model and an all-miss chase (about 99\,ns), so about a third of its accesses still hit. Second, the measured L3 starts to slow down at about 16--20\,MB, before it is full; at 32\,MB its latency is 2.4 times the model's with default inputs and 2.1 times the refitted model's. The model maps each working set to consecutive lines, so it has no conflict misses below capacity. On Milan, part of the early rise comes from 4\,KB pages scattered over physical memory and from TLB misses (\cref{tab:tlb-reach}). On the 5600X the rise remains with 2\,MB pages, so other causes contribute as well: replacement that is not exact LRU, other software's use of the L3, and the virtual machine's address translation. These tests cannot separate them, and the early rise is also the least repeatable part of the measurement: at 32\,MB the three runs gave 24.1, 23.9 and 73.8\,ns.
+
+Both differences make the smaller cache slower in a latency sweep than in the model. For a latency sweep, therefore, the measured gain of a 96\,MB over a 32\,MB L3 is larger than the model's from about 20 to about 64\,MB: at 64\,MB, Milan's measured latency is about 240 cycles against the 32\,MB model's 195, while Milan-X stays near its 51-cycle plateau. Close to the larger cache's own capacity the model overstates the gain: at 96\,MB, Milan-X measures about 65 cycles against the 96\,MB model's 51. How far this carries over to real programs depends on their order of access, which need resemble neither a random nor a cyclic pattern, and the early L3 slowdown may partly reflect the virtual machine.
+
+\subsection*{Reliability and limits}
+\begin{itemize}
+  \item \textbf{Repeatability.} The clock estimate was the same before and after the run. Most points of the three runs of each sweep agree within about 1--3\%. One of the three 2\,MB-page runs was slower from about 19\,MB upwards, by a factor of up to 3 at 32\,MB and by 3--7\% from about 150\,MB to 1\,GB, probably because the system granted it fewer huge pages; the median removes it. The 4\,KB runs differ by up to about 30\% near the TLB and cache limits.
+  \item \textbf{Virtual machine.} WSL2 is a virtual machine. Its second level of address translation can add to the L3 and memory latencies, and pinning a thread to a logical CPU inside it does not fix the physical core. This probably explains why no pair of logical CPUs in the core-to-core test shows the short time expected for two threads on one core, and why pairs in which the responding thread ran on logical CPU~0 were faster (66--72\,ns). The core-to-core values are therefore used only as a same-CCD magnitude.
+  \item \textbf{Unusable values.} With twelve threads, bandwidth for buffers below about 32\,MB was erratic (0.1 to 480\,GB/s), and with any thread count the smallest buffers are limited by the overhead of starting each parallel pass. These values are not used.
+  \item \textbf{Scope.} The processor has no stacked cache and one CCD, so the measurements do not test the stacked cache or the cost of crossing between CCDs. Repeating them under native Linux and on a V-Cache part is an open question (\cref{sec:open-questions}).
+\end{itemize}

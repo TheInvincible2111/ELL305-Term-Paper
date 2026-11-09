@@ -1,0 +1,28 @@
+% Generated from the original tree by tmp/gen_mindmaps.py; edit the text here directly.
+\mapfigure{%
+\node[mmroot] (r) {What the chiplet split trades};
+\node[mmbox,mmlevel1,fill=mmD6EBC6] (b0) at (0.00,3.60) {Gains};
+\draw[mmbig] (r) -- (b0);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b0c0) at (-6.10,5.35) {Smaller dies yield better};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c0.south);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b0c1) at (-3.05,5.35) {I/O on a cheaper node};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c1.south);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b0c2) at (0.00,5.35) {Core counts beyond the reticle};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c2.south);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b0c3) at (3.05,5.35) {One CCD reused across products};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c3.south);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b0c4) at (6.10,5.35) {Dies tested before assembly};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c4.south);
+\node[mmbox,mmlevel1,fill=mmF4AAA2] (b1) at (0.00,-3.60) {Costs};
+\draw[mmbig] (r) -- (b1);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c0) at (-6.10,-5.35) {A hop on every L3 miss};
+\draw[mmsmall] (b1.south) to[out=-90,in=90] (b1c0.north);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c1) at (-3.05,-5.35) {Per-link bandwidth limit};
+\draw[mmsmall] (b1.south) to[out=-90,in=90] (b1c1.north);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c2) at (0.00,-5.35) {Energy per bit moved};
+\draw[mmsmall] (b1.south) to[out=-90,in=90] (b1c2.north);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c3) at (3.05,-5.35) {NUMA for software to manage};
+\draw[mmsmall] (b1.south) to[out=-90,in=90] (b1c3.north);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c4) at (6.10,-5.35) {Denser package (9-2-9 layers)};
+\draw[mmsmall] (b1.south) to[out=-90,in=90] (b1c4.north);
+}{Overview of the chiplet trade-off as Part~\ref{part:chiplets} found it: the gains above (\cref{sec:yield-cost,sec:ccd-iod}) against the costs below (\cref{sec:d2d}). The Cezanne comparison (\cref{sec:cezanne}) shows no visible latency cost, but cannot say how large it is.}{fig:mindmap-chiplet-tradeoff}

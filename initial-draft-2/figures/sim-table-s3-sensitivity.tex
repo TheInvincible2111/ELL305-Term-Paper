@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+  \centering
+  \caption{Sensitivity of S3: the break-even (misses removed per 1000 instructions) when one input is changed. The overlap factors 0.202 and 0.105 are those that reproduce Lam's Cyberpunk~2077 and GHPC measurements (\cref{tab:sim-calibration}).}
+  \label{tab:sim-s3-sensitivity}
+  \small
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Changed input} & \textbf{Equal clocks} & \textbf{7.3\% clock gap} \\
+    \midrule
+    calibrated (overlap 0.335) & 0.04 & 0.38 \\
+    overlap 0.202 (Cyberpunk) & 0.04 & 0.58 \\
+    overlap 0.105 (GHPC) & 0.04 & 1.05 \\
+    overlap 1.0 & 0.04 & 0.17 \\
+    memory 60 ns & 0.05 & 0.46 \\
+    memory 90 ns & 0.03 & 0.31 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

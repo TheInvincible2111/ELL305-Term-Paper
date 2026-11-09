@@ -6,12 +6,12 @@
   win/.style={a,draw=todored,fill=todored!8},
   arr/.style={-{Stealth[length=2mm]},draftblue,thick},
   lab/.style={font=\scriptsize\itshape,text=draftgray}]
-\node[q] (s) at (0,0) {New or changed thread: run on the plain die and count L3 misses per 1000 instructions};
+\node[q] (s) at (0,0) {New or changed thread: run on the plain CCD and count L3 misses per 1000 instructions};
 \node[q] (q1) at (0,-1.8) {Misses well above a few tenths per 1000 instructions?};
-\node[a] (a1) at (5.4,-1.8) {Stay on the plain die\\(higher clock wins)};
-\node[q] (q2) at (0,-3.6) {Sample on the V-Cache die: misses removed above break-even (about 0.35 per 1000 instr.)?};
-\node[a] (a2) at (5.4,-3.6) {Return to the plain die};
-\node[win] (a3) at (0,-5.4) {Keep on the V-Cache die};
+\node[a] (a1) at (5.4,-1.8) {Stay on the plain CCD\\(higher clock wins)};
+\node[q] (q2) at (0,-3.6) {Sample on the V-Cache CCD: misses removed above break-even (about 0.35 per 1000 instr.)?};
+\node[a] (a2) at (5.4,-3.6) {Return to the plain CCD};
+\node[win] (a3) at (0,-5.4) {Keep on the V-Cache CCD};
 \node[a] (r) at (5.4,-5.4) {Re-check periodically: programs change phase};
 \draw[arr] (s) -- (q1);
 \draw[arr] (q1) -- node[lab,above]{no} (a1);
@@ -21,6 +21,6 @@
 \draw[arr,draftgray,dashed] (a3) -- (r);
 \draw[arr,draftgray,dashed] (r.east) -- ++(0.6,0) |- (s.east);
 \end{tikzpicture}
-\caption{A possible placement policy for a processor with one stacked and one plain CCD, built from the cache--clock model of \cref{sec:cache-clock-model}. It is a proposal, not AMD's policy: at the time of Lam's testing, the default placed ordinary applications on the higher-clocked CCD \cite{lamAMDs7950X3DZen2023}. The thresholds come from the libx264 profile and the measured clock gap, and would differ for other programs and processors.}
+\caption{A possible placement policy for a processor with one V-Cache CCD and one plain CCD, built from the cache--clock model of \cref{sec:cache-clock-model}. It is a proposal, not AMD's policy: at the time of Lam's testing, the default placed ordinary applications on the higher-clocked CCD \cite{lamAMDs7950X3DZen2023}. The thresholds come from the libx264 profile and the measured clock gap, and would differ for other programs and processors.}
 \label{fig:thread-placement}
 \end{figure}

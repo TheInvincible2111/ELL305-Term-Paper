@@ -1,0 +1,25 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.9\textwidth, height=6.4cm,
+  xmode=log, log basis x=2, xmin=8, xmax=192, ymin=0,
+  xtick={8,16,32,64,96,192}, xticklabels={8,16,32,64,96,192},
+  xlabel={Working set (MB, log scale)}, ylabel={Exposed latency per access (ns)},
+  legend pos=north west, legend style={font=\scriptsize}, legend cell align=left,
+  grid=major, grid style={draftgray!20}]
+\addplot[draftgray,thick] coordinates {(8,5.74) (16,5.836) (24,5.867) (32,5.884) (48,14.16) (64,18.29) (80,20.79) (96,22.44) (128,24.5) (192,26.57)};
+\addlegendentry{32\,MB L3 (baseline)}
+\addplot[draftblue,very thick] coordinates {(8,6.054) (16,6.16) (24,6.195) (32,6.213) (48,6.231) (64,6.24) (80,6.245) (96,6.248) (128,12.44) (192,18.65)};
+\addlegendentry{96\,MB stacked, 51 cycles}
+\addplot[mmamber,thick,dashed] coordinates {(8,6.683) (16,6.809) (24,6.851) (32,6.873) (48,6.894) (64,6.905) (80,6.911) (96,6.915) (128,13.11) (192,19.32)};
+\addlegendentry{96\,MB planar, 59 cycles (assumed)}
+\addplot[mmteal,thick,dash dot] coordinates {(8,5.74) (16,5.836) (24,5.867) (32,5.884) (48,8.354) (64,9.591) (80,13.81) (96,16.62) (128,20.13) (192,23.66)};
+\addlegendentry{32\,MB L3 + 64\,MB side die, inclusive}
+\addplot[mmpurple,thick,dotted] coordinates {(8,5.74) (16,5.836) (24,5.867) (32,5.884) (48,8.354) (64,9.591) (80,10.34) (96,11.86) (128,16.14) (192,20.88)};
+\addlegendentry{32\,MB L3 + 64\,MB side die, victim}
+\end{axis}
+\end{tikzpicture}
+\caption{S2: ways to provide about 96\,MB of last-level cache, compared on the same random-access workload (one thread at 4\,GHz; average latency after the overlap factor of 0.335; mean of five seeds). The planar latency of 59 cycles is an assumption that \cref{tab:sim-planar} varies. The side die is a 64\,MB L4 at 22\,ns, either filled on every miss (inclusive) or filled by L3 evictions (victim); \cref{tab:sim-side-die} varies its latency.}
+\label{fig:sim-designs}
+\end{figure}

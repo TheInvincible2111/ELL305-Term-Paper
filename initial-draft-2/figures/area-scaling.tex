@@ -1,0 +1,35 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  name=a, width=0.5\textwidth, height=5.6cm,
+  title={\small\bfseries (a) Area scaling by function (shape only)},
+  symbolic x coords={28nm,16nm,10nm,7nm,5nm}, xtick=data,
+  xticklabels={28\,nm,16\,nm,10\,nm,7\,nm,5\,nm}, xticklabel style={font=\small},
+  ymin=0.25, ymax=1.08, yticklabels={}, ytick=\empty,
+  ylabel={Relative area (no scale given)}, ylabel style={font=\small},
+  axis x line*=bottom, axis y line*=left,
+  legend style={font=\scriptsize, at={(0.03,0.03)}, anchor=south west, draw=none, fill=white, fill opacity=0.85, text opacity=1},
+  legend cell align=left]
+\addplot[very thick, color={rgb,255:red,240;green,180;blue,140}, mark=o] coordinates {(28nm,1) (16nm,0.90) (10nm,0.89) (7nm,0.83) (5nm,0.80)};
+\addlegendentry{Analog / I/O}
+\addplot[very thick, color={rgb,255:red,100;green,170;blue,210}, mark=o] coordinates {(28nm,1) (16nm,0.82) (10nm,0.66) (7nm,0.54) (5nm,0.45)};
+\addlegendentry{SRAM}
+\addplot[very thick, color={rgb,255:red,200;green,90;blue,20}, mark=o] coordinates {(28nm,1) (16nm,0.82) (10nm,0.66) (7nm,0.49) (5nm,0.35)};
+\addlegendentry{Logic}
+\end{axis}
+\begin{axis}[
+  at={(a.east)}, anchor=west, xshift=1.3cm, width=0.5\textwidth, height=5.6cm,
+  title={\small\bfseries (b) Cost per yielded mm$^2$},
+  symbolic x coords={45nm,32nm,28nm,20nm,14nm,7nm,5nm}, xtick=data,
+  xticklabels={45,32,28,20,14,7,5}, xticklabel style={font=\small}, xlabel={Process node (nm)}, xlabel style={font=\small},
+  ymin=0, ymax=6, ytick={0,1,...,6}, yticklabel style={font=\small},
+  ylabel={Normalised cost (45\,nm = 1)}, ylabel style={font=\small},
+  ymajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left,
+  nodes near coords, nodes near coords style={font=\scriptsize, above}, point meta=explicit symbolic]
+\addplot[very thick, color={rgb,255:red,200;green,90;blue,20}, mark=*] coordinates {(45nm,1.0)[1.0] (32nm,1.45)[1.5] (28nm,1.63)[1.6] (20nm,1.96)[2.0] (14nm,2.19)[2.2] (7nm,3.69)[3.7] (5nm,4.89)[4.9]};
+\end{axis}
+\end{tikzpicture}
+\caption{Why SRAM and analog circuits no longer shrink with logic, and why each newer node costs more. Both panels are redrawn from AMD's ISSCC~2022 presentation \cite[slide~6]{wuu2022vcache}; AMD's 2025 packaging talk shows the same curves \cite[slide~3]{lambertHeterogenousIntegrationHigh2025}. (a)~AMD's chart has no values on its area axis, so only the shape is reproduced, normalised to 28\,nm: logic and SRAM shrink together to 10\,nm, SRAM then falls behind, and analog and I/O circuits hardly shrink after 16\,nm. (b)~Cost per yielded mm$^2$ for a 250\,mm$^2$ die, read from AMD's chart (about $\pm 0.1$): about 2.2 times the 45\,nm cost at 14\,nm and almost 5 times at 5\,nm.}
+\label{fig:area-scaling}
+\end{figure}

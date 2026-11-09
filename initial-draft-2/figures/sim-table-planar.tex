@@ -1,0 +1,13 @@
+\begin{table}[htbp]
+  \centering
+  \caption{S2: the longest L3 latency at which a planar 96\,MB L3 still gives a shorter exposed latency than the 32\,MB, 47-cycle baseline (random accesses; overlap 0.335; found by bisection on the five-seed mean). The stacked design needs 51 cycles.}
+  \label{tab:sim-planar}
+  \small
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    \textbf{Working set (MB)} & 24 & 40 & 48 & 64 & 80 & 96 \\
+    \midrule
+    Break-even planar latency (cycles) & 47 & 107 & 147 & 196 & 226 & 245 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

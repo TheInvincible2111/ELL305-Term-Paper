@@ -1,0 +1,20 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  xbar, bar width=11pt, width=0.7\textwidth, height=6.4cm,
+  xmin=0, xmax=1150, xlabel={Silicon area (mm$^2$)}, xlabel style={font=\small},
+  symbolic y coords={ccd,client,server,eight,rome}, ytick=data, y dir=reverse,
+  yticklabels={{One Zen~2 CCD (7\,nm)},{Client I/O die (12\,nm)},{Server I/O die (12\,nm)},{Eight CCDs (64 cores)},{Rome, 64 cores in all}},
+  yticklabel style={font=\small, align=right},
+  nodes near coords, nodes near coords style={font=\small}, point meta=explicit symbolic,
+  xmajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left, enlarge y limits=0.14,
+  clip=false]
+\addplot[fill=draftlight,draw=draftblue] coordinates {(74,ccd)[74] (125,client)[125] (416,server)[416] (592,eight)[592] (1008,rome)[1008]};
+\draw[very thick, dashed, color={rgb,255:red,200;green,140;blue,0}] ({axis cs:800,ccd} |- {rel axis cs:0,0}) -- ({axis cs:800,ccd} |- {rel axis cs:0,1});
+\node[font=\scriptsize, color={rgb,255:red,150;green,100;blue,0}, anchor=south, align=center] at ({axis cs:800,ccd} |- {rel axis cs:0,1}) {reticle limit,\\about 800\,mm$^2$};
+\end{axis}
+\end{tikzpicture}
+\caption{The 64-core Rome against the reticle limit. Die areas are AMD's \cite{naffziger2020chiplet}; together they make the ``about 1000\,mm$^2$'' AMD gives for Rome \cite[slide~19]{suggs2019zen2}. The reticle limit is the line drawn in AMD's chart of server CPU and GPU die sizes \cite[slide~3]{swaminathanAdvancedPackagingEnabling2021}, read from its logarithmic axis as about 800\,mm$^2$ (approximate). A single die holding all of Rome would exceed it by about a quarter, and even the eight CCDs' 592\,mm$^2$ of compute alone would be a very large die.}
+\label{fig:reticle-sizes}
+\end{figure}

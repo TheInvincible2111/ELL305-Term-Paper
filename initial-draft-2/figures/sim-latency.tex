@@ -1,0 +1,25 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.94\textwidth, height=6.6cm,
+  xmode=log, log basis x=2, ymode=log, log basis y=2,
+  xmin=16, xmax=1048576, ymin=2, ymax=512,
+  xtick={32,512,8192,32768,98304,1048576}, xticklabels={32\,KB,512\,KB,8\,MB,32\,MB,96\,MB,1\,GB},
+  ytick={4,8,16,32,64,128,256}, yticklabels={4,8,16,32,64,128,256},
+  xlabel={Size of the data region accessed (log scale)}, ylabel={Average latency (cycles)},
+  legend pos=north west, legend style={font=\scriptsize}, legend cell align=left,
+  grid=major, grid style={draftgray!20}]
+\addplot[draftgray,thick] coordinates {(16.384,4) (32.768,4.183) (65.536,8.089) (131.072,10.05) (262.144,11.02) (524.288,12.33) (1024,29.25) (2048,38.13) (4096,42.56) (8192,44.78) (16384,45.89) (24576,46.26) (32768,46.45) (40960,105.7) (49152,145.3) (65536,194.6) (81920,224.4) (98304,244.1) (114688,258.2) (131072,268.8) (196608,293.4) (262144,305.8) (524288,324.4) (1.04858e+06,333.7)};
+\addlegendentry{Model, 32\,MB L3 (47 cycles)}
+\addplot[draftblue,very thick] coordinates {(16.384,4) (32.768,4.183) (65.536,8.089) (131.072,10.05) (262.144,11.02) (524.288,12.42) (1024,31.25) (2048,41.13) (4096,46.06) (8192,48.53) (16384,49.77) (24576,50.17) (32768,50.38) (40960,50.51) (49152,50.59) (65536,50.69) (81920,50.75) (98304,50.79) (114688,93.05) (131072,124.7) (196608,198.9) (262144,235.8) (524288,291.3) (1.04858e+06,319.1)};
+\addlegendentry{Model, 96\,MB L3 (51 cycles)}
+\addplot[draftgray,only marks,mark=o,mark size=1.8pt] coordinates {(32,4) (48,12) (256,12) (512,17) (1024,40) (2048,48) (16384,47.5) (32768,52) (65536,240) (131072,290) (1048576,342)};
+\addlegendentry{Measured, Milan (Chips and Cheese)}
+\addplot[draftblue,only marks,mark=*,mark size=1.6pt] coordinates {(32,4) (48,12) (256,12) (512,16) (1024,42) (2048,51) (65536,51) (98304,65) (131072,150) (262144,260) (1048576,313)};
+\addlegendentry{Measured, Milan-X (Chips and Cheese)}
+\end{axis}
+\end{tikzpicture}
+\caption{S0: the model's raw average latency (no overlap) for random accesses to a region of growing size (lines; mean of five seeds, spread smaller than the line width) against the latency sweep Chips and Cheese measured on Milan and Milan-X (points, read from \cref{fig:milanx-latency}) \cite{cozmaAMDsVCacheTested2022}. The level latencies are inputs, so their match is expected. The shape between them is not: the model's L3 stays flat up to its full capacity, whereas the measured curves rise earlier.}
+\label{fig:sim-latency}
+\end{figure}

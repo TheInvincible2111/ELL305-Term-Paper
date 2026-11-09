@@ -1,0 +1,5 @@
+workload,overlap,model_saved_per_removed_miss_mean,min,max,lam_l3_acc_per_kinstr,lam_removed_per_kinstr,lam_net_saved_per_kinstr,analytic_gross_per_removed_miss
+GHPC,0.105,31.8,31.8,31.8,13.3,2.57,77.0,32.2
+Cyberpunk 2077,0.202,61.18,61.17,61.18,9.3,1.64,94.0,62.0
+libx264,0.335,101.46,101.45,101.46,3.85,0.4,36.0,102.8
+no overlap,1.0,302.86,302.84,302.87,0,0,0,306.8

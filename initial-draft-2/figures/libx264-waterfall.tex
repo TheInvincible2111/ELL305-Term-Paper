@@ -20,6 +20,6 @@
 \node[lab] at (6.25,595) {3.85 L3 accesses\\$\times$ 4 extra cycles};
 \node[lab] at (8.75,595) {V-Cache CCD\\(IPC 1.43, measured)};
 \end{tikzpicture}
-\caption{The libx264 worked example of \cref{sec:tradeoff-example} as a sequence: starting from the plain CCD's 735 cycles per thousand instructions, the misses removed by the larger L3 save about 52 cycles and the four extra cycles on every L3 access cost about 15, leaving about 698 against the 699 implied by the measured IPC. The stall of about 130 cycles per removed miss is itself inferred from the measurement, so the chart shows how the measured change divides between the two effects rather than predicting it independently. Both CCDs fixed at 4.2\,GHz; data from Lam \cite{lamAMDs7950X3DZen2023}. The vertical axis starts at 600.}
+\caption{The libx264 calculation of \cref{sec:tradeoff-example} as a sequence: starting from the plain CCD's 735 cycles per thousand instructions, the misses removed by the larger L3 save about 52 cycles and the four extra cycles on every L3 access cost about 15, leaving about 698 against the 699 implied by the measured IPC. The stall of about 130 cycles per removed miss is itself inferred from the measurement, so the chart shows how the measured change divides between the two effects rather than predicting it independently. Both CCDs fixed at 4.2\,GHz; data from Lam \cite{lamAMDs7950X3DZen2023}. The vertical axis starts at 600.}
 \label{fig:libx264-waterfall}
 \end{figure}

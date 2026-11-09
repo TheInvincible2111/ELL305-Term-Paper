@@ -1,0 +1,48 @@
+% Generated from the original tree by tmp/gen_mindmaps.py; edit the text here directly.
+\mapfigure{%
+\node[mmroot] (r) {3D-stacked cache};
+\node[mmbox,mmlevel1,fill=mmCFE0F4] (b0) at (0.00,3.60) {Why capacity matters};
+\draw[mmbig] (r) -- (b0);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b0c0) at (-1.52,5.35) {Capacity misses};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c0.south);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b0c1) at (1.52,5.35) {Working set fits or not};
+\draw[mmsmall] (b0.north) to[out=90,in=-90] (b0c1.south);
+\node[mmbox,mmlevel1,fill=mmF4AAA2] (b1) at (4.07,2.20) {Limits in the plane};
+\draw[mmbig] (r) -- (b1);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c0) at (7.67,3.65) {Area and yield};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c0.west);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c1) at (7.67,2.20) {Wire length, latency};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c1.west);
+\node[mmlevel2,mmbox,fill=mmCFE7E1] (b1c2) at (7.67,0.75) {Power};
+\draw[mmsmall] (b1.east) to[out=0,in=180] (b1c2.west);
+\node[mmbox,mmlevel1,fill=mmCFE7E1] (b2) at (4.07,-2.20) {Hybrid bonding};
+\draw[mmbig] (r) -- (b2);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c0) at (7.67,-0.75) {9\,\textmu m pitch};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c0.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c1) at (7.67,-2.20) {No solder};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c1.west);
+\node[mmlevel2,mmbox,fill=mmF9D7AF] (b2c2) at (7.67,-3.65) {Oxide bond, then anneal};
+\draw[mmsmall] (b2.east) to[out=0,in=180] (b2c2.west);
+\node[mmbox,mmlevel1,fill=mmF9D7AF] (b3) at (0.00,-3.60) {The stacked L3};
+\draw[mmbig] (r) -- (b3);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b3c0) at (-3.05,-5.35) {32 $\to$ 96\,MB per CCD};
+\draw[mmsmall] (b3.south) to[out=-90,in=90] (b3c0.north);
+\node[mmlevel2,mmoval,fill=mmDCCFF6] (b3c1) at (0.00,-5.35) {About 4 more cycles};
+\draw[mmsmall] (b3.south) to[out=-90,in=90] (b3c1.north);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b3c2) at (3.05,-5.35) {AMD: over 2\,TB/s peak};
+\draw[mmsmall] (b3.south) to[out=-90,in=90] (b3c2.north);
+\node[mmoval,mmlevel1,fill=mmDCCFF6] (b4) at (-4.07,-2.20) {Heat, power, build};
+\draw[mmbig] (r) -- (b4);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c0) at (-7.67,-0.75) {Structural silicon};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c0.east);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c1) at (-7.67,-2.20) {Lower voltage and clock};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c1.east);
+\node[mmlevel2,mmbox,fill=mmF4C2BB] (b4c2) at (-7.67,-3.65) {Test before bonding};
+\draw[mmsmall] (b4.west) to[out=180,in=0] (b4c2.east);
+\node[mmbox,mmlevel1,fill=mmD6EBC6] (b5) at (-4.07,2.20) {Side by side or on top};
+\draw[mmbig] (r) -- (b5);
+\node[mmlevel2,mmbox,fill=mmDCCFF6] (b5c0) at (-7.67,2.92) {Separate cache die beside};
+\draw[mmsmall] (b5.west) to[out=180,in=0] (b5c0.east);
+\node[mmlevel2,mmoval,fill=mmDCCFF6] (b5c1) at (-7.67,1.47) {Extends the L3};
+\draw[mmsmall] (b5.west) to[out=180,in=0] (b5c1.east);
+}{Overview of Part~\ref{part:stacked-cache}, with the values discussed in the text (\cref{sec:hybrid-bonding,sec:vcache-access,sec:thermal}).}{fig:mindmap-stacked}

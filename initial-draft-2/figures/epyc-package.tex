@@ -1,20 +1,20 @@
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[x=1cm,y=1cm,
-  ccd/.style={draw=draftblue,thick,fill=draftlight,minimum width=1.75cm,minimum height=0.95cm,font=\scriptsize,align=center,inner sep=1pt},
-  mc/.style={draw=draftgray,fill=draftgray!15,minimum width=0.62cm,minimum height=0.38cm,font=\tiny,inner sep=0pt},
-  lnk/.style={draftblue,line width=1pt,rounded corners=2pt},
+  ccd/.style={draw=ccdcore!70!black,thick,fill=ccdcore,text=white,minimum width=1.75cm,minimum height=0.95cm,font=\sffamily\scriptsize\bfseries,align=center,inner sep=1pt},
+  mc/.style={draw=ccdl2!70!black,fill=ccdl2,text=white,minimum width=0.62cm,minimum height=0.38cm,font=\sffamily\tiny\bfseries,inner sep=0pt},
+  lnk/.style={ccdif!80!black,line width=1.6pt,rounded corners=2pt},
   lbl/.style={font=\scriptsize,align=left}]
 % package outline
-\draw[draftgray,rounded corners=4pt] (-7.15,-2.35) rectangle (7.15,2.35);
+\draw[ccdframe,line width=2.5pt,fill=ccdframe!25,rounded corners=4pt] (-7.15,-2.35) rectangle (7.15,2.35);
 \node[font=\scriptsize,text=draftgray,anchor=north west] at (-7.1,2.3) {package substrate};
 % IOD
-\draw[draftblue,very thick,fill=white] (-2.6,-1.75) rectangle (2.6,1.75);
+\draw[ccdl3!60!black,very thick,fill=ccdl3!18] (-2.6,-1.75) rectangle (2.6,1.75);
 % NPS=4 quadrant guides
 \draw[draftgray,densely dotted] (0,-1.75) -- (0,1.75) (-2.6,0) -- (2.6,0);
 % memory controllers: two per quadrant
 \foreach \x in {-1.9,-1.1,1.1,1.9}{\node[mc] at (\x,1.4) {MC}; \node[mc] at (\x,-1.4) {MC};}
-\node[draw=draftblue,fill=white,align=center,inner sep=3pt,font=\scriptsize] at (0,0) {\textbf{\color{draftblue}I/O die}\\memory, PCIe, fabric};
+\node[draw=ccdl3!60!black,fill=ccdl3,text=white,align=center,inner sep=3pt,font=\sffamily\scriptsize] at (0,0) {\textbf{I/O die}\\memory, PCIe, fabric};
 % CCDs: 2 x 2 per side, two-deep columns
 \node[ccd] (LIU) at (-4.0, 1.15) {CCD\\8 cores, L3};
 \node[ccd] (LOU) at (-5.9, 1.15) {CCD\\8 cores, L3};
@@ -31,7 +31,7 @@
 \draw[lnk] (ROU.south) |- ( 2.6, 0.35); \draw[lnk] (ROD.north) |- ( 2.6,-0.35);
 % legend
 \draw[lnk] (-6.9,-2.85) -- (-6.2,-2.85);
-\node[lbl,anchor=west] at (-6.1,-2.85) {one link per CCD to the I/O die, through the organic package (Rome: about 55\,GB/s, under 9\,ns round trip)};
+\node[lbl,anchor=west] at (-6.1,-2.85) {one link per CCD to the I/O die, through the organic package (Rome, as reported by AMD: about 55\,GB/s, under 9\,ns round trip)};
 \draw[draftgray,densely dotted] (-6.9,-3.3) -- (-6.2,-3.3);
 \node[lbl,anchor=west] at (-6.1,-3.3) {quadrants used in the four-NUMA-node setting (NPS\,=\,4): two CCDs and two memory channels each};
 \node[mc] at (-6.55,-3.75) {MC};

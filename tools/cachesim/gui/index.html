@@ -1,0 +1,1504 @@
+<title>Cache Hierarchy Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<style>
+/* Layout: a quiet instrument bench. Neutral surfaces and hairline borders; colour is kept
+   for data only (A blue, B orange) plus one accent for the primary action and the active tab. */
+:root {
+  --bg: oklch(99% 0 0); --panel: oklch(100% 0 0); --panel-2: oklch(97.2% 0.003 250); --line: oklch(92% 0.005 250); --line-2: oklch(87% 0.006 250);
+  --fg: oklch(20% 0.012 255); --muted: oklch(50% 0.012 255); --faint: oklch(66% 0.01 255); --track: oklch(92% 0.004 250);
+  --accent: oklch(52% 0.17 262); --accent-soft: oklch(95% 0.03 262);
+  --a: oklch(55% 0.15 258); --a-soft: oklch(95.5% 0.025 258);
+  --b: oklch(63% 0.16 45); --b-soft: oklch(95.5% 0.03 50);
+  --c: oklch(55% 0.13 300); --d: oklch(58% 0.11 165);
+  --ok: oklch(52% 0.13 155); --warn: oklch(60% 0.13 70); --bad: oklch(55% 0.19 25);
+  --btn: oklch(20% 0.012 255); --btn-fg: oklch(99% 0 0); --focus: oklch(52% 0.17 262);
+  --f-body: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r: 10px; --r-s: 7px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: oklch(14% 0.005 255); --panel: oklch(17% 0.006 255); --panel-2: oklch(20% 0.007 255); --line: oklch(25% 0.008 255); --line-2: oklch(32% 0.01 255);
+  --fg: oklch(95% 0.004 255); --muted: oklch(70% 0.01 255); --faint: oklch(55% 0.01 255); --track: oklch(27% 0.008 255);
+  --accent: oklch(70% 0.14 262); --accent-soft: oklch(26% 0.04 262);
+  --a: oklch(72% 0.13 258); --a-soft: oklch(25% 0.04 258); --b: oklch(75% 0.14 50); --b-soft: oklch(26% 0.04 50);
+  --c: oklch(72% 0.12 300); --d: oklch(74% 0.11 165);
+  --ok: oklch(74% 0.13 155); --warn: oklch(78% 0.12 75); --bad: oklch(72% 0.15 25);
+  --btn: oklch(95% 0.004 255); --btn-fg: oklch(16% 0.006 255); --focus: oklch(70% 0.14 262); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: oklch(14% 0.005 255); --panel: oklch(17% 0.006 255); --panel-2: oklch(20% 0.007 255); --line: oklch(25% 0.008 255); --line-2: oklch(32% 0.01 255);
+  --fg: oklch(95% 0.004 255); --muted: oklch(70% 0.01 255); --faint: oklch(55% 0.01 255); --track: oklch(27% 0.008 255);
+  --accent: oklch(70% 0.14 262); --accent-soft: oklch(26% 0.04 262);
+  --a: oklch(72% 0.13 258); --a-soft: oklch(25% 0.04 258); --b: oklch(75% 0.14 50); --b-soft: oklch(26% 0.04 50);
+  --c: oklch(72% 0.12 300); --d: oklch(74% 0.11 165);
+  --ok: oklch(74% 0.13 155); --warn: oklch(78% 0.12 75); --bad: oklch(72% 0.15 25);
+  --btn: oklch(95% 0.004 255); --btn-fg: oklch(16% 0.006 255); --focus: oklch(70% 0.14 262); color-scheme: dark }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--f-body); font-weight: 600; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(30px, 4.2vw, 44px); line-height: 1.08; letter-spacing: -0.03em; }
+h2 { font-size: 16px; letter-spacing: -0.01em; }
+h3 { font-size: 14px; letter-spacing: -0.005em; }
+p { margin: 0; text-wrap: pretty; }
+.muted { color: var(--muted); }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 500 12px var(--f-mono); color: var(--muted); letter-spacing: 0; }
+
+.hero { padding-block: 8px 28px; display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+.hero h1 span { color: var(--muted); font-weight: 500; }
+.hero .lede { color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 62ch; }
+.hero .facts { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 4px; font-size: 13px; color: var(--muted); }
+.hero .fact b { color: var(--fg); font-weight: 500; font-family: var(--f-mono); font-size: 12.5px; }
+
+nav.tabs { display: flex; flex-wrap: wrap; gap: 24px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+nav.tabs button { background: none; border: 0; border-bottom: 1.5px solid transparent; margin-bottom: -1px; padding: 10px 0; font: 500 14px var(--f-body); color: var(--muted); cursor: pointer; transition: color .12s, border-color .12s; }
+nav.tabs button:hover { color: var(--fg); }
+nav.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); }
+nav.tabs button:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; min-width: 0; }
+.panel h2 .dot, .k .dot, th .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+.dot.a { background: var(--a); } .dot.b { background: var(--b); }
+.tagA, .tagB { display: none; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.between { justify-content: space-between; }
+
+select { min-width: 0; text-overflow: ellipsis; }
+select, input[type="number"], input[type="text"] { font: 14px var(--f-body); color: var(--fg); background: var(--panel); border: 1px solid var(--line-2);
+  border-radius: var(--r-s); padding: 7px 10px; max-width: 100%; transition: border-color .12s; }
+select:hover, input[type="text"]:hover { border-color: var(--faint); }
+button.btn { font: 500 13.5px var(--f-body); border-radius: var(--r-s); padding: 8px 14px; border: 1px solid var(--line-2); background: var(--panel);
+  color: var(--fg); cursor: pointer; transition: border-color .12s, opacity .12s, background .12s; }
+button.btn:hover { border-color: var(--faint); }
+button.btn.primary { background: var(--btn); color: var(--btn-fg); border-color: var(--btn); }
+button.btn.primary:hover { opacity: .88; }
+button.btn.small { padding: 5px 10px; font-size: 12.5px; }
+button.btn:disabled { opacity: .5; cursor: progress; }
+
+details.group { border-top: 1px solid var(--line); padding-top: 10px; }
+details.group > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;
+  font-weight: 500; font-size: 13px; padding: 2px 0 8px; color: var(--fg); }
+details.group > summary::-webkit-details-marker { display: none; }
+details.group > summary::after { content: ""; width: 7px; height: 7px; border-right: 1.5px solid var(--faint); border-bottom: 1.5px solid var(--faint); transform: rotate(45deg) translate(-2px, -2px); transition: transform .15s; }
+details.group[open] > summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 14px 20px; padding-bottom: 8px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field label { font-size: 12.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.field label .val { font-family: var(--f-mono); color: var(--fg); font-size: 12px; white-space: nowrap; }
+.field.changed label .val { color: var(--accent); }
+.field.changed label > span:first-child::after { content: " · differs"; color: var(--accent); }
+
+/* sliders: hairline track, filled in the configuration's colour up to the thumb */
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 16px; background: transparent; --g: var(--fg); --p: 50%; }
+.cfg-a input[type="range"] { --g: var(--a); } .cfg-b input[type="range"] { --g: var(--b); }
+input[type="range"]::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; background: linear-gradient(var(--g), var(--g)) 0 / var(--p) 100% no-repeat, var(--track); }
+input[type="range"]::-moz-range-track { height: 3px; border-radius: 3px; background: var(--track); }
+input[type="range"]::-moz-range-progress { height: 3px; border-radius: 3px; background: var(--g); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5.5px; border-radius: 50%; background: var(--panel); border: 1.5px solid var(--g); box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+input[type="range"]::-moz-range-thumb { width: 11px; height: 11px; border-radius: 50%; background: var(--panel); border: 1.5px solid var(--g); }
+
+/* hierarchy schematic */
+.schem { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--r-s); overflow-x: auto; background: var(--panel-2); }
+.schem .groups { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+.schem .grp { border: 1px dashed var(--line-2); border-radius: var(--r-s); padding: 8px; display: flex; flex-direction: column; gap: 6px; min-width: 120px; flex: 1; background: var(--panel); }
+.schem .cores { display: flex; flex-wrap: wrap; gap: 3px; }
+.schem .core { font: 500 10px var(--f-mono); padding: 1px 5px; border-radius: 4px; background: var(--panel-2); color: var(--muted); }
+.schem .l3 { font: 500 11px var(--f-mono); text-align: center; padding: 5px; border-radius: 5px; }
+.cfg-a .schem .l3 { background: var(--a-soft); color: var(--a); }
+.cfg-b .schem .l3 { background: var(--b-soft); color: var(--b); }
+.schem .l3.stack3d { box-shadow: 0 -2px 0 0 currentColor inset; }
+.schem .bus { font: 500 11px var(--f-mono); text-align: center; color: var(--faint); }
+.schem .mem { font: 500 11px var(--f-mono); text-align: center; padding: 5px; border-radius: 5px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); }
+.split { font: 11.5px var(--f-mono); color: var(--faint); }
+
+.diffbar { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; padding: 12px 16px; border-radius: var(--r); border: 1px solid var(--line); background: var(--panel); }
+.chip { font: 500 12px var(--f-mono); padding: 2px 8px; border-radius: 5px; background: var(--panel-2); color: var(--muted); }
+.chip.warn { background: var(--accent-soft); color: var(--accent); }
+.chip.ok { color: var(--ok); }
+
+.wlbar { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 14px 20px; align-items: end; }
+
+/* summary tiles: plain numbers, colour only on the A and B markers */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); overflow: hidden; }
+.tile { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; border-right: 1px solid var(--line); margin-right: -1px; }
+.tile .k { font-size: 12.5px; color: var(--muted); }
+.tile .vals { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.tile .va, .tile .vb { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; color: var(--fg); display: inline-flex; align-items: baseline; gap: 6px; }
+.tile .va::before, .tile .vb::before { content: ""; width: 7px; height: 7px; border-radius: 50%; align-self: center; }
+.tile .va::before { background: var(--a); } .tile .vb::before { background: var(--b); }
+.tile .sep { display: none; }
+.tile .d { font: 500 12px var(--f-mono); color: var(--muted); }
+.tile .d.better { color: var(--ok); } .tile .d.worse { color: var(--bad); }
+
+table.kpi { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.kpi th, table.kpi td { padding: 9px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+table.kpi tbody tr:last-child td { border-bottom: 0; }
+table.kpi th:first-child, table.kpi td:first-child { text-align: left; padding-left: 0; }
+table.kpi thead th { font: 500 12px var(--f-body); color: var(--muted); }
+table.kpi td.a, table.kpi td.b { color: var(--fg); }
+.delta { color: var(--muted); } .delta.better { color: var(--ok); } .delta.worse { color: var(--bad); }
+.tablewrap { overflow-x: auto; }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; }
+.chartbox { position: relative; height: 280px; }
+.chartbox.tall { height: 380px; }
+.progress { height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress > div { height: 100%; width: 0; background: var(--fg); transition: width .15s; }
+.status { font-size: 12.5px; color: var(--muted); }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 5px; font: 500 12px var(--f-mono); background: var(--panel-2); color: var(--muted); }
+
+.exgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+.excard { display: flex; flex-direction: column; gap: 8px; padding: 18px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); transition: border-color .12s; }
+.excard:hover { border-color: var(--line-2); }
+.excard .tag { font: 500 12px var(--f-mono); color: var(--muted); }
+.excard .rq { font: 500 12px var(--f-mono); color: var(--faint); }
+.excard p { color: var(--muted); font-size: 13px; }
+.excard .row { margin-top: auto; padding-top: 4px; }
+.lookfor { border-left: 2px solid var(--fg); padding: 2px 0 2px 14px; font-size: 13.5px; color: var(--muted); }
+.lookfor b { color: var(--fg); font-weight: 500; }
+.notes { columns: 2 340px; column-gap: 32px; padding-left: 18px; }
+.notes li { break-inside: avoid; margin-bottom: 10px; color: var(--muted); }
+.notes li b { color: var(--fg); font-weight: 500; }
+.notes code { font-family: var(--f-mono); font-size: 12px; }
+footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--faint); font-size: 12.5px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">ELL305 term paper · software model</div>
+    <h1>Cache Hierarchy <span>Lab</span></h1>
+    <p class="lede">Compare two processor arrangements on the same memory trace. Change one parameter at a time and see what it does to hit rates, average access time, memory traffic, time and energy.</p>
+    <div class="facts">
+      <span class="fact"><b>7</b> preset designs</span><span class="fact"><b>15</b> ready-made experiments</span>
+      <span class="fact">C++ and browser give <b>identical</b> counts</span><span class="fact">A trace-driven model, not AMD hardware</span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-compare" aria-selected="true" data-view="compare">Compare A and B</button>
+    <button role="tab" id="tab-sweep" aria-selected="false" data-view="sweep">Sweep a parameter</button>
+    <button role="tab" id="tab-exp" aria-selected="false" data-view="experiments">Experiments</button>
+    <button role="tab" id="tab-notes" aria-selected="false" data-view="notes">Model and sources</button>
+  </nav>
+
+  <!-- configuration editors are shared by Compare and Sweep -->
+  <section id="cfgs" class="stack">
+    <div class="grid2">
+      <div class="panel cfg-a stack" id="panelA"></div>
+      <div class="panel cfg-b stack" id="panelB"></div>
+    </div>
+    <div class="diffbar" id="diffbar"></div>
+    <div class="panel stack">
+      <div class="row between"><h2>Workload</h2><span class="status" id="wlnote"></span></div>
+      <div class="wlbar" id="wlfields"></div>
+    </div>
+  </section>
+
+  <section id="view-compare" class="stack" style="margin-top:16px">
+    <div class="row">
+      <button class="btn primary" id="runCompare">Run A and B</button>
+      <button class="btn" id="cancel1" hidden>Stop</button>
+      <span class="status" id="status1">Example results below. Press Run after changing anything.</span>
+    </div>
+    <div class="progress"><div id="prog1"></div></div>
+    <div class="tiles" id="tiles"></div>
+    <div class="grid2">
+      <div class="panel stack"><h2>Results</h2><div class="tablewrap"><table class="kpi" id="kpi"></table></div></div>
+      <div class="panel stack"><h2>Where each access was served</h2><div class="chartbox"><canvas id="chServed"></canvas></div></div>
+    </div>
+    <div class="charts">
+      <div class="panel stack"><h3>Average access time by level of the hierarchy</h3><div class="chartbox"><canvas id="chAmat"></canvas></div></div>
+      <div class="panel stack"><h3>Estimated time: which limit binds</h3><div class="chartbox"><canvas id="chTime"></canvas></div><p class="status">The run takes as long as the slowest of four limits: access latency, L3 bandwidth, DRAM bandwidth and the die-to-die link.</p></div>
+    </div>
+  </section>
+
+  <section id="view-sweep" class="stack" style="margin-top:16px" hidden>
+    <div class="panel stack">
+      <h2>Sweep one parameter</h2>
+      <p class="muted">Every point runs the same workload on A and B. Only the parameter below changes, and it changes in both, unless you limit it to one configuration.</p>
+      <div class="wlbar">
+        <div class="field"><label for="swParam">Parameter</label><select id="swParam"></select></div>
+        <div class="field"><label for="swValues">Values</label><input type="text" id="swValues"></div>
+        <div class="field"><label for="swApply">Apply to</label><select id="swApply"><option value="both">A and B</option><option value="a">A only</option><option value="b">B only</option></select></div>
+        <div class="field"><label for="swMetric">Plot</label><select id="swMetric"></select></div>
+      </div>
+      <div class="row"><button class="btn primary" id="runSweep">Run sweep</button><button class="btn" id="cancel2" hidden>Stop</button><span class="status" id="status2"></span></div>
+      <div class="progress"><div id="prog2"></div></div>
+    </div>
+    <div class="panel stack"><div class="row between"><h3 id="swTitle">Sweep result</h3><span class="status" id="swNote"></span></div><div class="chartbox tall"><canvas id="chSweep"></canvas></div></div>
+  </section>
+
+  <section id="view-experiments" class="stack" style="margin-top:16px" hidden>
+    <div class="panel stack">
+      <h2>Ready-made experiments</h2>
+      <p class="muted">Each one loads its configurations and workload, runs a sweep and plots the result. In every experiment the configurations differ only in the parameters named on the card.</p>
+      <div class="row"><label for="accuracy" class="muted">Measured accesses per point (split across threads)</label>
+        <select id="accuracy"><option value="150000">150 000 (quick)</option><option value="400000" selected>400 000</option><option value="1000000">1 000 000 (precise)</option></select></div>
+    </div>
+    <div class="exgrid" id="exgrid"></div>
+    <div class="panel stack" id="exResult" hidden>
+      <div class="row between"><h2 id="exTitle"></h2><span class="status" id="status3"></span></div>
+      <div class="progress"><div id="prog3"></div></div>
+      <div class="lookfor" id="exLook"></div>
+      <div class="row" id="exMetrics"></div>
+      <div class="chartbox tall"><canvas id="chExp"></canvas></div>
+      <div class="tablewrap"><table class="kpi" id="exTable"></table></div>
+    </div>
+  </section>
+
+  <section id="view-notes" class="stack" style="margin-top:16px" hidden>
+    <div class="panel stack">
+      <h2>What the model does</h2>
+      <ul class="notes">
+        <li><b>Trace-driven and functional.</b> A stream of memory accesses is replayed through the caches. Each access is a hit or a miss at each level, and is charged the latency of the level that served it. There is no pipeline, no prefetcher and no queueing.</li>
+        <li><b>Hierarchy.</b> Each core has a private L1D and a private L2 that contains everything in its L1. Cores are split evenly into L3 groups (a CCX or a CCD). Each group shares one L3, which is filled on every miss. An optional L4 is shared by all groups and behaves like a separate cache die beside the processor.</li>
+        <li><b>Coherence.</b> A directory records which cores hold each line. A write invalidates every other copy. A read of a line another core has modified is served core to core. Inside a group this costs one L3 latency; across groups it costs two L3 latencies plus the hop.</li>
+        <li><b>Latencies.</b> Memory costs the L3 latency plus a fixed time in nanoseconds, so it costs more cycles at a higher clock. A remote L3 or another group costs <code>2 × L3 + hop</code>. An L4 hit costs <code>L3 + L4</code>.</li>
+        <li><b>Overlap.</b> Real cores overlap some misses. The overlap setting scales the part of each latency beyond an L2 hit. 1 means no overlap. About 0.36 matches the stall per removed miss inferred from Lam's libx264 measurement (130 cycles against about 358 at 4.2 GHz), as discussed in Part IV of the paper.</li>
+        <li><b>Time.</b> The estimate is the largest of four limits: the slowest core's latency-bound time, L3 bytes divided by L3 bandwidth (bytes per cycle per active core), DRAM bytes divided by DRAM bandwidth, and link bytes divided by link bandwidth.</li>
+        <li><b>Energy.</b> A dynamic estimate from per-event energies. The default event energies are <b>illustrative placeholders, not measurements</b>: L1 5, L2 20, L3 100, L4 300 and DRAM 2000 pJ per access. The link default of 2 pJ/bit is AMD's figure for the Zen 1 die-to-die link (Naffziger et al., ISSCC 2020). Set your own values before you quote energy.</li>
+        <li><b>Warm-up.</b> Random, sequential, stride and hot/cold workloads first fill the caches with a separate stream, then measure. Matrix multiply, graph traversal, ping-pong and traces are measured from a cold start.</li>
+      </ul>
+    </div>
+    <div class="panel stack">
+      <h2>Where the default values come from</h2>
+      <ul class="notes">
+        <li><b>L1 4 cycles, L2 12, L3 47; memory 47 cycles + 74 ns.</b> 7-cpu.com measurements of a Zen 3 Ryzen 5 5600G. The cache sizes and ways are the same source's: 32 KB 8-way L1D, 512 KB 8-way L2, 16-way L3.</li>
+        <li><b>Zen 2 style L3 at 39 cycles.</b> 47 cycles minus the 7–8 cycles that Chips and Cheese found unifying the L3 added from Zen 2 to Zen 3. It is a derived value, not a measurement.</li>
+        <li><b>Stacked 96 MB L3 at 51 cycles.</b> 47 + 4. AMD's ISSCC 2022 figure, confirmed independently on three generations.</li>
+        <li><b>Planar 96 MB at 59 cycles.</b> An assumption. No source measures a 96 MB planar L3; sweep the L3 latency to test it.</li>
+        <li><b>L4 at 22 ns.</b> Chosen so that a hit in the L4 totals about 34 ns, Lam's measurement of Intel Broadwell's side-by-side eDRAM cache.</li>
+        <li><b>Hop 9 ns.</b> AMD gives under 9 ns for the round trip between a Rome compute die and the I/O die (Naffziger et al.). Zen 2 CCX-to-CCX transfers are modelled with the same hop, which is an assumption.</li>
+        <li><b>32 B per cycle per core of L3 bandwidth.</b> AMD ISSCC 2022, slide 20. <b>51.2 GB/s DRAM</b> is two DDR4-3200 channels. <b>55 GB/s link</b> is Naffziger et al.'s effective figure per Rome compute-die link.</li>
+        <li><b>4 GHz, 8 cores, 32 MB L3 as two 16 MB halves or one unified cache.</b> The group's experiment plan for Zen 2 and Zen 3 style configurations.</li>
+      </ul>
+    </div>
+    <div class="panel stack">
+      <h2>What the model cannot tell you</h2>
+      <ul class="notes">
+        <li>It does not reproduce AMD's real replacement policy, prefetchers, victim-cache behaviour or physical address mapping. Absolute hit rates will differ from hardware; differences between configurations are the useful output.</li>
+        <li>There is no instruction timing, so it gives no IPC. Real programs replayed from a Valgrind Lackey trace report misses per thousand instructions instead.</li>
+        <li>It models 3D stacking only through its capacity and latency. It does not model heat, voltage or clock limits; set the clock by hand to test them.</li>
+        <li>The same simulator runs at full speed as a command-line C++ program (<code>tools/cachesim</code>). Both versions give identical counts for the same settings.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>Cache Hierarchy Lab · part of the ELL305 term paper on chiplets and 3D-stacked cache in AMD Zen processors. Results are model outputs.</footer>
+</div>
+
+<script>const EXAMPLE = {"A":{"accesses":400000,"reads":400000,"writes":0,"instructions":0,"l1_hit":561,"l2_hit":7694,"l3_hit":258123,"l3_remote":0,"c2c_local":0,"c2c_remote":0,"l4_hit":0,"dram_reads":133622,"dram_writes":0,"inv_local":0,"inv_remote":0,"lat_cycles":54924739,"exp_cycles":54924739,"l1_hit_rate":0.0014025,"l2_hit_rate":0.019262014976003845,"l3_lookups":391745,"l3_hit_rate":0.6589056656753756,"l3_miss_rate":0.34109433432462444,"amat_cycles":137.3118475,"amat_ns":34.327961875,"exposed_cycles":137.3118475,"exposed_ns":34.327961875,"dram_per_kacc":334.055,"time_ns":13831184.75,"t_latency_ns":13831184.75,"t_dram_ns":167027.5,"t_l3_ns":129061.5,"t_link_ns":0,"bottleneck":"latency","active_cores":1,"dram_bw_gbs":0.618299021708896,"l3_bw_gbs":1.194393126734859,"link_bytes":0,"throughput_gaps":0.028920154508094473,"energy_nj":316407.28,"energy_pj_per_access":791.0182,"served":{"L1":0.0014025,"L2":0.019235,"L3 (own)":0.6453075,"Other die / CCX":0,"L4":0,"DRAM":0.334055}},"B":{"accesses":400000,"reads":400000,"writes":0,"instructions":0,"l1_hit":561,"l2_hit":7694,"l3_hit":391745,"l3_remote":0,"c2c_local":0,"c2c_remote":0,"l4_hit":0,"dram_reads":0,"dram_writes":0,"inv_local":0,"inv_remote":0,"lat_cycles":18506587,"exp_cycles":18506587,"l1_hit_rate":0.0014025,"l2_hit_rate":0.019262014976003845,"l3_lookups":391745,"l3_hit_rate":1,"l3_miss_rate":0,"amat_cycles":46.2664675,"amat_ns":11.566616875,"exposed_cycles":46.2664675,"exposed_ns":11.566616875,"dram_per_kacc":0,"time_ns":4726646.75,"t_latency_ns":4726646.75,"t_dram_ns":0,"t_l3_ns":195872.5,"t_link_ns":0,"bottleneck":"latency","active_cores":1,"dram_bw_gbs":0,"l3_bw_gbs":5.304327005186076,"link_bytes":0,"throughput_gaps":0.08462659072205893,"energy_nj":49163.28,"energy_pj_per_access":122.9082,"served":{"L1":0.0014025,"L2":0.019235,"L3 (own)":0.9793625,"Other die / CCX":0,"L4":0,"DRAM":0}}};</script>
+<script id="core-src">
+// ELL305 cache-hierarchy simulator: JavaScript core.
+// This file is a line-for-line port of src/cachesim.cpp. Both use the same random
+// number generator, the same cache model and the same workloads, so for the same
+// configuration they produce identical counts (checked by test/crosscheck.js).
+//
+// Model in one paragraph: a trace-driven, functional simulator. Each core has a
+// private L1D and an inclusive private L2. Cores are split into L3 groups (a CCX or a
+// CCD); each group shares one L3. An optional L4 is shared by all groups (a
+// side-by-side cache die). A directory tracks which cores hold each line in their
+// L2, so writes invalidate other copies and reads of a line another core has
+// modified are served core-to-core. Latency is charged per access from the level
+// that served it; time, bandwidth and energy are estimated afterwards.
+
+"use strict";
+
+var SIM = (function () {
+
+  // ---------- deterministic random numbers (mulberry32, 32-bit) ----------
+  function Rng(seed) { this.a = seed >>> 0; }
+  Rng.prototype.next = function () {
+    this.a = (this.a + 0x6D2B79F5) >>> 0;
+    var t = this.a;
+    t = Math.imul(t ^ (t >>> 15), t | 1) >>> 0;
+    t = (t ^ (t + Math.imul(t ^ (t >>> 7), t | 61))) >>> 0;
+    return (t ^ (t >>> 14)) >>> 0;
+  };
+  function mix32(x) { // murmur3 finalizer, used as a fixed hash
+    x = x >>> 0;
+    x = Math.imul(x ^ (x >>> 16), 0x85EBCA6B) >>> 0;
+    x = Math.imul(x ^ (x >>> 13), 0xC2B2AE35) >>> 0;
+    return (x ^ (x >>> 16)) >>> 0;
+  }
+
+  // ---------- default configuration ----------
+  var DEFAULTS = {
+    cores: 8, groups: 1, clock_ghz: 4.0, line: 64,
+    l1_kb: 32, l1_ways: 8, l1_lat: 4,
+    l2_kb: 512, l2_ways: 8, l2_lat: 12,
+    l3_mb: 32, l3_ways: 16, l3_lat: 47,
+    l4_mb: 0, l4_ways: 16, l4_lat_ns: 22,
+    mem_ns: 74, hop_ns: 9, dram_hop: 0, l4_victim: 0,
+    policy: "lru", seed: 1,
+    overlap: 1.0, work_cycles: 1,
+    l3_bw_bpc: 32, mem_bw_gbs: 51.2, link_gbs: 0,
+    e_l1_pj: 5, e_l2_pj: 20, e_l3_pj: 100, e_l4_pj: 300, e_dram_pj: 2000, e_link_pj_bit: 2
+  };
+
+  // ---------- one set-associative cache ----------
+  var POLICIES = { lru: 0, fifo: 1, random: 2, plru: 3 };
+
+  function Cache(sizeBytes, ways, line, policy, seed) {
+    var nlines = Math.max(1, Math.floor(sizeBytes / line));
+    ways = Math.max(1, Math.min(ways, nlines));
+    this.ways = ways;
+    this.sets = Math.max(1, Math.floor(nlines / ways));
+    var n = this.sets * ways;
+    this.tag = new Float64Array(n).fill(-1);
+    this.dirty = new Uint8Array(n);
+    this.stamp = new Float64Array(n);
+    this.clock = 0;
+    var pol = POLICIES[policy] === undefined ? 0 : POLICIES[policy];
+    if (pol === 3 && (ways & (ways - 1)) !== 0) pol = 0; // tree PLRU needs a power-of-two way count
+    this.pol = pol;
+    this.plru = pol === 3 ? new Uint8Array(this.sets * Math.max(1, ways - 1)) : null;
+    this.rng = new Rng(seed);
+  }
+  Cache.prototype.lookup = function (ln) {
+    var base = (ln % this.sets) * this.ways;
+    for (var w = 0; w < this.ways; w++) if (this.tag[base + w] === ln) return base + w;
+    return -1;
+  };
+  Cache.prototype.plruTouch = function (set, way) {
+    var lo = 0, hi = this.ways, node = 0, b = set * (this.ways - 1);
+    while (hi - lo > 1) {
+      var mid = (lo + hi) >> 1;
+      if (way < mid) { this.plru[b + node] = 1; node = 2 * node + 1; hi = mid; }
+      else { this.plru[b + node] = 0; node = 2 * node + 2; lo = mid; }
+    }
+  };
+  Cache.prototype.touch = function (idx) {
+    if (this.pol === 0) this.stamp[idx] = ++this.clock;
+    else if (this.pol === 3) this.plruTouch(Math.floor(idx / this.ways), idx % this.ways);
+  };
+  // insert a line; returns evicted line (or -1) and sets this.evDirty
+  Cache.prototype.insert = function (ln, dirty) {
+    var set = ln % this.sets, base = set * this.ways, v = -1, w;
+    for (w = 0; w < this.ways; w++) if (this.tag[base + w] === -1) { v = w; break; }
+    if (v < 0) {
+      if (this.pol === 2) v = this.rng.next() % this.ways;
+      else if (this.pol === 3) {
+        var lo = 0, hi = this.ways, node = 0, b = set * (this.ways - 1);
+        while (hi - lo > 1) {
+          var mid = (lo + hi) >> 1;
+          if (this.plru[b + node] === 0) { node = 2 * node + 1; hi = mid; } else { node = 2 * node + 2; lo = mid; }
+        }
+        v = lo;
+      } else {
+        var best = Infinity;
+        for (w = 0; w < this.ways; w++) if (this.stamp[base + w] < best) { best = this.stamp[base + w]; v = w; }
+      }
+    }
+    var idx = base + v, ev = this.tag[idx];
+    this.evDirty = ev !== -1 && this.dirty[idx] === 1;
+    this.tag[idx] = ln; this.dirty[idx] = dirty ? 1 : 0;
+    this.stamp[idx] = ++this.clock;
+    if (this.pol === 3) this.plruTouch(set, v);
+    this.lastIdx = idx;
+    return ev;
+  };
+  Cache.prototype.invalidate = function (ln) { // returns -1 if absent, else 0/1 = was dirty
+    var i = this.lookup(ln);
+    if (i < 0) return -1;
+    var d = this.dirty[i];
+    this.tag[i] = -1; this.dirty[i] = 0; this.stamp[i] = 0;
+    return d;
+  };
+
+  // ---------- the hierarchy ----------
+  function Sim(cfgIn, coherence) {
+    var c = {}, k;
+    for (k in DEFAULTS) c[k] = DEFAULTS[k];
+    for (k in cfgIn) if (cfgIn[k] !== undefined) c[k] = cfgIn[k];
+    c.cores = Math.max(1, Math.min(16, Math.round(c.cores)));
+    c.groups = Math.max(1, Math.min(c.cores, Math.round(c.groups)));
+    this.c = c;
+    var f = c.clock_ghz;
+    this.hopC = c.hop_ns * f; this.memC = c.mem_ns * f; this.l4C = c.l4_lat_ns * f;
+    this.l1 = []; this.l2 = []; this.l3 = []; this.grp = [];
+    for (var i = 0; i < c.cores; i++) {
+      this.l1.push(new Cache(c.l1_kb * 1024, c.l1_ways, c.line, c.policy, (c.seed * 977 + i * 31 + 1) >>> 0));
+      this.l2.push(new Cache(c.l2_kb * 1024, c.l2_ways, c.line, c.policy, (c.seed * 977 + i * 31 + 2) >>> 0));
+      this.grp.push(Math.floor(i * c.groups / c.cores));
+    }
+    for (var g = 0; g < c.groups; g++)
+      this.l3.push(new Cache(c.l3_mb * 1048576, c.l3_ways, c.line, c.policy, (c.seed * 977 + 500 + g) >>> 0));
+    this.l4 = c.l4_mb > 0 ? new Cache(c.l4_mb * 1048576, c.l4_ways, c.line, c.policy, (c.seed * 977 + 900) >>> 0) : null;
+    this.dir = (c.cores > 1 && coherence !== false) ? new Map() : null;
+    this.coresInGroup = new Array(c.groups).fill(0);
+    for (i = 0; i < c.cores; i++) this.coresInGroup[this.grp[i]]++;
+    this.reset();
+  }
+  Sim.prototype.reset = function () {
+    var c = this.c;
+    this.s = {
+      accesses: 0, reads: 0, writes: 0, instructions: 0,
+      l1_hit: 0, l2_hit: 0, l3_hit: 0, l3_remote: 0, c2c_local: 0, c2c_remote: 0,
+      l4_hit: 0, dram_reads: 0, dram_writes: 0, inv_local: 0, inv_remote: 0,
+      lat_cycles: 0, exp_cycles: 0
+    };
+    this.coreCycles = new Float64Array(c.cores);
+    this.coreAcc = new Float64Array(c.cores);
+    this.activeCore = new Uint8Array(c.cores);
+    this.l3Bytes = new Float64Array(c.groups);
+    this.linkBytes = new Float64Array(c.groups);
+    this.dramBytesG = new Float64Array(c.groups);
+  };
+  Sim.prototype.dirAdd = function (ln, core) {
+    if (!this.dir) return;
+    this.dir.set(ln, (this.dir.get(ln) || 0) | (1 << core));
+  };
+  Sim.prototype.dirRemove = function (ln, core) {
+    if (!this.dir) return;
+    var m = (this.dir.get(ln) || 0) & ~(1 << core);
+    if (m) this.dir.set(ln, m); else this.dir.delete(ln);
+  };
+  Sim.prototype.l3Insert = function (g, ln, dirty) {
+    var L3 = this.l3[g];
+    var i = L3.lookup(ln);
+    if (i >= 0) { if (dirty) L3.dirty[i] = 1; return; }
+    var ev = L3.insert(ln, dirty);
+    if (ev !== -1 && this.l4 && this.c.l4_victim > 0) { this.l4Insert(ev, L3.evDirty); return; }  // victim L4 takes every L3 eviction
+    if (ev !== -1 && L3.evDirty) {
+      if (this.l4) this.l4Insert(ev, true);
+      else { this.s.dram_writes++; this.dramBytesG[g] += this.c.line; if (this.c.link_gbs > 0) this.linkBytes[g] += this.c.line; }
+    }
+  };
+  Sim.prototype.l4Insert = function (ln, dirty) {
+    var i = this.l4.lookup(ln);
+    if (i >= 0) { if (dirty) this.l4.dirty[i] = 1; return; }
+    var ev = this.l4.insert(ln, dirty);
+    if (ev !== -1 && this.l4.evDirty) { this.s.dram_writes++; this.dramBytesG[0] += this.c.line; }
+  };
+  Sim.prototype.l2Fill = function (core, ln, dirty) {
+    var L2 = this.l2[core];
+    var ev = L2.insert(ln, dirty);
+    var idx = L2.lastIdx;
+    if (ev !== -1) {
+      var evd = L2.evDirty;
+      this.l1[core].invalidate(ev);          // L1 is inclusive in L2
+      this.dirRemove(ev, core);
+      if (evd) this.l3Insert(this.grp[core], ev, true);
+    }
+    this.dirAdd(ln, core);
+    return idx;
+  };
+  // serve a private (L1+L2) miss; returns latency in cycles
+  Sim.prototype.fetch = function (core, g, ln, isWrite) {
+    var c = this.c, s = this.s, L = c.line;
+    if (this.dir) {
+      var holders = (this.dir.get(ln) || 0) & ~(1 << core);
+      if (holders) {
+        var owner = -1, sameGroup = -1, otherGroup = -1, o;
+        for (o = 0; o < c.cores; o++) {
+          if (!(holders & (1 << o))) continue;
+          var i2 = this.l2[o].lookup(ln);
+          if (i2 >= 0 && this.l2[o].dirty[i2]) { owner = o; }
+          if (this.grp[o] === g) { if (sameGroup < 0) sameGroup = o; } else if (otherGroup < 0) otherGroup = o;
+        }
+        if (owner >= 0) {
+          var og = this.grp[owner];
+          if (!isWrite) { // downgrade: owner keeps a clean copy, data written back to its L3
+            var j = this.l2[owner].lookup(ln); this.l2[owner].dirty[j] = 0;
+            this.l3Insert(og, ln, true);
+          }
+          if (og === g) { s.c2c_local++; this.l3Bytes[g] += L; return c.l3_lat; }
+          s.c2c_remote++; this.linkBytes[g] += L; this.linkBytes[og] += L;
+          if (!isWrite) this.l3Insert(g, ln, false);
+          return c.l3_lat + this.hopC + c.l3_lat;
+        }
+        if (sameGroup >= 0) { s.c2c_local++; this.l3Bytes[g] += L; return c.l3_lat; }
+        // only clean copies in other groups: fall through to the L3 checks below
+      }
+    }
+    var L3 = this.l3[g];
+    var i3 = L3.lookup(ln);
+    if (i3 >= 0) { L3.touch(i3); s.l3_hit++; this.l3Bytes[g] += L; return c.l3_lat; }
+    if (c.groups > 1) {
+      for (var gg = 0; gg < c.groups; gg++) {
+        if (gg === g) continue;
+        var r = this.l3[gg].lookup(ln);
+        if (r >= 0) {
+          this.l3[gg].touch(r);
+          s.l3_remote++; this.linkBytes[g] += L; this.linkBytes[gg] += L;
+          this.l3Insert(g, ln, false);
+          return c.l3_lat + this.hopC + c.l3_lat;
+        }
+      }
+      if (this.dir) {
+        var h2 = (this.dir.get(ln) || 0) & ~(1 << core);
+        if (h2) { // clean copy in another group's private cache
+          for (var q = 0; q < c.cores; q++) if (h2 & (1 << q)) { var qg = this.grp[q]; this.linkBytes[qg] += L; break; }
+          s.c2c_remote++; this.linkBytes[g] += L;
+          this.l3Insert(g, ln, false);
+          return c.l3_lat + this.hopC + c.l3_lat;
+        }
+      }
+    }
+    if (this.l4) {
+      var i4 = this.l4.lookup(ln);
+      if (i4 >= 0) {
+        s.l4_hit++;
+        if (c.l4_victim > 0) { var d4 = this.l4.dirty[i4] !== 0; this.l4.invalidate(ln); this.l3Insert(g, ln, d4); }  // exclusive: move up
+        else { this.l4.touch(i4); this.l3Insert(g, ln, false); }
+        return c.l3_lat + this.l4C;
+      }
+    }
+    s.dram_reads++; this.dramBytesG[g] += L; if (c.link_gbs > 0) this.linkBytes[g] += L;
+    if (this.l4 && !(c.l4_victim > 0)) this.l4Insert(ln, false);
+    this.l3Insert(g, ln, false);
+    return c.l3_lat + this.memC + (c.dram_hop > 0 ? this.hopC : 0);  // dram_hop: every memory access crosses to the I/O die
+  };
+  // one access by one core; returns the latency charged (cycles)
+  Sim.prototype.access = function (core, ln, isWrite) {
+    var c = this.c, s = this.s, g = this.grp[core];
+    var L1 = this.l1[core], L2 = this.l2[core];
+    var lat, privHit = false, i2;
+    var i1 = L1.lookup(ln);
+    if (i1 >= 0) { L1.touch(i1); s.l1_hit++; lat = c.l1_lat; privHit = true; i2 = L2.lookup(ln); }
+    else {
+      i2 = L2.lookup(ln);
+      if (i2 >= 0) { L2.touch(i2); s.l2_hit++; lat = c.l2_lat; privHit = true; L1.insert(ln, false); }
+      else {
+        lat = this.fetch(core, g, ln, isWrite);
+        i2 = this.l2Fill(core, ln, false);
+        L1.insert(ln, false);
+      }
+    }
+    if (isWrite) {
+      if (this.dir) {
+        var others = (this.dir.get(ln) || 0) & ~(1 << core);
+        if (others) {
+          var remote = false;
+          for (var o = 0; o < c.cores; o++) {
+            if (!(others & (1 << o))) continue;
+            this.l1[o].invalidate(ln);
+            this.l2[o].invalidate(ln);
+            if (this.grp[o] === g) s.inv_local++; else { s.inv_remote++; remote = true; }
+          }
+          this.dir.set(ln, 1 << core);
+          if (privHit) lat += c.l3_lat;
+          if (remote) lat += this.hopC;
+        }
+      }
+      for (var gg = 0; gg < c.groups; gg++) if (gg !== g) this.l3[gg].invalidate(ln);
+      L2.dirty[i2] = 1;
+      s.writes++;
+    } else s.reads++;
+    s.accesses++;
+    var exposed = lat <= c.l2_lat ? lat : c.l2_lat + c.overlap * (lat - c.l2_lat);
+    this.coreCycles[core] += exposed + c.work_cycles;
+    s.exp_cycles += exposed;
+    this.coreAcc[core]++;
+    this.activeCore[core] = 1;
+    s.lat_cycles += lat;
+    return lat;
+  };
+
+  // ---------- workloads ----------
+  // Each workload returns an object with next(out) -> false when finished;
+  // out = {core, line, write}. Addresses are byte addresses; lines = addr / line size.
+  var PRIV = 68719476736; // 2^36 bytes between private regions
+
+  function perCore(cfg, wl, makeGen) {
+    var cores = Math.max(1, Math.min(cfg.cores, wl.threads || cfg.cores));
+    var gens = [], i;
+    for (i = 0; i < cores; i++) gens.push(makeGen(i, cores));
+    var turn = 0, alive = cores, done = new Uint8Array(cores);
+    return {
+      next: function (out) {
+        while (alive > 0) {
+          var t = turn; turn = (turn + 1) % cores;
+          if (done[t]) continue;
+          if (gens[t](out)) { out.core = t; return true; }
+          done[t] = 1; alive--;
+        }
+        return false;
+      }
+    };
+  }
+
+  function makeWorkload(cfg, wlIn, salt) {
+    salt = salt || 0;
+    var wl = {};
+    var WLD = { kind: "random", ws_mb: 16, accesses: 1000000, warmup: -1, write_frac: 0, shared: 0, threads: 1,
+      stride: 4096, hot_frac: 0.1, hot_prob: 0.9, far_mb: 0, far_prob: 0, n: 128, block: 0, degree: 8, pp_a: 0, pp_b: 1, iters: 2000 };
+    for (var k in WLD) wl[k] = WLD[k];
+    for (k in wlIn) if (wlIn[k] !== undefined) wl[k] = wlIn[k];
+    var L = cfg.line;
+    var kind = wl.kind;
+
+    if (kind === "random" || kind === "sequential" || kind === "stride" || kind === "hotcold") {
+      var wsBytes = Math.max(L, Math.round(wl.ws_mb * 1048576));
+      var nl = Math.max(1, Math.floor(wsBytes / L));
+      var wf = Math.round(wl.write_frac * 1000);
+      var hp = Math.round(wl.hot_prob * 1000000), fp = Math.round(wl.far_prob * 1000000);  // resolution 1e-6
+      var farN = Math.floor(Math.max(0, Math.round(wl.far_mb * 1048576)) / L);
+      return perCore(cfg, wl, function (core, cores) {
+        var rng = new Rng((cfg.seed * 7919 + core * 104729 + 17 + salt * 1000003) >>> 0);
+        var base = wl.shared ? 0 : (core + 1) * PRIV / L;
+        var pos = 0, left = wl.accesses, hotN = Math.max(1, Math.floor(nl * wl.hot_frac));
+        var sl = Math.max(1, Math.round(wl.stride / L));
+        return function (out) {
+          if (left <= 0) return false;
+          left--;
+          var idx;
+          if (kind === "random") idx = rng.next() % nl;
+          else if (kind === "sequential") { idx = pos; pos = (pos + 1) % nl; }
+          else if (kind === "stride") { idx = (pos * sl) % nl; pos++; }
+          else {
+            var r = rng.next() % 1000000;
+            if (r < hp) idx = rng.next() % hotN;
+            else if (farN > 0 && r < hp + fp) idx = nl + rng.next() % farN;  // far region beyond the working set
+            else idx = rng.next() % nl;
+          }
+          out.line = base + idx;
+          out.write = wf > 0 && (rng.next() % 1000) < wf;
+          return true;
+        };
+      });
+    }
+
+    if (kind === "matmul") {
+      var n = Math.max(2, Math.round(wl.n)), b = wl.block > 0 ? Math.min(n, Math.round(wl.block)) : n;
+      var A = 0, B = n * n * 8, C = 2 * n * n * 8;
+      return perCore(cfg, wl, function (core, cores) {
+        var r0 = Math.floor(core * n / cores), r1 = Math.floor((core + 1) * n / cores);
+        var ii = r0, jj = 0, kk = 0, i = r0, j = 0, kx = 0, phase = 0, sub = 0, done = r0 >= r1;
+        return function (out) {
+          if (done) return false;
+          var addr, wr = false;
+          if (phase === 0) { phase = 1; kx = kk; sub = 0; addr = C + (i * n + j) * 8; }
+          else if (phase === 1) {
+            if (sub === 0) { sub = 1; addr = A + (i * n + kx) * 8; }
+            else { sub = 0; addr = B + (kx * n + j) * 8; kx++; if (kx >= Math.min(kk + b, n)) phase = 2; }
+          } else {
+            phase = 0; addr = C + (i * n + j) * 8; wr = true;
+            j++;
+            if (j >= Math.min(jj + b, n)) {
+              j = jj; i++;
+              if (i >= Math.min(ii + b, r1)) {
+                i = ii; kk += b;
+                if (kk >= n) {
+                  kk = 0; jj += b;
+                  if (jj >= n) { jj = 0; ii += b; if (ii >= r1) done = true; }
+                  j = jj;
+                }
+                i = ii;
+              }
+            }
+          }
+          out.line = Math.floor(addr / L); out.write = wr;
+          return true;
+        };
+      });
+    }
+
+    if (kind === "graph") {
+      var V = Math.max(16, Math.floor(wl.ws_mb * 1048576 / 8)), d = Math.max(1, Math.round(wl.degree));
+      var OFF = 0, EDGE = V * 8, PROP = V * 8 + V * d * 4;
+      return perCore(cfg, wl, function (core, cores) {
+        var v0 = Math.floor(core * V / cores), v1 = Math.floor((core + 1) * V / cores);
+        var v = v0, e = 0, phase = 0, left = wl.accesses;
+        return function (out) {
+          if (left <= 0 || v0 >= v1) return false;
+          left--;
+          var addr, wr = false;
+          if (phase === 0) { addr = OFF + v * 8; phase = 1; e = 0; }
+          else if (phase === 1) { addr = EDGE + (v * d + e) * 4; phase = 2; }
+          else if (phase === 2) {
+            var nb = mix32((v * d + e) >>> 0) % V; addr = PROP + nb * 8; e++;
+            phase = e < d ? 1 : 3;
+          } else { addr = PROP + v * 8; wr = true; phase = 0; v++; if (v >= v1) v = v0; }
+          out.line = Math.floor(addr / L); out.write = wr;
+          return true;
+        };
+      });
+    }
+
+    if (kind === "pingpong") {
+      var a = Math.min(cfg.cores - 1, Math.round(wl.pp_a)), bb = Math.min(cfg.cores - 1, Math.round(wl.pp_b));
+      var X = 1000003, Y = 2000003, step = 0, it = 0;
+      return {
+        next: function (out) {
+          if (it >= wl.iters) return false;
+          if (step === 0) { out.core = a; out.line = X; out.write = true; }
+          else if (step === 1) { out.core = bb; out.line = X; out.write = false; }
+          else if (step === 2) { out.core = bb; out.line = Y; out.write = true; }
+          else { out.core = a; out.line = Y; out.write = false; }
+          step++; if (step === 4) { step = 0; it++; }
+          return true;
+        }, pingpong: true
+      };
+    }
+
+    if (kind === "trace") {
+      var tr = wl.trace || []; var p = 0;
+      return { next: function (out) {
+        if (p >= tr.length) return false;
+        var e2 = tr[p++]; out.core = Math.min(cfg.cores - 1, e2[0]); out.line = e2[1]; out.write = !!e2[2]; return true; } };
+    }
+    throw new Error("unknown workload: " + kind);
+  }
+
+  // ---------- run one experiment ----------
+  function run(cfgIn, wlIn, progress) {
+    var wl = {}; for (var k in wlIn) wl[k] = wlIn[k];
+    var multi = wl.kind === "pingpong" || wl.kind === "trace" || (wl.threads || 1) > 1;
+    var sim = new Sim(cfgIn, multi), c = sim.c;
+    var out = { core: 0, line: 0, write: false };
+    // warm-up. Random and hot/cold: each thread first touches its working set in order, up to
+    // the total cache capacity, then a separate random stream of half the cache capacity settles
+    // the replacement state. Sequential and stride: the loop runs once over the working set
+    // (or until the caches are full) and measurement continues from where it stopped. Graph traversal
+    // warms up for three times the cache capacity in lines (at least as many accesses as it measures). Stats reset after warm-up.
+    var threads = Math.max(1, Math.min(c.cores, wl.threads || 1));
+    var totalLines = Math.floor((c.l3_mb * c.groups + c.l4_mb) * 1048576 / c.line);
+    var nlw = Math.max(1, Math.floor(Math.max(c.line, Math.round((wl.ws_mb || 16) * 1048576)) / c.line));
+    var gen;
+    if (wl.kind === "random" || wl.kind === "hotcold") {
+      var warm = wl.warmup;
+      if (warm === undefined || warm < 0) {
+        var pre = Math.min(nlw, totalLines, 8000000);
+        for (var t = 0; t < threads; t++) {
+          var base0 = wl.shared ? 0 : (t + 1) * PRIV / c.line;
+          for (var q = 0; q < pre; q++) sim.access(t, base0 + q, false);
+          if (wl.shared) break;
+        }
+        warm = Math.min(Math.floor(totalLines / 2), 4000000);
+      }
+      if (warm > 0) {
+        var wgen = makeWorkload(c, Object.assign({}, wl, { accesses: Math.ceil(warm / threads) }), 1);
+        while (wgen.next(out)) sim.access(out.core, out.line, out.write);
+      }
+      sim.reset();
+      gen = makeWorkload(c, wl);
+    } else if (wl.kind === "sequential" || wl.kind === "stride" || wl.kind === "graph") {
+      var wpt = (wl.warmup === undefined || wl.warmup < 0)
+        ? (wl.kind === "graph" ? Math.max(wl.accesses, Math.ceil(Math.min(3 * totalLines, 8000000) / threads)) : Math.min(nlw, Math.max(4096, Math.ceil(totalLines / threads)), 4000000))
+        : Math.ceil(wl.warmup / threads);
+      gen = makeWorkload(c, Object.assign({}, wl, { accesses: wpt + wl.accesses }));
+      for (var w2 = 0; w2 < wpt * threads && gen.next(out); w2++) sim.access(out.core, out.line, out.write);
+      sim.reset();
+    } else gen = makeWorkload(c, wl);
+    var n = 0, total = wl.kind === "pingpong" ? (wl.iters || 2000) * 4 : (wl.accesses || 0) * Math.max(1, Math.min(c.cores, wl.threads || 1));
+    var ppSkip = wl.kind === "pingpong" ? 40 : 0, ppCycles = 0, ppCount = 0;
+    while (gen.next(out)) {
+      var lat = sim.access(out.core, out.line, out.write);
+      if (gen.pingpong) { if (n >= ppSkip) { ppCycles += lat; ppCount++; } }
+      n++;
+      if (progress && (n & 262143) === 0 && total > 0) progress(n / total);
+    }
+    var r = summarize(sim);
+    if (gen.pingpong) { r.pp_roundtrip_cycles = ppCount ? ppCycles / (ppCount / 4) : 0; r.pp_roundtrip_ns = r.pp_roundtrip_cycles / c.clock_ghz; }
+    if (wl.instructions) r.instructions = wl.instructions;
+    return r;
+  }
+
+  function summarize(sim) {
+    var c = sim.c, s = sim.s, f = c.clock_ghz, L = c.line, r = {}, k;
+    for (k in s) r[k] = s[k];
+    var A = Math.max(1, s.accesses);
+    var l1m = s.accesses - s.l1_hit, l2m = l1m - s.l2_hit;
+    r.l1_hit_rate = s.l1_hit / A;
+    r.l2_hit_rate = l1m > 0 ? s.l2_hit / l1m : 0;
+    r.l3_lookups = l2m;
+    r.l3_hit_rate = l2m > 0 ? (s.l3_hit + s.c2c_local) / l2m : 0;
+    r.l3_miss_rate = l2m > 0 ? 1 - r.l3_hit_rate : 0;
+    r.amat_cycles = s.lat_cycles / A;
+    r.amat_ns = r.amat_cycles / f;
+    r.exposed_cycles = s.exp_cycles / A;
+    r.exposed_ns = r.exposed_cycles / f;
+    r.dram_per_kacc = 1000 * s.dram_reads / A;
+    // time model: the slowest of latency, L3 bandwidth, DRAM bandwidth and link bandwidth
+    var tLat = 0, active = 0, i, g;
+    for (i = 0; i < c.cores; i++) { if (sim.coreCycles[i] / f > tLat) tLat = sim.coreCycles[i] / f; if (sim.activeCore[i]) active++; }
+    var dramBytes = (s.dram_reads + s.dram_writes) * L;
+    var tDram = dramBytes / c.mem_bw_gbs;
+    var tL3 = 0, tLink = 0;
+    for (g = 0; g < c.groups; g++) {
+      var act = 0;
+      for (i = 0; i < c.cores; i++) if (sim.grp[i] === g && sim.activeCore[i]) act++;
+      var bw = Math.max(1, act) * c.l3_bw_bpc * f;
+      if (sim.l3Bytes[g] / bw > tL3) tL3 = sim.l3Bytes[g] / bw;
+      if (c.link_gbs > 0 && sim.linkBytes[g] / c.link_gbs > tLink) tLink = sim.linkBytes[g] / c.link_gbs;
+    }
+    var t = Math.max(tLat, tDram, tL3, tLink);
+    r.time_ns = t; r.t_latency_ns = tLat; r.t_dram_ns = tDram; r.t_l3_ns = tL3; r.t_link_ns = tLink;
+    r.bottleneck = t === tLat ? "latency" : t === tDram ? "DRAM bandwidth" : t === tL3 ? "L3 bandwidth" : "die-to-die link";
+    r.active_cores = active;
+    r.dram_bw_gbs = t > 0 ? dramBytes / t : 0;
+    var l3b = 0, lb = 0; for (g = 0; g < c.groups; g++) { l3b += sim.l3Bytes[g]; lb += sim.linkBytes[g]; }
+    r.l3_bw_gbs = t > 0 ? l3b / t : 0;
+    r.link_bytes = lb;
+    r.throughput_gaps = t > 0 ? s.accesses / t : 0; // accesses per ns = G accesses/s
+    // energy (dynamic, illustrative per-event values)
+    var e = s.accesses * c.e_l1_pj + l1m * c.e_l2_pj + l2m * c.e_l3_pj +
+            (s.l3_remote + s.c2c_remote) * c.e_l3_pj +
+            (c.l4_mb > 0 ? (l2m - s.l3_hit - s.c2c_local - s.l3_remote - s.c2c_remote) * c.e_l4_pj : 0) +
+            (s.dram_reads + s.dram_writes) * c.e_dram_pj + lb * 8 * c.e_link_pj_bit;
+    r.energy_nj = e / 1000; r.energy_pj_per_access = e / A;
+    // where accesses were served (fractions of all accesses)
+    r.served = {
+      L1: s.l1_hit / A, L2: s.l2_hit / A, "L3 (own)": (s.l3_hit + s.c2c_local) / A,
+      "Other die / CCX": (s.l3_remote + s.c2c_remote) / A, L4: s.l4_hit / A, DRAM: s.dram_reads / A
+    };
+    return r;
+  }
+
+  // ---------- trace parsing (Valgrind Lackey or "core R|W hexaddr") ----------
+  function parseTrace(text, line) {
+    var out = [], instr = 0, lines = text.split(/\r?\n/);
+    for (var i = 0; i < lines.length; i++) {
+      var s = lines[i]; if (!s) continue;
+      var m = /^\s*([ILSM])\s+([0-9a-fA-F]+),(\d+)/.exec(s);
+      if (m) {
+        if (m[1] === "I") { instr++; continue; }
+        var addr = parseInt(m[2], 16), size = parseInt(m[3], 10);
+        var a0 = Math.floor(addr / line), a1 = Math.floor((addr + Math.max(1, size) - 1) / line);
+        for (var ln = a0; ln <= a1; ln++) {
+          if (m[1] === "L") out.push([0, ln, 0]);
+          else if (m[1] === "S") out.push([0, ln, 1]);
+          else { out.push([0, ln, 0]); out.push([0, ln, 1]); }
+        }
+        continue;
+      }
+      var m2 = /^\s*(\d+)\s+([RW])\s+(?:0x)?([0-9a-fA-F]+)/.exec(s);
+      if (m2) out.push([parseInt(m2[1], 10), Math.floor(parseInt(m2[3], 16) / line), m2[2] === "W" ? 1 : 0]);
+    }
+    return { trace: out, instructions: instr };
+  }
+
+  // ---------- presets (sources in tools/cachesim/README.md) ----------
+  var PRESETS = {
+    zen2_2ccx: { label: "Zen 2 style: two CCXs, 16 MB L3 each", cfg: { cores: 8, groups: 2, l3_mb: 16, l3_lat: 39 } },
+    zen3_1ccx: { label: "Zen 3 style: one CCX, 32 MB L3", cfg: { cores: 8, groups: 1, l3_mb: 32, l3_lat: 47 } },
+    vcache: { label: "Zen 3 + 3D V-Cache: 96 MB stacked L3", cfg: { cores: 8, groups: 1, l3_mb: 96, l3_lat: 51 } },
+    planar96: { label: "Hypothetical planar 96 MB L3 (assumed +12 cycles)", cfg: { cores: 8, groups: 1, l3_mb: 96, l3_lat: 59 } },
+    sidecar: { label: "Side-by-side cache die: 32 MB L3 + 64 MB L4", cfg: { cores: 8, groups: 1, l3_mb: 32, l3_lat: 47, l4_mb: 64, l4_lat_ns: 22 } },
+    twoccd: { label: "Two chiplets: 2 x 8 cores, 32 MB L3 each", cfg: { cores: 16, groups: 2, l3_mb: 32, l3_lat: 47, hop_ns: 9, dram_hop: 1 } },
+    mono16: { label: "Hypothetical monolithic 16 cores, one 64 MB L3", cfg: { cores: 16, groups: 1, l3_mb: 64, l3_lat: 47 } }
+  };
+
+  return { DEFAULTS: DEFAULTS, PRESETS: PRESETS, Cache: Cache, Sim: Sim, Rng: Rng, mix32: mix32,
+           makeWorkload: makeWorkload, run: run, parseTrace: parseTrace };
+})();
+
+if (typeof module !== "undefined") module.exports = SIM;
+
+</script>
+<script>
+"use strict";
+// ================= field definitions =================
+const KB_L1 = [8, 16, 32, 48, 64, 128], KB_L2 = [128, 256, 512, 1024, 2048];
+const MB_L3 = [1, 2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256];
+const MB_L4 = [0, 16, 32, 64, 128, 256];
+const WAYS = [1, 2, 4, 8, 12, 16, 32];
+const LINK = [0, 25, 55, 100, 200, 400];
+const WS = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 12, 16, 20, 24, 28, 32, 40, 48, 64, 96, 128, 192, 256, 384, 512];
+
+const CFG_GROUPS = [
+  { name: "Cores and clock", open: true, fields: [
+    { k: "cores", label: "Cores", min: 1, max: 16, step: 1, fmt: v => v },
+    { k: "groups", label: "L3 groups (CCX or CCD)", min: 1, max: 4, step: 1, fmt: v => v },
+    { k: "clock_ghz", label: "Clock", min: 2, max: 6, step: 0.05, fmt: v => v.toFixed(2) + " GHz" } ] },
+  { name: "L1 data cache (per core)", fields: [
+    { k: "l1_kb", label: "Size", list: KB_L1, fmt: v => v + " KB" },
+    { k: "l1_ways", label: "Ways", list: WAYS, fmt: v => v },
+    { k: "l1_lat", label: "Hit latency", min: 1, max: 10, step: 1, fmt: v => v + " cyc" } ] },
+  { name: "L2 cache (per core)", fields: [
+    { k: "l2_kb", label: "Size", list: KB_L2, fmt: v => v + " KB" },
+    { k: "l2_ways", label: "Ways", list: WAYS, fmt: v => v },
+    { k: "l2_lat", label: "Hit latency", min: 6, max: 30, step: 1, fmt: v => v + " cyc" } ] },
+  { name: "L3 cache (per group)", open: true, fields: [
+    { k: "l3_mb", label: "Size per group", list: MB_L3, fmt: v => v + " MB" },
+    { k: "l3_ways", label: "Ways", list: WAYS, fmt: v => v },
+    { k: "l3_lat", label: "Hit latency", min: 20, max: 120, step: 1, fmt: v => v + " cyc" } ] },
+  { name: "Separate cache die (L4)", fields: [
+    { k: "l4_mb", label: "Size (0 = none)", list: MB_L4, fmt: v => v ? v + " MB" : "none" },
+    { k: "l4_lat_ns", label: "Extra latency after L3", min: 4, max: 60, step: 1, fmt: v => v + " ns" } ] },
+  { name: "Memory and die-to-die link", open: true, fields: [
+    { k: "mem_ns", label: "DRAM latency beyond L3", min: 40, max: 160, step: 1, fmt: v => v + " ns" },
+    { k: "hop_ns", label: "Hop between groups", min: 0, max: 40, step: 0.5, fmt: v => v + " ns" },
+    { k: "mem_bw_gbs", label: "DRAM bandwidth", min: 10, max: 500, step: 0.1, fmt: v => v.toFixed(1) + " GB/s" },
+    { k: "link_gbs", label: "Link bandwidth per group", list: LINK, fmt: v => v ? v + " GB/s" : "not limited" } ] },
+  { name: "Replacement policy and line size", fields: [
+    { k: "policy", label: "Replacement", options: [["lru", "LRU"], ["fifo", "FIFO"], ["random", "Random"], ["plru", "Tree pseudo-LRU"]] },
+    { k: "line", label: "Line size", options: [[32, "32 B"], [64, "64 B"], [128, "128 B"]] } ] },
+  { name: "Time and energy model", fields: [
+    { k: "overlap", label: "Miss overlap (1 = none)", min: 0.1, max: 1, step: 0.01, fmt: v => v.toFixed(2) },
+    { k: "work_cycles", label: "Work per access", min: 0, max: 20, step: 1, fmt: v => v + " cyc" },
+    { k: "l3_bw_bpc", label: "L3 bandwidth per core", min: 8, max: 64, step: 4, fmt: v => v + " B/cyc" },
+    { k: "e_l3_pj", label: "L3 access energy", min: 10, max: 500, step: 5, fmt: v => v + " pJ" },
+    { k: "e_dram_pj", label: "DRAM access energy", min: 200, max: 6000, step: 50, fmt: v => v + " pJ" },
+    { k: "e_link_pj_bit", label: "Link energy", min: 0.1, max: 10, step: 0.1, fmt: v => v.toFixed(1) + " pJ/bit" } ] }
+];
+const WL_KINDS = [
+  ["random", "Random accesses in a working set"], ["sequential", "Sequential loop over a working set"],
+  ["stride", "Fixed stride (conflict test)"], ["hotcold", "Hot and cold data (90/10)"],
+  ["matmul", "Matrix multiply (naive or blocked)"], ["graph", "Graph traversal"],
+  ["pingpong", "Core-to-core ping-pong"], ["trace", "Your own trace file"] ];
+const WL_FIELDS = {
+  ws_mb: { label: "Working set", list: WS, fmt: v => v < 1 ? (v * 1024) + " KB" : v + " MB" },
+  threads: { label: "Threads", min: 1, max: 16, step: 1, fmt: v => v },
+  shared: { label: "Data", options: [[0, "private per thread"], [1, "shared by all threads"]] },
+  write_frac: { label: "Writes", min: 0, max: 0.5, step: 0.05, fmt: v => Math.round(v * 100) + " %" },
+  stride: { label: "Stride", list: [64, 128, 256, 512, 1024, 2048, 4096, 8192], fmt: v => v + " B" },
+  n: { label: "Matrix size n", min: 32, max: 224, step: 16, fmt: v => v + " × " + v },
+  block: { label: "Block size", list: [0, 8, 16, 32, 64], fmt: v => v ? v : "naive" },
+  degree: { label: "Edges per vertex", min: 2, max: 32, step: 1, fmt: v => v },
+  pp_a: { label: "Core A", min: 0, max: 15, step: 1, fmt: v => "core " + v },
+  pp_b: { label: "Core B", min: 0, max: 15, step: 1, fmt: v => "core " + v },
+  iters: { label: "Round trips", min: 200, max: 5000, step: 100, fmt: v => v },
+  accesses: { label: "Accesses per thread", list: [50000, 150000, 400000, 1000000, 2000000], fmt: v => v.toLocaleString("en") } };
+const WL_SHOW = {
+  random: ["ws_mb", "threads", "shared", "write_frac", "accesses"], sequential: ["ws_mb", "threads", "shared", "write_frac", "accesses"],
+  stride: ["ws_mb", "stride", "threads", "accesses"], hotcold: ["ws_mb", "threads", "shared", "write_frac", "accesses"],
+  matmul: ["n", "block", "threads"], graph: ["ws_mb", "degree", "threads", "accesses"], pingpong: ["pp_a", "pp_b", "iters"], trace: [] };
+
+const METRICS = {
+  l3_hit_rate: { label: "L3 hit rate", unit: "%", f: r => 100 * r.l3_hit_rate, better: "up" },
+  l3_miss_rate: { label: "L3 miss rate", unit: "%", f: r => 100 * r.l3_miss_rate, better: "down" },
+  amat_ns: { label: "Average latency (raw, no overlap)", unit: "ns", f: r => r.amat_ns, better: "down" },
+  exposed_ns: { label: "Exposed latency (after overlap)", unit: "ns", f: r => r.exposed_ns, better: "down" },
+  amat_cycles: { label: "Average access time", unit: "cycles", f: r => r.amat_cycles, better: "down" },
+  dram_per_kacc: { label: "DRAM reads per 1000 accesses", unit: "", f: r => r.dram_per_kacc, better: "down" },
+  cross_per_kacc: { label: "Transfers between groups per 1000 accesses", unit: "", f: r => 1000 * (r.l3_remote + r.c2c_remote) / Math.max(1, r.accesses), better: "down" },
+  l1_hit_rate: { label: "L1 hit rate", unit: "%", f: r => 100 * r.l1_hit_rate, better: "up" },
+  l2_hit_rate: { label: "L2 hit rate (of L1 misses)", unit: "%", f: r => 100 * r.l2_hit_rate, better: "up" },
+  time_us: { label: "Estimated time", unit: "µs", f: r => r.time_ns / 1000, better: "down" },
+  throughput: { label: "Throughput", unit: "G accesses/s", f: r => r.throughput_gaps, better: "up" },
+  speedup: { label: "Throughput relative to the first point", unit: "×", f: r => r.throughput_gaps, better: "up", relative: true },
+  dram_bw: { label: "DRAM bandwidth used", unit: "GB/s", f: r => r.dram_bw_gbs, better: "none" },
+  energy: { label: "Energy per access", unit: "pJ", f: r => r.energy_pj_per_access, better: "down" },
+  roundtrip: { label: "Ping-pong round trip", unit: "ns", f: r => r.pp_roundtrip_ns || 0, better: "down" } };
+
+const SWEEP_PARAMS = [
+  ["wl.ws_mb", "Working set (MB)", "1,2,4,8,12,16,20,24,28,32,40,48,64,96,128"],
+  ["wl.threads", "Threads", "1,2,3,4,5,6,7,8"],
+  ["wl.write_frac", "Write fraction", "0,0.1,0.2,0.3,0.4,0.5"],
+  ["wl.pp_b", "Ping-pong partner core", "1,2,3,4,5,6,7"],
+  ["wl.block", "Matrix block size (0 = naive)", "0,8,16,32,64"],
+  ["cfg.l3_mb", "L3 size per group (MB)", "4,8,16,24,32,48,64,96,128"],
+  ["cfg.l3_lat", "L3 hit latency (cycles)", "39,43,47,51,55,59,63,71,79,95"],
+  ["cfg.l3_ways", "L3 ways", "1,2,4,8,16,32"],
+  ["cfg.l1_ways", "L1 ways", "1,2,4,8,16,32"],
+  ["cfg.clock_ghz", "Clock (GHz)", "3.0,3.5,4.0,4.5,4.8,5.15,5.5"],
+  ["cfg.mem_ns", "DRAM latency beyond L3 (ns)", "50,60,74,90,110,130"],
+  ["cfg.hop_ns", "Hop between groups (ns)", "0,3,6,9,15,25,40"],
+  ["cfg.overlap", "Miss overlap", "0.2,0.36,0.5,0.75,1"],
+  ["cfg.policy", "Replacement policy", "lru,fifo,random,plru"],
+  ["cfg.groups", "L3 groups", "1,2,4"] ];
+
+// ================= state =================
+const SIMC = SIM;
+const P = SIMC.PRESETS;
+function presetCfg(name, extra) { return Object.assign({}, SIMC.DEFAULTS, P[name].cfg, extra || {}); }
+const state = {
+  A: presetCfg("zen2_2ccx"), B: presetCfg("zen3_1ccx"), presetA: "zen2_2ccx", presetB: "zen3_1ccx",
+  wl: { kind: "random", ws_mb: 24, threads: 1, shared: 0, write_frac: 0, stride: 4096, n: 128, block: 0, degree: 8, pp_a: 0, pp_b: 4, iters: 2000, accesses: 400000 },
+  trace: null, traceName: "" };
+
+// ================= worker =================
+let worker = null, jobSeq = 0;
+function newWorker() {
+  const src = document.getElementById("core-src").textContent +
+    "\nself.onmessage=function(e){var d=e.data,res=[];for(var i=0;i<d.jobs.length;i++){var j=d.jobs[i];" +
+    "res.push(SIM.run(j.cfg,j.wl,function(p){self.postMessage({id:d.id,type:'p',done:i+p,total:d.jobs.length});}));" +
+    "self.postMessage({id:d.id,type:'p',done:i+1,total:d.jobs.length,partial:res[i],index:i});}" +
+    "self.postMessage({id:d.id,type:'done',results:res});};";
+  worker = new Worker(URL.createObjectURL(new Blob([src], { type: "text/javascript" })));
+}
+let pending = null;
+function runJobs(jobs, onProgress) {
+  if (pending) { worker.terminate(); worker = null; pending.reject(new Error("stopped")); pending = null; }
+  if (!worker) newWorker();
+  const id = ++jobSeq;
+  return new Promise((resolve, reject) => {
+    pending = { reject };
+    worker.onmessage = e => {
+      const d = e.data; if (d.id !== id) return;
+      if (d.type === "p") { if (onProgress) onProgress(d.done / d.total, d); }
+      else { pending = null; resolve(d.results); }
+    };
+    worker.onerror = err => { pending = null; reject(new Error(err.message || "the simulation failed")); };
+    worker.postMessage({ id, jobs });
+  });
+}
+runJobs.cancel = () => { if (pending) { worker.terminate(); worker = null; const p = pending; pending = null; p.reject(new Error("stopped")); } };
+
+// ================= UI builders =================
+const $ = id => document.getElementById(id);
+function fieldControl(def, value, id, onChange) {
+  const wrap = document.createElement("div"); wrap.className = "field"; wrap.dataset.key = def.k || "";
+  const lab = document.createElement("label"); lab.htmlFor = id;
+  const name = document.createElement("span"); name.textContent = def.label;
+  const val = document.createElement("span"); val.className = "val";
+  lab.append(name, val); wrap.append(lab);
+  let input;
+  if (def.options) {
+    input = document.createElement("select"); input.id = id;
+    for (const [v, t] of def.options) { const o = document.createElement("option"); o.value = v; o.textContent = t; input.append(o); }
+    input.value = String(value);
+    const parse = v => (typeof def.options[0][0] === "number" ? Number(v) : v);
+    val.textContent = "";
+    input.addEventListener("change", () => onChange(parse(input.value)));
+  } else {
+    input = document.createElement("input"); input.type = "range"; input.id = id;
+    if (def.list) {
+      input.min = 0; input.max = def.list.length - 1; input.step = 1;
+      let idx = def.list.indexOf(value); if (idx < 0) idx = nearestIdx(def.list, value); input.value = idx;
+      val.textContent = def.fmt(def.list[idx]);
+      input.addEventListener("input", () => { const v = def.list[+input.value]; val.textContent = def.fmt(v); fillTrack(input); onChange(v); });
+    } else {
+      input.min = def.min; input.max = def.max; input.step = def.step; input.value = value;
+      val.textContent = def.fmt(Number(value));
+      input.addEventListener("input", () => { const v = Number(input.value); val.textContent = def.fmt(v); fillTrack(input); onChange(v); });
+    }
+  }
+  wrap.append(input);
+  if (input.type === "range") fillTrack(input);
+  return wrap;
+}
+function fillTrack(r) { const lo = +r.min, hi = +r.max; r.style.setProperty("--p", (hi > lo ? (100 * (r.value - lo) / (hi - lo)) : 0) + "%"); }
+function nearestIdx(list, v) { let b = 0; for (let i = 0; i < list.length; i++) if (Math.abs(list[i] - v) < Math.abs(list[b] - v)) b = i; return b; }
+
+function buildPanel(which) {
+  const panel = $("panel" + which); panel.innerHTML = "";
+  const cfg = state[which];
+  const head = document.createElement("div"); head.className = "row between";
+  const h = document.createElement("h2"); h.innerHTML = `<span class="dot ${which.toLowerCase()}"></span>Configuration ${which}`;
+  const sel = document.createElement("select"); sel.id = "preset" + which; sel.setAttribute("aria-label", `Preset for configuration ${which}`);
+  for (const [k, p] of Object.entries(P)) { const o = document.createElement("option"); o.value = k; o.textContent = p.label; sel.append(o); }
+  const o2 = document.createElement("option"); o2.value = "custom"; o2.textContent = "Custom"; sel.append(o2);
+  sel.value = state["preset" + which] || "custom";
+  sel.addEventListener("change", () => { if (sel.value !== "custom") { state[which] = presetCfg(sel.value); state["preset" + which] = sel.value; buildPanel(which); refreshDiff(); } });
+  const copy = document.createElement("button"); copy.className = "btn small"; copy.textContent = which === "A" ? "Copy to B" : "Copy to A";
+  copy.addEventListener("click", () => { const other = which === "A" ? "B" : "A"; state[other] = Object.assign({}, state[which]); state["preset" + other] = state["preset" + which]; buildPanel(other); refreshDiff(); });
+  const right = document.createElement("div"); right.className = "row"; right.style.minWidth = "0"; right.style.maxWidth = "100%"; sel.style.minWidth = "0"; sel.style.flex = "1 1 200px"; right.append(sel, copy);
+  head.append(h, right); panel.append(head);
+  const schem = document.createElement("div"); schem.id = "schem" + which; panel.append(schem);
+  for (const g of CFG_GROUPS) {
+    const det = document.createElement("details"); det.className = "group"; if (g.open) det.open = true;
+    const sum = document.createElement("summary"); sum.textContent = g.name; det.append(sum);
+    const box = document.createElement("div"); box.className = "fields";
+    for (const f of g.fields) box.append(fieldControl(f, cfg[f.k], `${which}_${f.k}`, v => {
+      cfg[f.k] = v; state["preset" + which] = "custom"; sel.value = "custom"; drawSchematic(which); refreshDiff(); }));
+    det.append(box); panel.append(det);
+  }
+  drawSchematic(which);
+}
+
+function drawSchematic(which) {
+  const c = state[which], el = $("schem" + which);
+  const cores = Math.max(1, Math.min(16, Math.round(c.cores))), groups = Math.max(1, Math.min(cores, Math.round(c.groups)));
+  const grp = []; for (let i = 0; i < cores; i++) grp.push(Math.floor(i * groups / cores));
+  const stacked = c.l3_mb > 32 && c.l3_lat - 47 <= 6 && c.l3_lat > 47;
+  let html = '<div class="schem"><div class="groups">';
+  for (let g = 0; g < groups; g++) {
+    html += '<div class="grp"><div class="cores">';
+    for (let i = 0; i < cores; i++) if (grp[i] === g) html += `<span class="core">C${i}</span>`;
+    html += `</div><div class="l3${stacked ? " stack3d" : ""}">L3 ${c.l3_mb} MB · ${c.l3_lat} cyc${stacked ? " · stacked" : ""}</div></div>`;
+  }
+  html += "</div>";
+  html += `<div class="bus">${groups > 1 ? `link between groups · hop ${c.hop_ns} ns` : "one shared L3, no hop"}${c.l4_mb > 0 ? ` · side cache die L4 ${c.l4_mb} MB (+${c.l4_lat_ns} ns)` : ""}</div>`;
+  html += `<div class="mem">DRAM · ${c.mem_ns} ns beyond L3 · ${Number(c.mem_bw_gbs).toFixed(1)} GB/s</div>`;
+  const sets = Math.max(1, Math.floor(c.l3_mb * 1048576 / c.line / c.l3_ways));
+  const idxBits = Math.log2(sets), offBits = Math.log2(c.line);
+  html += `<div class="split">L3 per group: ${sets.toLocaleString("en")} sets × ${c.l3_ways} ways · offset ${offBits} bits · index ${Number.isInteger(idxBits) ? idxBits + " bits" : "≈" + idxBits.toFixed(1) + " bits (not a power of two)"}</div>`;
+  html += "</div>";
+  el.innerHTML = html;
+}
+
+const DIFF_LABELS = {}; for (const g of CFG_GROUPS) for (const f of g.fields) DIFF_LABELS[f.k] = f;
+function refreshDiff() {
+  const diffs = [];
+  for (const k of Object.keys(DIFF_LABELS)) if (String(state.A[k]) !== String(state.B[k])) diffs.push(k);
+  for (const w of ["A", "B"]) document.querySelectorAll(`#panel${w} .field`).forEach(f => f.classList.toggle("changed", diffs.includes(f.dataset.key)));
+  const bar = $("diffbar"); bar.innerHTML = "";
+  const t = document.createElement("span"); t.className = "eyebrow"; t.textContent = "A and B differ in";
+  bar.append(t);
+  if (!diffs.length) { const c = document.createElement("span"); c.className = "chip"; c.textContent = "nothing: identical configurations"; bar.append(c); return; }
+  for (const k of diffs) {
+    const f = DIFF_LABELS[k]; const c = document.createElement("span"); c.className = "chip warn";
+    const fa = f.fmt ? f.fmt(state.A[k]) : state.A[k], fb = f.fmt ? f.fmt(state.B[k]) : state.B[k];
+    c.textContent = `${groupOf(k)} ${f.label.toLowerCase()}: ${fa} → ${fb}`; bar.append(c);
+  }
+  const n = document.createElement("span"); n.className = "status";
+  n.textContent = diffs.length === 1 ? "One factor changes, so any difference in the results comes from it." : `${diffs.length} factors change. To isolate one, copy A to B and change a single setting.`;
+  bar.append(n);
+}
+function groupOf(k) { return k.startsWith("l1") ? "L1" : k.startsWith("l2") ? "L2" : k.startsWith("l3") ? "L3" : k.startsWith("l4") ? "L4" : ""; }
+
+function buildWorkload() {
+  const box = $("wlfields"); box.innerHTML = "";
+  const kindDef = { label: "Workload", options: WL_KINDS };
+  box.append(fieldControl(kindDef, state.wl.kind, "wl_kind", v => { state.wl.kind = v; buildWorkload(); }));
+  for (const k of WL_SHOW[state.wl.kind]) {
+    const def = Object.assign({ k }, WL_FIELDS[k]);
+    box.append(fieldControl(def, state.wl[k], "wl_" + k, v => { state.wl[k] = v; }));
+  }
+  if (state.wl.kind === "trace") {
+    const f = document.createElement("div"); f.className = "field";
+    f.innerHTML = '<label for="traceFile"><span>Valgrind Lackey output, or lines of "core R|W hexaddress"</span></label><input type="file" id="traceFile" accept=".txt,.out,.log,.trace">';
+    box.append(f);
+    f.querySelector("input").addEventListener("change", ev => {
+      const file = ev.target.files[0]; if (!file) return;
+      const rd = new FileReader();
+      rd.onload = () => { const p = SIMC.parseTrace(rd.result, state.A.line || 64); state.trace = p.trace; state.traceInstr = p.instructions; state.traceName = file.name;
+        $("wlnote").textContent = `${file.name}: ${p.trace.length.toLocaleString("en")} data accesses, ${p.instructions.toLocaleString("en")} instructions`; };
+      rd.readAsText(file);
+    });
+  }
+  const notes = { random: "Uniform random lines inside the working set: the purest test of capacity.",
+    sequential: "A loop over the working set. LRU caches thrash when the loop is a little larger than the cache.",
+    stride: "Accesses one stride apart. A 4 KB stride maps every access to the same L1 set.",
+    hotcold: "90 % of accesses go to 10 % of the data, as in many real programs.",
+    matmul: "C = A × B on doubles, rows split across threads. Blocking reuses data while it is still in cache.",
+    graph: "Each vertex reads its offsets and edges in order, then its neighbours' data at random.",
+    pingpong: "Core A writes a line, core B reads it and writes a reply, core A reads the reply. Reports the round trip.",
+    trace: state.traceName ? `${state.traceName} loaded.` : "Record one with: valgrind --tool=lackey --trace-mem=yes ./prog 2> trace.txt" };
+  $("wlnote").textContent = notes[state.wl.kind];
+}
+function currentWl() {
+  const w = Object.assign({}, state.wl);
+  if (w.kind === "trace") { w.trace = state.trace || []; w.instructions = state.traceInstr || 0; }
+  return w;
+}
+
+// ================= charts =================
+const charts = {};
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function baseOpts(yTitle, xTitle) {
+  const fg = css("--fg"), mu = css("--muted"), ln = css("--line");
+  return { responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+    plugins: { legend: { labels: { color: fg, font: { family: "Geist, system-ui, sans-serif", size: 12 }, usePointStyle: true, pointStyle: "circle", boxWidth: 8, boxHeight: 8, padding: 14 } },
+      tooltip: { bodyFont: { family: "Geist Mono, ui-monospace, monospace" }, titleFont: { family: "Geist, system-ui, sans-serif" } } },
+    scales: { x: { ticks: { color: mu, font: { family: "Geist Mono, ui-monospace, monospace", size: 11 } }, grid: { display: false }, border: { color: ln }, title: { display: !!xTitle, text: xTitle, color: mu } },
+      y: { ticks: { color: mu, font: { family: "Geist Mono, ui-monospace, monospace", size: 11 } }, grid: { color: ln }, border: { display: false }, title: { display: !!yTitle, text: yTitle, color: mu }, beginAtZero: true } } };
+}
+function setChart(id, cfg) { if (charts[id]) charts[id].destroy(); if (typeof Chart === "undefined") return; charts[id] = new Chart($(id), cfg); }
+const LEVEL_COLORS = () => [css("--d"), css("--a"), css("--c"), css("--warn"), css("--b"), css("--bad")];
+const PAIRS = () => [[css("--a"), css("--a")], [css("--b"), css("--b")], [css("--c"), css("--c")], [css("--d"), css("--d")]];
+// a scriptable Chart.js colour: a linear gradient across the chart area (horizontal or vertical)
+function grad(c1, c2, vertical, alpha) {
+  return ctx => {
+    const ch = ctx.chart, a = ch.chartArea; if (!a) return c1;
+    const g = vertical ? ch.ctx.createLinearGradient(0, a.bottom, 0, a.top) : ch.ctx.createLinearGradient(a.left, 0, a.right, 0);
+    g.addColorStop(0, withAlpha(c1, alpha)); g.addColorStop(1, withAlpha(c2, alpha)); return g;
+  };
+}
+function withAlpha(hex, a) {
+  if (a === undefined || !/^#[0-9a-f]{6}$/i.test(hex)) return hex;
+  const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
+// ================= compare view =================
+let lastCompare = null;
+function renderCompare(rA, rB) {
+  lastCompare = [rA, rB];
+  const rows = [
+    ["L1 hit rate", r => 100 * r.l1_hit_rate, "%", "up", 1], ["L2 hit rate (of L1 misses)", r => 100 * r.l2_hit_rate, "%", "up", 1],
+    ["L3 hit rate (of L2 misses)", r => 100 * r.l3_hit_rate, "%", "up", 1], ["L3 miss rate", r => 100 * r.l3_miss_rate, "%", "down", 1],
+    ["Average access time", r => r.amat_ns, "ns", "down", 2], ["Average access time", r => r.amat_cycles, "cycles", "down", 1],
+    ["DRAM reads", r => r.dram_reads, "", "down", 0], ["DRAM reads per 1000 accesses", r => r.dram_per_kacc, "", "down", 2],
+    ["Transfers between groups", r => r.l3_remote + r.c2c_remote, "", "down", 0],
+    ["Estimated time", r => r.time_ns / 1000, "µs", "down", 1], ["Energy per access", r => r.energy_pj_per_access, "pJ", "down", 1] ];
+  if (rA.pp_roundtrip_ns !== undefined) rows.unshift(["Ping-pong round trip", r => r.pp_roundtrip_ns, "ns", "down", 1]);
+  if (rA.instructions) rows.push(["L3 misses per 1000 instructions", r => 1000 * r.dram_reads / r.instructions, "", "down", 2]);
+  let h = '<thead><tr><th>Metric</th><th><span class="dot a"></span>A</th><th><span class="dot b"></span>B</th><th>B vs A</th></tr></thead><tbody>';
+  for (const [name, f, unit, better, dp] of rows) {
+    const a = f(rA), b = f(rB);
+    const d = a !== 0 ? (b - a) / Math.abs(a) * 100 : 0;
+    const good = better === "up" ? d > 0.05 : d < -0.05, bad = better === "up" ? d < -0.05 : d > 0.05;
+    const fmt = v => v.toLocaleString("en", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+    h += `<tr><td>${name}${unit ? ` <span class="muted">(${unit})</span>` : ""}</td><td class="num a">${fmt(a)}</td><td class="num b">${fmt(b)}</td>` +
+      `<td class="num delta ${good ? "better" : bad ? "worse" : ""}">${Math.abs(d) < 0.05 ? "same" : (d > 0 ? "+" : "") + d.toFixed(1) + " %"}</td></tr>`;
+  }
+  h += `<tr><td>Binding limit</td><td class="num a"><span class="pill">${rA.bottleneck}</span></td><td class="num b"><span class="pill">${rB.bottleneck}</span></td><td></td></tr>`;
+  $("kpi").innerHTML = h + "</tbody>";
+  const tiles = [["Average access time", r => r.amat_ns, "ns", "down", 2], ["L3 hit rate", r => 100 * r.l3_hit_rate, "%", "up", 1],
+    ["DRAM reads per 1000 accesses", r => r.dram_per_kacc, "", "down", 1], ["Estimated time", r => r.time_ns / 1000, "µs", "down", 0]];
+  if (rA.pp_roundtrip_ns !== undefined) tiles[3] = ["Ping-pong round trip", r => r.pp_roundtrip_ns, "ns", "down", 1];
+  $("tiles").innerHTML = tiles.map(([k, f, u, better, dp]) => {
+    const a = f(rA), b = f(rB), d = a !== 0 ? (b - a) / Math.abs(a) * 100 : 0;
+    const good = better === "up" ? d > 0.05 : d < -0.05, bad = better === "up" ? d < -0.05 : d > 0.05;
+    const fmt = v => v.toLocaleString("en", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+    return `<div class="tile"><span class="k">${k}${u ? " (" + u + ")" : ""}</span><div class="vals"><span class="va">${fmt(a)}</span><span class="sep">A · B</span><span class="vb">${fmt(b)}</span></div>` +
+      `<span class="d ${good ? "better" : bad ? "worse" : ""}">${Math.abs(d) < 0.05 ? "B same as A" : "B " + (d > 0 ? "+" : "") + d.toFixed(1) + " %"}</span></div>`;
+  }).join("");
+  const levels = Object.keys(rA.served), cols = LEVEL_COLORS();
+  setChart("chServed", { type: "bar", data: { labels: ["A", "B"], datasets: levels.map((lv, i) => ({ label: lv, data: [100 * rA.served[lv], 100 * rB.served[lv]], backgroundColor: cols[i % cols.length], borderWidth: 0, borderRadius: 4, borderSkipped: false })) },
+    options: Object.assign(baseOpts("% of accesses"), { indexAxis: "y", scales: { x: Object.assign(baseOpts().scales.x, { stacked: true, max: 100 }), y: Object.assign(baseOpts().scales.y, { stacked: true }) } }) });
+  const amatParts = r => { const c = r._cfg; const A = Math.max(1, r.accesses); return [c.l1_lat * r.l1_hit / A / c.clock_ghz, c.l2_lat * r.l2_hit / A / c.clock_ghz, Math.max(0, r.amat_ns - (c.l1_lat * r.l1_hit + c.l2_lat * r.l2_hit) / A / c.clock_ghz)]; };
+  const pa = amatParts(rA), pb = amatParts(rB);
+  setChart("chAmat", { type: "bar", data: { labels: ["A", "B"], datasets: [
+    { label: "L1 hits", data: [pa[0], pb[0]], backgroundColor: cols[0], borderRadius: 4 }, { label: "L2 hits", data: [pa[1], pb[1]], backgroundColor: cols[1], borderRadius: 4 },
+    { label: "L3, other groups, L4 and DRAM", data: [pa[2], pb[2]], backgroundColor: css("--c"), borderRadius: 4 } ] },
+    options: Object.assign(baseOpts("ns per access"), { scales: { x: Object.assign(baseOpts().scales.x, { stacked: true }), y: Object.assign(baseOpts("ns per access").scales.y, { stacked: true }) } }) });
+  const tl = r => [r.t_latency_ns / 1000, r.t_l3_ns / 1000, r.t_dram_ns / 1000, r.t_link_ns / 1000];
+  setChart("chTime", { type: "bar", data: { labels: ["Latency", "L3 bandwidth", "DRAM bandwidth", "Die-to-die link"], datasets: [
+    { label: "A", data: tl(rA), backgroundColor: css("--a"), borderRadius: 3, maxBarThickness: 36 }, { label: "B", data: tl(rB), backgroundColor: css("--b"), borderRadius: 3, maxBarThickness: 36 } ] }, options: baseOpts("µs") });
+}
+async function runCompare() {
+  const btn = $("runCompare"); btn.disabled = true; $("cancel1").hidden = false;
+  $("status1").textContent = "Running…"; $("prog1").style.width = "0";
+  const wl = currentWl();
+  const t0 = performance.now();
+  try {
+    const res = await runJobs([{ cfg: state.A, wl }, { cfg: state.B, wl }], p => { $("prog1").style.width = (100 * p) + "%"; });
+    res[0]._cfg = Object.assign({}, SIMC.DEFAULTS, state.A); res[1]._cfg = Object.assign({}, SIMC.DEFAULTS, state.B);
+    renderCompare(res[0], res[1]);
+    $("status1").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s · ${res[0].accesses.toLocaleString("en")} measured accesses per configuration`;
+  } catch (e) { $("status1").textContent = e.message === "stopped" ? "Stopped." : "Error: " + e.message; }
+  btn.disabled = false; $("cancel1").hidden = true; $("prog1").style.width = "100%";
+}
+
+// ================= sweeps (used by Sweep view and Experiments) =================
+function parseValues(param, text) {
+  const parts = text.split(",").map(s => s.trim()).filter(Boolean);
+  return param.endsWith("policy") ? parts : parts.map(Number).filter(v => !Number.isNaN(v));
+}
+function applyParam(cfg, wl, param, v) {
+  const [where, key] = param.split(".");
+  if (where === "cfg") cfg[key] = v; else wl[key] = v;
+}
+async function runSeries(series, param, values, onProgress) {
+  const jobs = [];
+  for (const s of series) for (const v of values) {
+    const cfg = Object.assign({}, s.cfg), wl = Object.assign({}, s.wl);
+    if (s.sweep !== false) applyParam(cfg, wl, param, v);
+    jobs.push({ cfg, wl });
+  }
+  const res = await runJobs(jobs, onProgress);
+  const out = []; let i = 0;
+  for (const s of series) { const arr = []; for (let k = 0; k < values.length; k++) arr.push(res[i++]); out.push(arr); }
+  return out;
+}
+function seriesColor(i) { return PAIRS()[i % 4][0]; }
+function drawSweep(canvasId, series, values, results, metricKey, xLabel) {
+  const m = METRICS[metricKey];
+  const categorical = values.some(v => typeof v === "string");
+  const ds = series.map((s, i) => {
+    let ys = results[i].map(r => m.f(r));
+    if (m.relative) { const base = ys[0] || 1; ys = ys.map(y => y / base); }
+    const [c1, c2] = PAIRS()[i % 4];
+    return categorical
+      ? { label: s.name, data: ys, backgroundColor: grad(c1, c2, true), borderRadius: 6, borderSkipped: false }
+      : { label: s.name, data: ys, borderColor: c1, backgroundColor: c1, fill: false, pointBackgroundColor: c1, pointBorderColor: css("--panel"), pointBorderWidth: 1.5,
+          borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, cubicInterpolationMode: "monotone", borderDash: s.dash ? [6, 4] : undefined };
+  });
+  const yTitle = m.label + (m.unit ? ` (${m.unit})` : "");
+  setChart(canvasId, { type: categorical ? "bar" : "line", data: { labels: values.map(String), datasets: ds }, options: baseOpts(yTitle, xLabel) });
+}
+function fillMetricSelect(sel, keys, chosen) {
+  sel.innerHTML = "";
+  for (const k of keys) { const o = document.createElement("option"); o.value = k; o.textContent = METRICS[k].label + (METRICS[k].unit ? ` (${METRICS[k].unit})` : ""); sel.append(o); }
+  sel.value = chosen || keys[0];
+}
+let lastSweep = null;
+async function runSweepView() {
+  const param = $("swParam").value, values = parseValues(param, $("swValues").value), apply = $("swApply").value;
+  if (!values.length) { $("status2").textContent = "Enter at least one value, separated by commas."; return; }
+  const wl = currentWl();
+  const series = [{ name: "A: " + presetName("A"), cfg: state.A, wl, sweep: apply !== "b" }, { name: "B: " + presetName("B"), cfg: state.B, wl, sweep: apply !== "a" }];
+  $("runSweep").disabled = true; $("cancel2").hidden = false; $("status2").textContent = `Running ${values.length * 2} simulations…`;
+  const t0 = performance.now();
+  try {
+    const res = await runSeries(series, param, values, p => { $("prog2").style.width = (100 * p) + "%"; });
+    lastSweep = { series, values, res, param };
+    const label = SWEEP_PARAMS.find(p => p[0] === param)[1];
+    $("swTitle").textContent = `${METRICS[$("swMetric").value].label} against ${label.charAt(0).toLowerCase() + label.slice(1)}`;
+    drawSweep("chSweep", series, values, res, $("swMetric").value, label);
+    $("status2").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s`;
+    $("swNote").textContent = apply === "both" ? "Parameter changed in both A and B" : `Parameter changed in ${apply.toUpperCase()} only; the other is held fixed`;
+  } catch (e) { $("status2").textContent = e.message === "stopped" ? "Stopped." : "Error: " + e.message; }
+  $("runSweep").disabled = false; $("cancel2").hidden = true;
+}
+function presetName(w) { const p = state["preset" + w]; return p && P[p] ? P[p].label.split(":")[0] : "custom"; }
+
+// ================= experiments =================
+const EXPERIMENTS = [
+  { id: "e1", tag: "Experiment 1", rq: "RQ2 · Zen 2 → Zen 3", title: "L3 hit rate against working-set size: two CCXs or one",
+    desc: "One thread, random accesses. A splits the 32 MB L3 into two 16 MB halves; B unifies it.", diff: "L3 split and L3 latency (39 vs 47 cycles)",
+    series: [{ name: "Two CCXs, 2 × 16 MB", preset: "zen2_2ccx" }, { name: "One CCX, 32 MB", preset: "zen3_1ccx" }],
+    wl: { kind: "random", threads: 1 }, param: "wl.ws_mb", values: [4, 8, 12, 16, 20, 24, 28, 32, 40], metrics: ["l3_hit_rate", "amat_ns", "dram_per_kacc", "l3_miss_rate"],
+    look: "Below 16 MB both fit and the split design is slightly faster, because its smaller L3 has the shorter latency. Between 16 and 32 MB a single thread can only use its own 16 MB half in A, so its hit rate falls while B's stays high. That is the capacity a unified L3 gives one thread." },
+  { id: "e1b", tag: "Experiment 1, controlled", rq: "RQ4 · isolating one factor", title: "The same comparison with equal L3 latency",
+    desc: "As Experiment 1, but A's L3 latency is set to B's 47 cycles, so only the split changes.", diff: "L3 split only",
+    series: [{ name: "Two CCXs, 2 × 16 MB, 47 cycles", preset: "zen2_2ccx", extra: { l3_lat: 47 } }, { name: "One CCX, 32 MB, 47 cycles", preset: "zen3_1ccx" }],
+    wl: { kind: "random", threads: 1 }, param: "wl.ws_mb", values: [4, 8, 12, 16, 20, 24, 28, 32, 40], metrics: ["l3_hit_rate", "amat_ns"],
+    look: "With latency held equal the two curves coincide below 16 MB, so the remaining gap above 16 MB is due to the split alone. Compare with Experiment 1 to see how much of the difference latency accounted for." },
+  { id: "e1c", tag: "Experiment 1, shared data", rq: "RQ2", title: "Eight threads reading one shared array",
+    desc: "All eight cores read the same working set. In A each half of the L3 holds its own copy of shared lines.", diff: "L3 split and L3 latency",
+    series: [{ name: "Two CCXs, 2 × 16 MB", preset: "zen2_2ccx" }, { name: "One CCX, 32 MB", preset: "zen3_1ccx" }],
+    wl: { kind: "random", threads: 8, shared: 1 }, param: "wl.ws_mb", values: [4, 8, 12, 16, 20, 24, 28, 32, 40], metrics: ["l3_hit_rate", "amat_ns", "cross_per_kacc"],
+    look: "Shared data is duplicated in both halves of A's L3, so A behaves like a 16 MB cache even with all cores busy. Lines missing from the local half are fetched from the other CCX, which shows up as transfers between groups." },
+  { id: "e2", tag: "Experiment 2", rq: "RQ2", title: "Core-to-core round trip",
+    desc: "Core 0 and core N exchange a line and a reply. The partner moves from core 1 to core 7.", diff: "L3 split and L3 latency",
+    series: [{ name: "Two CCXs", preset: "zen2_2ccx" }, { name: "One CCX", preset: "zen3_1ccx" }],
+    wl: { kind: "pingpong", pp_a: 0, iters: 2000 }, param: "wl.pp_b", values: [1, 2, 3, 4, 5, 6, 7], metrics: ["roundtrip"],
+    look: "In A the round trip jumps when the partner is core 4 or higher, because the line then crosses between CCXs: two L3 latencies plus the hop for each transfer. In B every pair costs the same." },
+  { id: "e3", tag: "Experiment 3", rq: "RQ2 · bandwidth", title: "All cores streaming: which limit binds?",
+    desc: "Each thread loops over its own 40 MB array, with miss overlap 0.05 for both. Threads rise from 1 to 8.", diff: "L3 split and L3 latency",
+    series: [{ name: "Two CCXs", preset: "zen2_2ccx", extra: { overlap: 0.05 } }, { name: "One CCX", preset: "zen3_1ccx", extra: { overlap: 0.05 } }],
+    wl: { kind: "sequential", ws_mb: 40, shared: 0 }, param: "wl.threads", values: [1, 2, 3, 4, 5, 6, 7, 8], metrics: ["dram_bw", "speedup", "time_us"],
+    look: "Miss overlap is set to 0.05 here, to stand in for the hardware prefetching that lets a streaming core keep many misses in flight. Every access misses the L3, so after a few threads DRAM bandwidth becomes the binding limit: the bandwidth curve flattens at 51.2 GB/s and adding threads stops helping. The L3 arrangement makes almost no difference, because neither L3 holds the data." },
+  { id: "e4", tag: "Experiment 4", rq: "RQ2 · scaling", title: "Graph traversal from 1 to 8 threads",
+    desc: "A 32 MB vertex array with 8 edges per vertex; vertices are split across threads, and each thread does the same amount of work.", diff: "L3 split and L3 latency",
+    series: [{ name: "Two CCXs", preset: "zen2_2ccx" }, { name: "One CCX", preset: "zen3_1ccx" }],
+    perThread: true, wl: { kind: "graph", ws_mb: 32, degree: 8 }, param: "wl.threads", values: [1, 2, 4, 6, 8], metrics: ["throughput", "speedup", "l3_hit_rate", "dram_per_kacc", "cross_per_kacc"],
+    look: "With 1 to 4 threads, all of A's threads sit in CCX 0, so only one 16 MB half of its L3 is in use: its L3 hit rate is about 41 % against 70 % for B's unified cache. From 6 threads the second half comes into use, so A's DRAM reads drop and its scaling looks better than linear, but lines held by the other CCX must be fetched across, which shows up as transfers between groups. In absolute throughput B stays ahead at every thread count." },
+  { id: "e4b", tag: "Experiment 4, kernels", rq: "Part II · blocking", title: "Matrix multiply: naive against blocked",
+    desc: "C = A × B with n = 128 on 8 threads; the block size changes.", diff: "none (same hardware); only the loop order changes",
+    series: [{ name: "One CCX, 32 MB", preset: "zen3_1ccx" }],
+    wl: { kind: "matmul", n: 128, threads: 8 }, param: "wl.block", values: [0, 8, 16, 32, 64], metrics: ["l1_hit_rate", "amat_ns", "time_us"],
+    look: "Blocks of 8 or 16 keep a tile of each matrix in L1 while it is reused, so the L1 hit rate rises from about 50 % to 99 % and the average access time halves on the same hardware. At block 32 the three tiles no longer fit the 32 KB L1, and at 64 the benefit is gone. This is the software side of using a cache well (Reguly's tiling result in Part VI)." },
+  { id: "e5", tag: "Experiment 5", rq: "Energy (illustrative)", title: "Energy per access against working-set size",
+    desc: "Uses the placeholder energy values; set real ones under Time and energy model before quoting.", diff: "L3 split and L3 latency",
+    series: [{ name: "Two CCXs", preset: "zen2_2ccx" }, { name: "One CCX", preset: "zen3_1ccx" }, { name: "Stacked 96 MB", preset: "vcache" }],
+    wl: { kind: "random", threads: 1 }, param: "wl.ws_mb", values: [4, 8, 16, 24, 32, 48, 64, 96, 128], metrics: ["energy", "dram_per_kacc"],
+    look: "Energy follows DRAM traffic, because a DRAM access costs far more than a cache access. A larger L3 saves energy exactly where it removes DRAM reads. The absolute numbers depend on the placeholder values." },
+  { id: "v1", tag: "3D stacking", rq: "RQ3", title: "Four ways to reach about 96 MB of cache",
+    desc: "Plain 32 MB L3, 96 MB stacked (+4 cycles), 96 MB planar (assumed +12) and a 64 MB side-by-side L4.", diff: "L3 size, L3 latency, L4",
+    series: [{ name: "32 MB L3 (baseline)", preset: "zen3_1ccx" }, { name: "96 MB stacked, 51 cycles", preset: "vcache" }, { name: "96 MB planar, 59 cycles (assumed)", preset: "planar96", dash: true }, { name: "32 MB L3 + 64 MB L4 die", preset: "sidecar" }],
+    wl: { kind: "random", threads: 1 }, param: "wl.ws_mb", values: [8, 16, 24, 32, 48, 64, 80, 96, 128, 192], metrics: ["amat_ns", "l3_hit_rate", "dram_per_kacc"],
+    look: "Below 32 MB the stacked cache costs a little, only its four extra cycles. Between 32 and 96 MB it is far ahead of the baseline. The side-by-side die reaches the same capacity but each of its hits costs about three times an L3 hit. The planar line depends entirely on its assumed latency; test that with the next experiment." },
+  { id: "v2", tag: "3D stacking", rq: "RQ3", title: "How slow must a planar 96 MB L3 be to lose?",
+    desc: "64 MB working set. The planar L3's latency rises; the stacked L3 stays at 51 cycles.", diff: "L3 latency of the planar design only",
+    series: [{ name: "Planar 96 MB (latency varies)", preset: "planar96" }, { name: "Stacked 96 MB, 51 cycles", preset: "vcache", sweep: false, dash: true }],
+    wl: { kind: "random", threads: 1, ws_mb: 64 }, param: "cfg.l3_lat", values: [47, 51, 55, 59, 63, 71, 79, 95], metrics: ["amat_ns"],
+    look: "The lines cross at 51 cycles, where the two designs are identical. Every cycle of extra wire delay in a planar design adds directly to the average access time, because nearly every access that reaches the L3 hits there." },
+  { id: "v3", tag: "3D stacking", rq: "RQ4 · Part VI model", title: "Stacked cache at 4.8 GHz against plain L3 at 5.15 GHz",
+    desc: "The 7950X3D's measured clock gap, with miss overlap 0.36 as calibrated in the paper.", diff: "L3 size and latency, clock",
+    series: [{ name: "Plain 32 MB at 5.15 GHz", preset: "zen3_1ccx", extra: { clock_ghz: 5.15, overlap: 0.36 } }, { name: "Stacked 96 MB at 4.8 GHz", preset: "vcache", extra: { clock_ghz: 4.8, overlap: 0.36 } }],
+    wl: { kind: "random", threads: 1 }, param: "wl.ws_mb", values: [2, 4, 8, 16, 24, 32, 48, 64, 96, 128], metrics: ["time_us", "amat_ns"],
+    look: "With a small working set the faster clock wins, because both designs hit in cache. Once the working set outgrows 32 MB the stacked cache wins despite its lower clock. The crossover is the working-set version of the break-even in the paper's cache–clock model." },
+  { id: "p1", tag: "Cache design", rq: "Part II · conflict misses", title: "Associativity and conflict misses",
+    desc: "A 4 KB stride over 64 KB: 16 distinct lines that all map to one L1 set.", diff: "L1 ways",
+    series: [{ name: "One CCX, 32 MB", preset: "zen3_1ccx" }],
+    wl: { kind: "stride", ws_mb: 0.0625, stride: 4096, threads: 1 }, param: "cfg.l1_ways", values: [1, 2, 4, 8, 16, 32], metrics: ["l1_hit_rate", "amat_ns"],
+    look: "The data is only 1 KB of useful lines, far smaller than the L1, yet it misses until the set has 16 ways. These are conflict misses: more capacity would not help, more associativity does." },
+  { id: "p2", tag: "Cache design", rq: "Part II · replacement", title: "Replacement policies on a loop and on random data",
+    desc: "40 MB of data against a 32 MB L3: a sequential loop and random accesses.", diff: "replacement policy",
+    series: [{ name: "Sequential loop, 40 MB", preset: "zen3_1ccx", wl: { kind: "sequential", ws_mb: 40 } }, { name: "Random, 40 MB", preset: "zen3_1ccx", wl: { kind: "random", ws_mb: 40 } }],
+    wl: { threads: 1 }, param: "cfg.policy", values: ["lru", "fifo", "random", "plru"], metrics: ["l3_hit_rate", "amat_ns"],
+    look: "On a loop slightly larger than the cache, LRU and FIFO always evict the line needed next and never hit. Random replacement keeps a large share of the loop, and tree pseudo-LRU falls in between. On random data the policies hardly differ." },
+  { id: "c1", tag: "Chiplets", rq: "RQ2 · the chiplet cost", title: "Sixteen cores sharing data: two dies or one",
+    desc: "Hot/cold shared data with 5 % writes. The hop between the two dies rises from 0 to 40 ns.", diff: "L3 split (2 × 32 vs 1 × 64 MB) and the hop",
+    series: [{ name: "Two chiplets, 2 × 32 MB", preset: "twoccd" }, { name: "Monolithic, 64 MB (hypothetical)", preset: "mono16", sweep: false, dash: true }],
+    wl: { kind: "hotcold", ws_mb: 48, threads: 16, shared: 1, write_frac: 0.05 }, param: "cfg.hop_ns", values: [0, 3, 6, 9, 15, 25, 40], metrics: ["amat_ns", "cross_per_kacc"],
+    look: "Even with no hop the two dies are slower: shared lines are held twice, once in each L3, and a line found in the other die costs two L3 latencies. Every nanosecond of hop is then added to each transfer, so the gap widens steadily. Heavily shared data is where the chiplet design pays its cost; compare the next experiment." },
+  { id: "c2", tag: "Chiplets", rq: "RQ2 · private work", title: "Sixteen cores on private data: the split costs only the trip to memory",
+    desc: "Each thread works on its own 8 MB of random data (128 MB in all, more than either L3); the hop rises from 0 to 40 ns and, on the chiplet design, is also charged on every memory access.", diff: "L3 split and the hop",
+    series: [{ name: "Two chiplets, 2 × 32 MB", preset: "twoccd" }, { name: "Monolithic, 64 MB (hypothetical)", preset: "mono16", sweep: false, dash: true }],
+    wl: { kind: "random", ws_mb: 8, threads: 16, shared: 0 }, param: "cfg.hop_ns", values: [0, 3, 6, 9, 15, 25, 40], metrics: ["amat_ns", "cross_per_kacc"],
+    look: "No data is shared, so there are no transfers between dies; the chiplet design pays the hop only on its trips to memory, which adds about 9% to the raw latency at a 9 ns hop because almost every access misses both L3s. Compare with the previous experiment: sharing data between dies costs more, and it does so even when the data fits in the caches." }
+];
+function buildExperiments() {
+  const grid = $("exgrid"); grid.innerHTML = "";
+  for (const ex of EXPERIMENTS) {
+    const card = document.createElement("article");
+    card.className = "excard" + (ex.tag.startsWith("3D") ? " cat-3d" : ex.tag.startsWith("Chiplets") ? " cat-chip" : ex.tag.startsWith("Cache design") ? " cat-design" : "");
+    card.innerHTML = `<div class="row between"><span class="tag">${ex.tag}</span><span class="rq">${ex.rq}</span></div><h3>${ex.title}</h3><p>${ex.desc}</p>` +
+      `<p><b>Changes between lines:</b> ${ex.diff}</p><div class="row"><button class="btn small primary" data-ex="${ex.id}">Run</button><button class="btn small" data-load="${ex.id}">Load into A and B</button></div>`;
+    grid.append(card);
+  }
+  grid.addEventListener("click", ev => {
+    const id = ev.target.dataset.ex || ev.target.dataset.load; if (!id) return;
+    const ex = EXPERIMENTS.find(e => e.id === id);
+    if (ev.target.dataset.ex) runExperiment(ex); else loadExperiment(ex);
+  });
+}
+const WL_BASE = { kind: "random", ws_mb: 16, threads: 1, shared: 0, write_frac: 0, stride: 4096, n: 128, block: 0, degree: 8, pp_a: 0, pp_b: 1, iters: 2000 };
+function exSeries(ex, acc) {
+  return ex.series.map(s => {
+    const wl = Object.assign({}, WL_BASE, ex.wl, s.wl || {});
+    wl.accesses = ex.perThread ? acc : Math.max(20000, Math.round(acc / Math.max(1, wl.threads)));
+    return { name: s.name, cfg: presetCfg(s.preset, s.extra), sweep: s.sweep, dash: s.dash, wl };
+  });
+}
+function loadExperiment(ex) {
+  const s = ex.series;
+  state.A = presetCfg(s[0].preset, s[0].extra); state.presetA = s[0].extra ? "custom" : s[0].preset;
+  const b = s[1] || s[0]; state.B = presetCfg(b.preset, b.extra); state.presetB = b.extra ? "custom" : b.preset;
+  Object.assign(state.wl, ex.wl, s[0].wl || {});
+  buildPanel("A"); buildPanel("B"); refreshDiff(); buildWorkload();
+  $("swParam").value = ex.param; $("swValues").value = ex.values.join(","); fillMetricSelect($("swMetric"), Object.keys(METRICS), ex.metrics[0]);
+  showView("sweep");
+}
+let lastEx = null;
+async function runExperiment(ex) {
+  $("exResult").hidden = false; $("exTitle").textContent = ex.title; $("exLook").innerHTML = "<b>What to look for.</b> " + ex.look;
+  const acc = Number($("accuracy").value);
+  const series = exSeries(ex, acc);
+  $("status3").textContent = `Running ${series.length * ex.values.length} simulations…`; $("prog3").style.width = "0";
+  $("exResult").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  const t0 = performance.now();
+  try {
+    const res = await runSeries(series, ex.param, ex.values, p => { $("prog3").style.width = (100 * p) + "%"; });
+    lastEx = { ex, series, res };
+    showExMetric(ex.metrics[0]);
+    $("status3").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s`;
+  } catch (e) { $("status3").textContent = e.message === "stopped" ? "Stopped." : "Error: " + e.message; }
+}
+function showExMetric(mk) {
+  const { ex, series, res } = lastEx;
+  const box = $("exMetrics"); box.innerHTML = "";
+  for (const k of ex.metrics) { const b = document.createElement("button"); b.className = "btn small"; b.textContent = METRICS[k].label; if (k === mk) b.classList.add("primary"); b.addEventListener("click", () => showExMetric(k)); box.append(b); }
+  const label = SWEEP_PARAMS.find(p => p[0] === ex.param)[1];
+  drawSweep("chExp", series, ex.values, res, mk, label);
+  const m = METRICS[mk];
+  let h = `<thead><tr><th>${label}</th>${series.map(s => `<th>${s.name}</th>`).join("")}</tr></thead><tbody>`;
+  ex.values.forEach((v, i) => {
+    h += `<tr><td class="num">${v}</td>`;
+    series.forEach((s, j) => { let y = m.f(res[j][i]); if (m.relative) y = y / (m.f(res[j][0]) || 1); h += `<td class="num">${y.toFixed(m.unit === "%" ? 1 : 2)}</td>`; });
+    h += "</tr>";
+  });
+  $("exTable").innerHTML = h + "</tbody>";
+}
+
+// ================= views =================
+function showView(v) {
+  document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === v)));
+  $("view-compare").hidden = v !== "compare"; $("view-sweep").hidden = v !== "sweep";
+  $("view-experiments").hidden = v !== "experiments"; $("view-notes").hidden = v !== "notes";
+  $("cfgs").hidden = v === "experiments" || v === "notes";
+  if (location.hash.slice(1) !== v) history.replaceState(null, "", "#" + v);
+  for (const id in charts) charts[id].resize();
+}
+
+function init() {
+  buildPanel("A"); buildPanel("B"); refreshDiff(); buildWorkload(); buildExperiments();
+  const ps = $("swParam"); for (const [k, l, vals] of SWEEP_PARAMS) { const o = document.createElement("option"); o.value = k; o.textContent = l; ps.append(o); }
+  ps.value = "wl.ws_mb"; $("swValues").value = SWEEP_PARAMS[0][2];
+  ps.addEventListener("change", () => { $("swValues").value = SWEEP_PARAMS.find(p => p[0] === ps.value)[2]; });
+  fillMetricSelect($("swMetric"), Object.keys(METRICS), "l3_hit_rate");
+  $("swMetric").addEventListener("change", () => { if (lastSweep) { const label = SWEEP_PARAMS.find(p => p[0] === lastSweep.param)[1]; drawSweep("chSweep", lastSweep.series, lastSweep.values, lastSweep.res, $("swMetric").value, label); $("swTitle").textContent = `${METRICS[$("swMetric").value].label} against ${label.charAt(0).toLowerCase() + label.slice(1)}`; } });
+  document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => showView(b.dataset.view)));
+  $("runCompare").addEventListener("click", runCompare); $("runSweep").addEventListener("click", runSweepView);
+  for (const id of ["cancel1", "cancel2"]) $(id).addEventListener("click", () => runJobs.cancel && runJobs.cancel());
+  window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (["compare", "sweep", "experiments", "notes"].includes(v)) showView(v); });
+  const h = location.hash.slice(1); if (["compare", "sweep", "experiments", "notes"].includes(h)) showView(h);
+  // example results so the page opens in a working state (computed at build time by build.py
+  // with the same core and the default settings; press Run to recompute)
+  const ex = typeof EXAMPLE !== "undefined" ? EXAMPLE : null;
+  if (ex) {
+    ex.A._cfg = Object.assign({}, SIMC.DEFAULTS, state.A); ex.B._cfg = Object.assign({}, SIMC.DEFAULTS, state.B);
+    renderCompare(ex.A, ex.B);
+    $("status1").textContent = `Example results for the default workload (${ex.A.accesses.toLocaleString("en")} measured accesses each). Press Run after changing anything.`;
+  }
+  let themeTimer; matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { clearTimeout(themeTimer); themeTimer = setTimeout(() => { if (lastCompare) renderCompare(lastCompare[0], lastCompare[1]); }, 50); });
+}
+init();
+</script>

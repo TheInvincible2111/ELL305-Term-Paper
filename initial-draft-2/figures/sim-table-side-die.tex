@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+  \centering
+  \caption{S2: exposed latency per access (ns) of a 64\,MB side die beside a 32\,MB L3, by its own latency and organisation, against the stacked 96\,MB L3 (random accesses, one thread at 4\,GHz, overlap 0.335). An inclusive side die is filled on every miss and holds copies of L3 data; a victim side die is filled by L3 evictions. In the model the side die is looked up after an L3 miss.}
+  \label{tab:sim-side-die}
+  \small
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    & \multicolumn{2}{c}{\textbf{48\,MB working set}} & \multicolumn{2}{c}{\textbf{80\,MB working set}} \\ \cmidrule(lr){2-3}\cmidrule(l){4-5}
+    \textbf{Side-die latency} & \textbf{Inclusive} & \textbf{Victim} & \textbf{Inclusive} & \textbf{Victim} \\
+    \midrule
+    5\,ns & 6.46 & 6.46 & 11.53 & 6.93 \\
+    8\,ns & 6.79 & 6.79 & 11.93 & 7.53 \\
+    12\,ns & 7.24 & 7.24 & 12.47 & 8.33 \\
+    16\,ns & 7.68 & 7.68 & 13.01 & 9.14 \\
+    22\,ns & 8.35 & 8.35 & 13.81 & 10.34 \\
+    Stacked 96\,MB L3 & 6.23 & 6.23 & 6.25 & 6.25 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
