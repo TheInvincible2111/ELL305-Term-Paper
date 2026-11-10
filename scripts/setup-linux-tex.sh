@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # One-time (idempotent) setup of the TeX add-ons needed to build the report in
-# Claude's Linux workspace on Ishan's computer. Windows builds use MiKTeX via
+# a Linux shell on Ishan's computer. Windows builds use MiKTeX via
 # build.ps1 and do not need this.
 #
 # The workspace ships TeX Live 2022, which lacks biblatex/biber and the newtx
 # fonts. This downloads only those packages from a fixed CTAN mirror into
 # tmp/texlive/ (gitignored), so they persist between sessions.
-# Requires network access to mirrors.mit.edu (Claude Settings > Capabilities).
+# Requires network access to mirrors.mit.edu.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 T="$ROOT/tmp/texlive"

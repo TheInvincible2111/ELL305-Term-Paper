@@ -14,7 +14,7 @@ It is **not** a course milestone: the next submitted milestone still goes in `Dr
 - Folder: `draft-initial/` as a separate working full-paper draft; `Draft 2/` stays reserved.
 - Structure: Ishan's **six-part outline** (I Introduction 10 pp; II Foundations 25; III Chiplets 25;
   IV 3D-stacked cache / V-Cache 25; V AMD case study and quantitative analysis 25; VI Synthesis 20).
-  Recorded in `CLAUDE.md` as an alternative; the seven-part plan was **not** removed.
+  Recorded in the project guidelines as an alternative; the seven-part plan was **not** removed.
 - First pass: full skeleton + seeded prose where notes and read sources support it; marked placeholders elsewhere.
 - Quantitative method: **Option A** — analysis of published research and benchmarks. No simulator, no new hardware measurement.
 
@@ -28,7 +28,7 @@ It is **not** a course milestone: the next submitted milestone still goes in `Dr
 
 ## Build
 
-- Claude's Linux workspace: `scripts/build-linux.sh all --draft-initial` (or steps `1`, `2`, `3` with `--draft-initial`).
+- Linux: `scripts/build-linux.sh all --draft-initial` (or steps `1`, `2`, `3` with `--draft-initial`).
   Output `tmp/linux-build/ELL305-draft-initial.pdf`; `--install` also writes `build/pdf/ELL305-draft-initial.pdf`.
 - Windows (MiKTeX): `scripts\build.ps1 -Target draft-initial` → `build\pdf\ELL305-draft-initial.pdf`.
   Not yet run on Windows; the Linux path is tested.

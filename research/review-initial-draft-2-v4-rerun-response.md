@@ -69,4 +69,4 @@ All 33 items are applied.
 
 **How they are framed:** the text points out that both mismatches make the real 32 MB cache worse than the model. The model's gain is therefore conservative from about half the smaller cache's capacity up to about 64 MB, and optimistic only close to 96 MB.
 
-**Other updates:** abstract, Findings, methodology ("five kinds of evidence"), threats to validity ("Limited own measurements"), the evidence table and open questions (native Linux and a V-Cache part). `CLAUDE.md` §3 is updated to record that the kit has been run.
+**Other updates:** abstract, Findings, methodology ("five kinds of evidence"), threats to validity ("Limited own measurements"), the evidence table and open questions (native Linux and a V-Cache part). the project guidelines §3 is updated to record that the kit has been run.

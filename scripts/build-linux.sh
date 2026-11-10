@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds the active milestone (whichever "Draft N" paper/main.tex selects) in
-# Claude's Linux workspace, or the working full-paper draft (draft-initial/,
+# a Linux shell, or the working full-paper draft (draft-initial/,
 # entry point paper/main-draft-initial.tex) with --draft-initial, or the second
 # working draft (initial-draft-2/, paper/main-initial-draft-2.tex) with --initial-draft-2.
 # Mirrors scripts/build.ps1:

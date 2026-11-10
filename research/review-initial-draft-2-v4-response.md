@@ -38,7 +38,7 @@ Ishan's instruction: "dont shrink simulation section just fix everything". So ev
 | I21 | Fixed (earlier) | "265 against 228–247 ns"; "about 1.5 times the cross-CCD figure". |
 | I22 | Fixed (earlier) | Four miss-heavy workloads, 9.67–19.7%; GHPC has the largest *relative* fall. |
 | I23 | Fixed (earlier) | "Four kinds of evidence"; "five of them set beside a published measurement"; full stop fixed. |
-| I24 | Fixed (earlier) | Abstract sentence, Findings bullet, `tab:rq-map` entries, evidence row ("Illustrative"), mind maps (`mindmap-case-study`, `mindmap-paper`) and the stale part5 comment. **For Ishan:** `CLAUDE.md` §3 and §8 still say initial-draft-2 "uses published data only". That file is yours, so it was not changed. |
+| I24 | Fixed (earlier) | Abstract sentence, Findings bullet, `tab:rq-map` entries, evidence row ("Illustrative"), mind maps (`mindmap-case-study`, `mindmap-paper`) and the stale part5 comment. **For Ishan:** the project guidelines §3 and §8 still say initial-draft-2 "uses published data only". That file is yours, so it was not changed. |
 | I25 | Fixed (earlier) | New open question on 5600X measurements; `sec:sim-limits` points to it. |
 | I26 | Fixed (earlier) | "Strong (datasheet facts) for the range; weak for configurations". |
 | I27 | Fixed (earlier) | The four assumptions are listed after the 130-cycle derivation. |

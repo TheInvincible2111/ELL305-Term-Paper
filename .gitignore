@@ -21,3 +21,7 @@ tools/cachesim/cachesim
 tools/cachesim/results/
 tools/cachesim-share.zip
 tools/measurements/ELL305-5600X-kit.zip
+
+# Local assistant instructions and push helper (kept on this computer only)
+CLAUDE.md
+scripts/git-remote.sh

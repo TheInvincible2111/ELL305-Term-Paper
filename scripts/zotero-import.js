@@ -2,7 +2,7 @@
 // added to the "ELL305 Term Paper" collection. Better BibTeX then exports them to
 // references/references.bib automatically.
 //
-// Queue: research/zotero-queue.json (written by Claude). Entries with
+// Queue: research/zotero-queue.json. Entries with
 // "status": "imported" are skipped; an entry whose URL is already in the library
 // is marked imported without creating a duplicate. The script writes the results
 // (status, Zotero key) back into the queue file.

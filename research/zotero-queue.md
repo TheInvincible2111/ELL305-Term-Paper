@@ -1,7 +1,7 @@
 # Adding new sources to Zotero
 
-1. Save the PDF into `research/pdfs/` (any file name) and tell Claude.
-2. Claude renames it, reads it, and adds an entry to `research/zotero-queue.json`.
+1. Save the PDF into `research/pdfs/`.
+2. Rename it and add an entry for it to `research/zotero-queue.json`.
 3. In Zotero: **Tools → Developer → Run JavaScript**, tick **Run as async function**,
    paste this one line and click **Run**:
 

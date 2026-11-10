@@ -16,7 +16,6 @@
 
 ## Workflow
 
-Standing instructions for AI assistants, including tooling and publishing rules, are in `../CLAUDE.md`.
 
 
 1. Review the current notes before drafting so that later Obsidian changes are incorporated.

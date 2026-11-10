@@ -111,7 +111,7 @@ Sampled, none regressed: F2 (NUMA1–3 labels), F3, F9, F12, F19, F21, G1, G2, G
 | I12 | Fixed | Column label in J14. |
 | I16 | Fixed | Claim now over-general (J5). |
 | I17 | By explanation only | The stated cause is still untested (J1). |
-| I24 | Fixed in the paper | `CLAUDE.md` §3 still says published data only. |
+| I24 | Fixed in the paper | the project guidelines §3 still says published data only. |
 | I34 | Fixed | App. E uses `listings`. |
 | I39 | Partly fixed | Fig. 55 legends (J23). |
 | I40, I41 | Mostly fixed | IPC and terminology (J26, J27). |
