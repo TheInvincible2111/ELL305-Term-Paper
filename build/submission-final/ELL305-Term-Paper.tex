@@ -4903,6 +4903,16 @@ These pressures have changed how processors grow (\cref{fig:zen-timeline}). Inst
 \label{fig:zen-timeline}
 \end{figure}
 
+\subsection{Significance: how this paper extends the textbook}
+\label{sec:significance}
+The course textbook, Sarangi's \emph{Basic Computer Architecture}, explains how a processor and its memory system work on a single chip: the performance equation and pipelining (Chapters~9 and~10), power and temperature (Chapter~10), SRAM cells and arrays (Chapter~7), the memory hierarchy, cache misses and average memory access time (Chapter~11), and multicore coherence and on-chip networks (Chapter~12) \cite{sarangi2025basic}. It also forecast that processors would reach 32 or 64 cores within five to ten years \cite[sec.~12.1.2]{sarangi2025basic}. This paper asks how such processors were actually built once a single die could no longer hold them, and what that changed in the textbook's models.
+
+The paper extends the textbook in four places. The first is manufacturing cost. Using a defect-density yield model, wafer geometry and AMD's published die sizes, it shows that a 64-core processor is far cheaper to make as eight compute dies and one I/O die, and that one die holding the cores and their I/O could not be built at all. Splitting the chip makes the die-to-die link a new level of the interconnect, one that every L3 miss must cross (\cref{sec:yield-cost,sec:d2d}). The second is coherence across dies. Handing a cache line between two cores on the same die takes 58.6\,ns, while between dies it takes about 265\,ns, so the coherence messages the textbook counts on a single network become a measurable cost of partitioning the chip (\cref{tab:core-to-core}).
+
+The third is the last-level cache. Hybrid bonding a 64\,MB SRAM die onto the compute die raises the L3 from 32 to 96\,MB at a cost of about four extra cycles (\cref{sec:vcache-access}). The paper uses average memory access time and the miss classes to explain why the gain appears only for working sets between those two capacities. It then extends the performance equation to account for the clock frequency lost to stacking. In that model, the misses per thousand instructions that the larger cache must remove to break even rise from about 0.1 to about 0.35 (\cref{sec:cache-clock-model}). The fourth is temperature. Applied to the stack, the textbook's thermal-resistance model explains why the first stacked designs ran at lower clocks and why AMD later moved the cache below the cores (\cref{sec:thermal}).
+
+The paper also uses methods the textbook does not. It grades published evidence by what each comparison controls (\cref{sec:evidence-method}), tests the textbook's models with a trace-driven cache simulator built by the group (\cref{sec:sim-study}), and checks the simulator's inputs against measurements on the group's own Ryzen~5 5600X (\cref{app:5600x}).
+
 \subsection{A thought experiment: one die or eight?}
 \label{sec:thought-experiment}
 Consider two ways to build a 64-core processor. Processor A places all 64 cores on one large die. Processor B places them on eight smaller dies of eight cores each, connected inside one package to a separate I/O die. Both offer 64 cores. Are they equally expensive to make? Do they communicate equally quickly? Can they use the same manufacturing process?
@@ -8978,28 +8988,26 @@ The two techniques therefore address different limits. Chiplet organisation is a
 \label{app:plagiarism-report}
 \index{plagiarism report}
 
-The similarity of this paper has been checked with Turnitin on 12 November 2026 (submission ID trn:oid:::1:3709247204, 151 pages), with the bibliography and quoted text excluded. Turnitin displayed an overall similarity of 2\% (\cref{tab:plagiarism-report}); no single source accounted for 1\% or more.
+This paper has been checked with Turnitin. \Cref{tab:turnitin-receipt} gives the details of the submission from Turnitin's digital receipt. The similarity report Turnitin displayed for this submission (2\% overall similarity, with the bibliography and quoted text excluded) is attached in full after the index.
 
 \begin{table}[htbp]
     \centering
-    \caption[Turnitin similarity report]{Turnitin similarity report, as displayed by the tool.}
-    \label{tab:plagiarism-report}
-    \begin{tabular}{@{}lrr@{}}
+    \caption[Turnitin digital receipt]{Turnitin digital receipt for this paper.}
+    \label{tab:turnitin-receipt}
+    \begin{tabular}{@{}ll@{}}
         \toprule
-        \textbf{Item} & \textbf{Matches} & \textbf{Similarity} \\
+        \textbf{Item} & \textbf{Value} \\
         \midrule
-        Overall similarity & & 2\% \\
-        \midrule
-        Not cited or quoted & 142 & 2\% \\
-        Missing quotations & 1 & 0\% \\
-        Missing citation & 0 & 0\% \\
-        Cited and quoted & 0 & 0\% \\
-        \midrule
-        Internet sources & & 2\% \\
-        Publications & & 1\% \\
-        Submitted works (student papers) & & 0\% \\
-        \midrule
-        Largest single source (67 sources in all) & & $<$1\% \\
+        Submission author & Ishan Agrawal \\
+        Assignment title & Term Paper \\
+        Submission title & ELL305-Term-Paper.pdf \\
+        File name & ELL305-Term-Paper.pdf \\
+        File size & 1.24M \\
+        Page count & 151 \\
+        Word count & 67,854 \\
+        Character count & 319,228 \\
+        Submission date & 12-Nov-2026 10:48PM (UTC+0530) \\
+        Submission ID & 3087642156 \\
         \bottomrule
     \end{tabular}
 \end{table}

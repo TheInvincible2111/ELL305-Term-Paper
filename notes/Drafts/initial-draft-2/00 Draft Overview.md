@@ -233,3 +233,9 @@ Hot Chips 33 prototype details for the confound table.
 - `\todo` macro removed from `preamble.tex` (the `todored` colour stays: figures use it).
 - Single `.tex` regenerated and compiled alone: 151 pages, text identical to the modular PDF.
 - Remaining: `\draftdate` (still 8 November 2026).
+
+## 12 November 2026 — Section 1.2 and similarity report
+- New sec. 1.2 "Significance: how this paper extends the textbook" (`sec:significance`), required by the course's Gradescope question Q1.2; the same text is the Gradescope answer. Paper now 152 pages.
+- Sec. 1.2 reworded by Ishan (humanizer pass); facts and references unchanged.
+- App. A now lists the Turnitin digital receipt (table) and says the similarity report is attached after the index. The joint PDF (paper + report) is made by hand with `qpdf` as `build/submission-final/ELL305-Term-Paper-with-Similarity-Report.pdf`; not part of the build.
+- After the final plagiarism check, update App. A with the new receipt and remake the joint PDF.
