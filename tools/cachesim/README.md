@@ -1,4 +1,4 @@
-# Cache Hierarchy Lab (ELL305 software model)
+# Cache Hierarchy Lab (ELL305 cache simulator)
 
 A trace-driven cache-hierarchy simulator in C++, with an interactive browser GUI that runs
 the same model. It compares processor arrangements (two CCXs or one, planar or stacked L3,
@@ -29,11 +29,30 @@ paper as a model output.
 
 ```bash
 cd tools/cachesim
-make                         # builds ./cachesim
-make test                    # self-test, then C++ vs JavaScript cross-check (needs node)
-python3 run_experiments.py   # all experiments -> results/*.csv (+ PNG if matplotlib is installed)
-python3 run_experiments.py e1 v1 c1 --accesses 1000000 --out ../../research/measurements/cachesim
+./build.sh                   # builds ./cachesim (g++ -O2 -std=c++17)
+./build.sh test              # self-test, then C++ vs JavaScript cross-check (needs node)
+python3 run_experiments.py   # all GUI experiments -> results/*.csv (+ PNG if matplotlib is installed)
 ```
+
+## The paper's simulation study
+
+The seven simulations of the paper (Part V, Appendix E) are in `study/`:
+
+| Script | What it does |
+|---|---|
+| `study/sims.py` | Runs S0–S6 and the sensitivity checks; writes the CSV files stored in `research/measurements/cachesim/` |
+| `study/make_figures.py` | Turns those CSV files into the paper's tables and figures |
+| `study/compare_5600x.py` | Compares the model with the 5600X measurements (Appendix G) |
+
+```bash
+python3 study/sims.py --bin ./cachesim --out results
+python3 study/make_figures.py results figures
+python3 study/compare_5600x.py --bin ./cachesim \
+    --results ../../research/measurements/5600X/results-20261108-0724 \
+    --csv model-comparison.csv --figures figures
+```
+
+With the same seeds, the full study reproduces the stored CSV files exactly (about seven minutes on a 16-thread desktop). Write figures to a scratch folder: the copies in `initial-draft-2/figures/` carry hand-added short captions.
 
 One run:
 

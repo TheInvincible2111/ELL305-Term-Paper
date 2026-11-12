@@ -1,16 +1,11 @@
-# Semester draft structure
+# Drafts and milestones
 
-The course has four independently evaluated versions. Keep each milestone in its own top-level folder:
+| Folder | What it is | Status |
+|---|---|---|
+| `Draft 1/` | Progress report, "Section 1: Work Done as of 24 August 2026" | Submitted; kept unchanged (`build/pdf/ELL305-Draft-1.pdf`, `submissions/Draft-1/`) |
+| `draft-initial/` | First working draft of the full paper (from 28 October 2026) | Kept unchanged as the predecessor of `initial-draft-2/` |
+| `initial-draft-2/` | **The term paper** (from 30 October 2026) | Final; submitted as `build/submission-final/` |
 
-```text
-Draft 1/
-Draft 2/
-Draft 3/
-Draft 4/
-```
+Entry points: `paper/main.tex` (Draft 1), `paper/main-draft-initial.tex` and `paper/main-initial-draft-2.tex`. Notes for each are in `notes/Drafts/<folder>/`; `notes/Drafts/initial-draft-2/00 Draft Overview.md` records every change to the paper.
 
-The course's second milestone was skipped. The folder numbering stays sequential for convenience, so the next milestone submitted after Draft 1 lives in `Draft 2/` (decision recorded 28 October 2026).
-
-`paper/main.tex` is a thin active-build file. It imports the selected draft's modules, so switching milestones requires changing only the folder name in those input paths. Obsidian planning and source notes are mirrored under `notes/Drafts/Draft N/`.
-
-`draft-initial/` (started 28 October 2026) is a working draft of the full paper, not a milestone; it is built from `paper/main-draft-initial.tex`.
+The submission is two files: one self-contained `.tex` and the PDF compiled from it. `scripts/flatten-initial-draft-2.py` generates the `.tex` from the modular sources; it is never edited by hand. Earlier milestone folders are never overwritten.

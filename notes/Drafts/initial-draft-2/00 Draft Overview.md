@@ -239,3 +239,7 @@ Hot Chips 33 prototype details for the confound table.
 - Sec. 1.2 reworded by Ishan (humanizer pass); facts and references unchanged.
 - App. A now lists the Turnitin digital receipt (table) and says the similarity report is attached after the index. The joint PDF (paper + report) is made by hand with `qpdf` as `build/submission-final/ELL305-Term-Paper-with-Similarity-Report.pdf`; not part of the build.
 - After the final plagiarism check, update App. A with the new receipt and remake the joint PDF.
+
+## 13 November 2026 — final plagiarism check
+- Turnitin re-run on the 152-page version (13 Nov 2026 01:16–01:17 IST): 2% overall similarity (143 not cited or quoted, 1 missing quotation).
+- App. A updated with the new receipt; joint PDF remade with the new 160-page report (312 pages in all).
