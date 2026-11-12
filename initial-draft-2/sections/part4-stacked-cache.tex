@@ -47,7 +47,7 @@ Planar expansion therefore trades miss rate against die cost, hit latency and po
 \section{Side-by-Side Versus Vertically Stacked Cache Dies}
 \label{sec:horizontal-vs-vertical}
 
-If extra cache is to be made on its own die, it can be placed either \emph{beside} the compute die in the package or \emph{on top of} it (\cref{fig:horizontal-vs-vertical}). Both are valid chiplet designs; the choice is a trade-off rather than a matter of one being impossible.
+If extra cache is to be made on its own die, it can be placed either \emph{beside} the compute die in the package or \emph{on top of} it (\cref{fig:horizontal-vs-vertical}). Both are valid chiplet designs; the choice between them is a trade-off.
 
 \input{"../initial-draft-2/figures/horizontal-vs-vertical.tex"}
 
@@ -59,7 +59,7 @@ A side-by-side cache die is a perfectly workable chiplet design. It could be con
   \item \textbf{Latency and power.} Data must travel between the dies, adding interface circuitry and wire delay to every access to the extra cache, and energy to every bit moved.
 \end{itemize}
 
-A side-by-side die does not automatically push the CCD farther from the IOD: the package designer chooses where each die goes, and the cache die could be placed on the far side of the CCD. However, package area is limited, the CCD--IOD links are already routed with care to minimise memory latency \cite{naffziger2020chiplet}, and every additional die competes for the same routing resources. At high signalling rates, longer and more numerous package routes bring RC delay, power, signal-integrity and routing-congestion problems. These can be mitigated with better interconnect design, buffering and packaging technology, so they are engineering costs rather than impossibilities.
+A side-by-side die does not automatically push the CCD farther from the IOD: the package designer chooses where each die goes, and the cache die could be placed on the far side of the CCD. However, package area is limited, the CCD--IOD links are already routed with care to minimise memory latency \cite{naffziger2020chiplet}, and every additional die competes for the same routing resources. At high signalling rates, longer and more numerous package routes bring RC delay, power, signal-integrity and routing-congestion problems. These can be mitigated with better interconnect design, buffering and packaging technology, so they are engineering costs.
 
 The more important comparison is therefore not the CCD-to-IOD distance but the latency and bandwidth of the path \emph{between the cores and the additional cache}.
 

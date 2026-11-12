@@ -3,4 +3,26 @@
 \label{app:reading-indices}
 \index{readability indices}
 
-\todo{No readability indices have been supplied for this draft. Add the values exactly as displayed by the analysis tool. Readability indices estimate linguistic complexity only; they do not measure technical correctness or the strength of the argument.}
+The reading indices of the main text (Parts~\ref{part:intro} to~\ref{part:synthesis}) have been calculated with the \texttt{textstat} library (version 0.7.13) on the US school grade-level scale, except Flesch Reading Ease, which is on a 0--100 scale where a higher score means easier text (\cref{tab:reading-indices}).
+
+\begin{table}[htbp]
+    \centering
+    \caption[Reading indices of the main text]{Reading indices of the main text (Parts~I--VI).}
+    \label{tab:reading-indices}
+    \begin{tabular}{@{}lr@{}}
+        \toprule
+        \textbf{Reading index} & \textbf{Score} \\
+        \midrule
+        Gunning Fog & 11.95 \\
+        Flesch--Kincaid Grade Level & 9.43 \\
+        SMOG & 11.60 \\
+        Coleman--Liau & 9.33 \\
+        Automated Readability Index & 10.42 \\
+        \midrule
+        Average grade level & 10.55 \\
+        Median grade level & 10.42 \\
+        \midrule
+        Flesch Reading Ease (0--100) & 61.81 \\
+        \bottomrule
+    \end{tabular}
+\end{table}

@@ -219,3 +219,17 @@ Hot Chips 33 prototype details for the confound table.
 - Applied Q1–Q9 (draft macros removed, two list captions, two map leaves, AMAT sentence, 5.1% wording, Fig. 31 enlarged, Fig. 43 labels, comma splice), K1–K3 (write policies, ordering example, virtual memory cut to essentials), Q15 (sec. 4.6 "Writes and inclusion") and Q14 (19 more index entries).
 - Paper is now 151 pages; the single `.tex` was regenerated, compiled alone, and its text is identical to the modular PDF.
 - Remaining before upload: Appendices A and B, `\draftdate`, remove `\todo`/`todored`, regenerate.
+
+## 12 November 2026 — prose-style pass and Appendix B (151 pages)
+- Checkpoint before the pass: commit `7896898` (pushed to GitHub at Ishan's request).
+- Style pass on Parts I–VI and the abstract: removed the repeated "N things stand out" openers, staged sentences ("The pattern is clear", the maxim opening the case against, one objection closer), weight-only "not X but Y" contrasts, three "Taken together" openers, about ten padding "rather than" clauses and "serves as". 32 edits; no facts, numbers or citations changed.
+- **Appendix B filled:** readability indices for Parts I–VI, calculated by the group (Ishan approved computing them, 12 Nov 2026) with `tools/readability/readability.py` and textstat 0.7.13. The script strips LaTeX to prose (37,244 words, 1,929 sentences). Results: Gunning Fog 11.95, Flesch–Kincaid 9.43, SMOG 11.60, Coleman–Liau 9.33, ARI 10.42; average 10.55, median 10.42; Flesch Reading Ease 61.81. Labelled as the group's own calculation, not comparable with Draft 1's tool output. Rerun the script after any later text change.
+- Submission file regenerated and compiled alone in an empty folder (pdflatex, biber, makeglossaries-lite, pdflatex ×2, makeglossaries-lite, makeindex, pdflatex ×2): 151 pages, A4, no errors or undefined references. On Windows, use `makeglossaries-lite`, because MiKTeX's `makeglossaries` cannot find Perl.
+- Remaining before upload: Appendix A, `\draftdate`, remove `\todo`/`todored`, regenerate.
+
+## 12 November 2026 — Appendices A and B filled
+- App. A: Turnitin result typed as text and a table (12 Nov 2026, submission trn:oid:::1:3709247204, 151 pages; bibliography and quoted text excluded; 2% overall; 142 not-cited matches at 2%, 1 missing quotation at 0%; internet 2%, publications 1%, student papers 0%; 67 sources, each under 1%).
+- App. B: shortened to one sentence stating the tool and scales, plus the table.
+- `\todo` macro removed from `preamble.tex` (the `todored` colour stays: figures use it).
+- Single `.tex` regenerated and compiled alone: 151 pages, text identical to the modular PDF.
+- Remaining: `\draftdate` (still 8 November 2026).
