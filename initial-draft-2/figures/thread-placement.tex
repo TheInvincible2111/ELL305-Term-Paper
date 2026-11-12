@@ -21,6 +21,6 @@
 \draw[arr,draftgray,dashed] (a3) -- (r);
 \draw[arr,draftgray,dashed] (r.east) -- ++(0.6,0) |- (s.east);
 \end{tikzpicture}
-\caption{A possible placement policy for a processor with one V-Cache CCD and one plain CCD, built from the cache--clock model of \cref{sec:cache-clock-model}. It is a proposal, not AMD's policy: at the time of Lam's testing, the default placed ordinary applications on the higher-clocked CCD \cite{lamAMDs7950X3DZen2023}. The thresholds come from the libx264 profile and the measured clock gap, and would differ for other programs and processors.}
+\caption[A possible thread-placement policy for mixed CCDs]{A possible placement policy for a processor with one V-Cache CCD and one plain CCD, built from the cache--clock model of \cref{sec:cache-clock-model}. It is a proposal, not AMD's policy: at the time of Lam's testing, the default placed ordinary applications on the higher-clocked CCD \cite{lamAMDs7950X3DZen2023}. The thresholds come from the libx264 profile and the measured clock gap, and would differ for other programs and processors.}
 \label{fig:thread-placement}
 \end{figure}

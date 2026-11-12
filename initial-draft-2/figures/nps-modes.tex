@@ -29,6 +29,6 @@
 \node[font=\scriptsize,align=center] at (5.5,-0.7) {2 domains\\4 CCDs, 4 channels each\\up to 102.4\,GB/s};
 \node[font=\scriptsize,align=center] at (9.5,-0.7) {4 domains\\2 CCDs, 2 channels each\\up to 51.2\,GB/s};
 \end{tikzpicture}
-\caption{How the NPS setting divides an eight-CCD EPYC~7003 socket into NUMA domains (shaded), following AMD's description \cite{amd2022epyc7003} and \cref{tab:nps-modes}. The layout is schematic: CCDs are drawn inside the I/O die only to show which compute dies and memory controllers (MC) form each domain; physically the CCDs sit around the I/O die (\cref{fig:epyc-package}).}
+\caption[NUMA domains under each NPS setting]{How the NPS setting divides an eight-CCD EPYC~7003 socket into NUMA domains (shaded), following AMD's description \cite{amd2022epyc7003} and \cref{tab:nps-modes}. The layout is schematic: CCDs are drawn inside the I/O die only to show which compute dies and memory controllers (MC) form each domain; physically the CCDs sit around the I/O die (\cref{fig:epyc-package}).}
 \label{fig:nps-modes}
 \end{figure}

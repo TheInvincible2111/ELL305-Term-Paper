@@ -18,6 +18,6 @@
 \addlegendentry{clock gap 10\%}
 \end{axis}
 \end{tikzpicture}
-\caption{S3: the V-Cache CCD (96\,MB, 51 cycles) at a lower clock against the plain CCD (32\,MB, 47 cycles) at 5.15\,GHz, as the working set grows and the larger cache removes more misses. The access mix is calibrated to Lam's libx264 run (about 3.8 L3 accesses per 1000 instructions, of which about 1.04 per 1000 instructions miss even in the larger cache); the overlap factor is 0.335. A 7.3\% gap is the 4.8 against 5.15\,GHz Lam measured on the 7950X3D. Each curve crosses 1 at the break-even of that clock gap; \cref{tab:sim-breakeven} compares the crossings with the analytical model of \cref{sec:cache-clock-model}.}
+\caption[S3: cache against clock in the simulation]{S3: the V-Cache CCD (96\,MB, 51 cycles) at a lower clock against the plain CCD (32\,MB, 47 cycles) at 5.15\,GHz, as the working set grows and the larger cache removes more misses. The access mix is calibrated to Lam's libx264 run (about 3.8 L3 accesses per 1000 instructions, of which about 1.04 per 1000 instructions miss even in the larger cache); the overlap factor is 0.335. A 7.3\% gap is the 4.8 against 5.15\,GHz Lam measured on the 7950X3D. Each curve crosses 1 at the break-even of that clock gap; \cref{tab:sim-breakeven} compares the crossings with the analytical model of \cref{sec:cache-clock-model}.}
 \label{fig:sim-cache-clock}
 \end{figure}

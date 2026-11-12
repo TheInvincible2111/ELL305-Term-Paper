@@ -28,7 +28,7 @@ where $A$ is the die area, $D_0$ the average \gls{defect-density} and $Y_{\mathr
 
 \begin{table}[htbp]
   \centering
-  \caption{Illustrative Murphy-model yield for $D_0 = 0.2$ defects/cm$^2$ and $Y_{\mathrm{wafer}} = 1$.}
+  \caption[Illustrative Murphy-model yield]{Illustrative Murphy-model yield for $D_0 = 0.2$ defects/cm$^2$ and $Y_{\mathrm{wafer}} = 1$.}
   \label{tab:yield-example}
   \begin{tabular}{@{}lcc@{}}
     \toprule
@@ -63,15 +63,15 @@ AMD's own charts show the trend (\cref{fig:area-scaling}). Logic and SRAM shrink
 
 AMD's Zen~2 products (``Rome'' for servers and ``Matisse'' for desktops) are built from three kinds of die \cite{naffziger2020chiplet,suggs2019zen2}:
 \begin{itemize}
-  \item an eight-core \gls{ccd} of about 74\,mm$^2$ on a 7\,nm process, containing the cores and their L3 cache;
-  \item a server \gls{iod} of about 416\,mm$^2$ on a 12\,nm process;
+  \item an eight-core \gls{ccd}\index{CCD (core complex die)}\index{chiplet} of about 74\,mm$^2$ on a 7\,nm process, containing the cores and their L3 cache;
+  \item a server \gls{iod}\index{I/O die (IOD)} of about 416\,mm$^2$ on a 12\,nm process;
   \item a smaller client IOD of about 125\,mm$^2$, which in a standalone package also serves as the X570 chipset.
 \end{itemize}
-The same CCD is reused across server and desktop products; only the IOD and the number of populated CCDs change \cite{naffziger2020chiplet}. Within each Zen~2 CCD, the cores are grouped into two four-core \glspl{ccx}, each with up to 16\,MB of L3 \cite{suggs2019zen2}. Inside a CCX, each core has a private 512\,KB L2, and the 16\,MB L3 is built from four 4\,MB slices, one beside each core, with 32-byte-per-cycle paths throughout; the CCX doubled both the L3 capacity and the L1 load/store bandwidth of the first Zen generation \cite[slide~12]{suggs2019zen2}.
+The same CCD is reused across server and desktop products; only the IOD and the number of populated CCDs change \cite{naffziger2020chiplet}. Within each Zen~2 CCD, the cores are grouped into two four-core \glspl{ccx}\index{CCX (core complex)}, each with up to 16\,MB of L3 \cite{suggs2019zen2}. Inside a CCX, each core has a private 512\,KB L2, and the 16\,MB L3 is built from four 4\,MB slices, one beside each core, with 32-byte-per-cycle paths throughout; the CCX doubled both the L3 capacity and the L1 load/store bandwidth of the first Zen generation \cite[slide~12]{suggs2019zen2}.
 
 AMD stated the problem and the response in two lists \cite[slide~13]{suggs2019zen2}. The challenges were a higher cost per mm$^2$ at the leading-edge node, analog and I/O circuits that ``do not scale well'' and are hard to port to a new process, and a wide range of markets to serve. The chiplet strategy answered each in turn: small dies to improve yield, analog and I/O on 12\,nm to reduce cost and complexity, and a configurable set of parts.
 
-\textbf{How much silicon is a 64-core Rome?} AMD describes Rome as about 1000\,mm$^2$ of cumulative die area in 7\,nm and 12\,nm \cite[slide~19]{suggs2019zen2}. The die sizes reported by Naffziger \emph{et al.} reproduce this: eight CCDs of 74\,mm$^2$ and a 416\,mm$^2$ server IOD give $8 \times 74 + 416 = 1008$\,mm$^2$ \cite{naffziger2020chiplet}. Of that, 592\,mm$^2$ (59\%) is on the expensive 7\,nm process and 416\,mm$^2$ (41\%) on the cheaper 12\,nm. A single die of 1008\,mm$^2$ would be beyond the reticle limit, and even its 592\,mm$^2$ of compute alone would yield poorly (\cref{sec:yield-cost}).
+Of Rome's 1008\,mm$^2$ of silicon (\cref{fig:reticle-sizes}), 592\,mm$^2$ (59\%) is on the expensive 7\,nm process and 416\,mm$^2$ (41\%) on the cheaper 12\,nm \cite{naffziger2020chiplet}.
 
 The partition places latency-critical, logic-dense circuits---cores and caches---on the newest node, and places memory controllers, PCI Express (PCIe) links and other I/O, which scale poorly, on a cheaper mature node (\cref{fig:monolithic-vs-chiplet}).
 
@@ -83,11 +83,11 @@ Naffziger \emph{et al.} describe how this partition was turned into products \ci
 \label{sec:iod-detail}
 AMD's EPYC~7003 overview describes what the I/O die of the Zen~3 server generation contains and how software sees it \cite{amd2022epyc7003}. Each CCD connects to the IOD through its own Global Memory Interconnect (GMI) link. The IOD holds eight Unified Memory Controllers, one per DDR4 channel, each supporting up to two memory modules (DIMMs), for up to 4\,TB of memory per socket; eight x16 I/O links that provide up to 128 lanes of PCIe~4.0; and the Infinity Fabric links that join the dies. The fabric clock can run at up to 1600\,MHz, which lets it run in step with DDR4-3200 memory, whose memory clock is also 1600\,MHz, a pairing AMD says improves memory latency \cite{amd2022epyc7003}. The IOD can be used with four, six or eight populated memory channels; eight is the most common and generally fastest configuration, and the six-channel option, with its own interleave mode, is new in this generation \cite{amd2022epyc7003}. AMD's figure labels this IOD as 14\,nm \cite[Fig.~2-4]{amd2022epyc7003}, while Naffziger \emph{et al.} give 12\,nm for the Rome IOD \cite{naffziger2020chiplet}; the sources used here do not resolve the difference.
 
-\textbf{NUMA settings.} Because a core's distance to each memory controller depends on where both sit on the IOD, EPYC is a non-uniform memory access (NUMA) design, and a BIOS setting called NUMA Nodes Per Socket (NPS) lets the user choose how that structure is presented to software \cite{amd2022epyc7003}. The setting also decides how memory addresses are spread, or \emph{interleaved}, across channels: consecutive blocks of memory go to different channels in turn, so that a stream of accesses uses several channels at once. \Cref{tab:nps-modes} summarises the options.
+\textbf{NUMA settings.}\index{NUMA} Because a core's distance to each memory controller depends on where both sit on the IOD, EPYC is a non-uniform memory access (NUMA) design, and a BIOS setting called NUMA Nodes Per Socket (NPS) lets the user choose how that structure is presented to software \cite{amd2022epyc7003}. The setting also decides how memory addresses are spread, or \emph{interleaved}, across channels: consecutive blocks of memory go to different channels in turn, so that a stream of accesses uses several channels at once. \Cref{tab:nps-modes} summarises the options.
 
 \begin{table}[htbp]
   \centering
-  \caption{NUMA settings of an EPYC~7003 processor with eight CCDs and eight memory channels, from AMD's description \cite{amd2022epyc7003}, with peak interleaved bandwidth worked out for DDR4-3200 ($25.6$\,GB/s per channel).}
+  \caption[NUMA settings of an EPYC~7003 processor]{NUMA settings of an EPYC~7003 processor with eight CCDs and eight memory channels, from AMD's description \cite{amd2022epyc7003}, with peak interleaved bandwidth worked out for DDR4-3200 ($25.6$\,GB/s per channel).}
   \label{tab:nps-modes}
   \small
   \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}X>{\centering\arraybackslash}p{1.6cm}>{\centering\arraybackslash}p{2.4cm}@{}}
@@ -101,11 +101,6 @@ AMD's EPYC~7003 overview describes what the I/O die of the Zen~3 server generati
     \bottomrule
   \end{tabularx}
 \end{table}
-\Cref{fig:nps-modes} draws the three NPS groupings.
-
-\input{"../initial-draft-2/figures/nps-modes.tex"}
-
-
 \textbf{What the setting trades.} In every NPS mode the socket's total memory bandwidth is the same, $8 \times 25.6 = 204.8$\,GB/s, and so is the share per core when all 64 cores are busy, $204.8/64 = 3.2$\,GB/s (\cref{tab:bandwidth-balance}). What changes is locality and reach. Under NPS4, a thread whose memory is allocated in its own quadrant reaches the nearest two controllers, the shortest core-to-memory distance on the die, but its interleaved accesses can draw on at most 51.2\,GB/s. Under NPS1, the same thread's accesses are spread over all eight channels and can draw on the full 204.8\,GB/s, but on average three quarters of them go to controllers outside its own quadrant, including the diagonal quadrant that AMD identifies as the farthest \cite{amd2022epyc7003}. NPS4 therefore suits many independent, well-placed workloads, and NPS1 suits a single program that needs bandwidth more than latency. The ``LLC as NUMA'' option goes one step further and tells the operating system which cores share an L3, so that threads that share data can be kept on one CCD and avoid the cross-die coherence traffic of \cref{sec:multicore} \cite{amd2022epyc7003}. The chiplet structure is thus exposed to software as a tuning choice: none of these settings would exist on a single die with uniform access to its memory controllers.
 
 \section{Infinity Fabric and Die-to-Die Communication}
@@ -120,7 +115,7 @@ Splitting a processor into dies turns some on-chip wires into package-level link
 \end{itemize}
 The predecessor ``Zeppelin'' link achieved about 2\,pJ/bit \cite{naffziger2020chiplet}. These are AMD-reported figures for specific configurations and are not independent measurements.
 
-The link is engineered for low latency and power rather than maximum reach. Each IFOP lane runs at 14.6\,GT/s with a 1.46\,GHz fabric clock; it uses single-ended signalling to save power and package routing layers, forwards a clock alongside each bundle of data lanes to track skew, recovers each lane's timing with a digitally controlled clock-and-data-recovery circuit, and avoids active equalisation in favour of passive T-coils, again to save power \cite{naffziger2020chiplet}. The package itself had to be designed with the dies: the Rome package uses a 9-2-9 layer build-up (four signal-routing layers above the core) against 5-2-5 for Matisse, and the dense arrays of package vias must lie outside the footprints of the CCDs and IOD because of the high density of power vias beneath them \cite{naffziger2020chiplet}. These are the costs of a serial, package-level link that the 3D interface of \cref{sec:cache-interface} avoids.
+The link is engineered for low latency and power rather than maximum reach. Each IFOP lane runs at 14.6\,GT/s with a 1.46\,GHz fabric clock. It uses single-ended signalling to save power and package routing layers, forwards a clock alongside each bundle of data lanes to track skew, recovers each lane's timing with a digitally controlled clock-and-data-recovery circuit, and avoids active equalisation in favour of passive T-coils, again to save power \cite{naffziger2020chiplet}. The package itself had to be designed with the dies: the Rome package uses a 9-2-9 layer build-up (four signal-routing layers above the core) against 5-2-5 for Matisse. The dense arrays of package vias must lie outside the footprints of the CCDs and IOD because of the high density of power vias beneath them \cite{naffziger2020chiplet}. These are the costs of a serial, package-level link that the 3D interface of \cref{sec:cache-interface} avoids.
 
 \subsection{Latency, bandwidth and interconnect power}
 The textbook models of Part~\ref{part:foundations} show what these figures mean.
@@ -134,7 +129,7 @@ The central IOD also changed how uneven memory latency is across the socket. In 
 
 \begin{table}[htbp]
   \centering
-  \caption{Memory latency by NUMA distance, Naples (EPYC 7001) and Rome (EPYC 7002), as reported by AMD \cite[Fig.~2.2.6]{naffziger2020chiplet}.}
+  \caption[Memory latency by NUMA distance, Naples and Rome, as reported by AMD]{Memory latency by NUMA distance, Naples (EPYC 7001) and Rome (EPYC 7002), as reported by AMD \cite[Fig.~2.2.6]{naffziger2020chiplet}.}
   \label{tab:numa-latency}
   \small
   \begin{tabular}{@{}lclc@{}}
@@ -169,7 +164,7 @@ Reguly measured what this costs on a Milan-X processor, an EPYC~7V73X with 3D V-
 
 \begin{table}[htbp]
   \centering
-  \caption{Message-passing latency between cores through shared cache lines (one writer, one reader), read from Reguly's Fig.~2 \cite{regulyComparativeEvaluationBandwidthbound2023}. The EPYC system ran as a cloud virtual machine with SMT disabled; the Intel columns' first row is between two hardware threads of one core.}
+  \caption[Core-to-core message-passing latency (Reguly)]{Message-passing latency between cores through shared cache lines (one writer, one reader), read from Reguly's Fig.~2 \cite{regulyComparativeEvaluationBandwidthbound2023}. The EPYC system ran as a cloud virtual machine with SMT disabled; the Intel columns' first row is between two hardware threads of one core.}
   \label{tab:core-to-core}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X ccc@{}}
@@ -190,14 +185,7 @@ The group's own Ryzen~5 5600X gives a comparable same-CCD figure. Its six cores 
 
 The extra cost of crossing CCDs, about $265 - 59 \approx 206$\,ns, is about eleven times the 18\,ns that the link itself accounts for. AMD gives under 9\,ns for one round trip between a CCD and the I/O die on Rome (\cref{sec:d2d}), and a request from one CCD to another and its reply cross that link four times, two such round trips. The link itself is therefore not most of the cost. A transfer between CCDs also has to pass through the fabric on the I/O die and through the steps of the coherence protocol at each end, and the sources used here do not break the total down. The figure is also not the same as the latency of a single miss: the test measures how long one message takes to travel from writer to reader, which includes the invalidation and the transfer.
 
-\subsubsection*{A shared counter}
-Suppose two threads take turns updating one shared block, for example a counter or a lock, one million times each, and each update requires the block to move to the other thread's cache. With the latencies of \cref{tab:core-to-core}, two million handovers cost about
-\begin{itemize}
-  \item $2 \times 10^{6} \times 58.6\,\text{ns} \approx 0.12$\,s if the threads share a CCD;
-  \item $2 \times 10^{6} \times 265\,\text{ns} \approx 0.53$\,s if they are on different CCDs in the same socket;
-  \item $2 \times 10^{6} \times 400\,\text{ns} \approx 0.80$\,s if they are on different sockets.
-\end{itemize}
-The work is the same in all three cases; only the placement differs. A program that shares data heavily between threads can therefore run several times slower if the operating system spreads those threads across CCDs. This is the practical reason behind the NUMA options of \cref{sec:ccd-iod}: when EPYC~7003 exposes each CCD's L3 as a separate NUMA domain \cite{amd2022epyc7003}, the operating system and the programmer can see the boundary and keep threads that communicate on the same die. Programs that share little, such as many independent requests or processes, are hardly affected, which is the loosely coupled use that Amdahl's law favours (\cref{sec:multicore}).
+For two threads that hand one shared block, such as a counter or a lock, back and forth two million times, the latencies of \cref{tab:core-to-core} give about 0.12\,s on one CCD, 0.53\,s across CCDs and 0.80\,s across sockets. The work is the same in all three cases; only the placement differs. A program that shares data heavily between threads can therefore run several times slower if the operating system spreads those threads across CCDs. This is the practical reason behind the NUMA options of \cref{sec:ccd-iod}: when EPYC~7003 exposes each CCD's L3 as a separate NUMA domain \cite{amd2022epyc7003}, the operating system and the programmer can see the boundary and keep threads that communicate on the same die. Programs that share little, such as many independent requests or processes, are hardly affected, which is the loosely coupled use that Amdahl's law favours (\cref{sec:multicore}).
 
 A stacked cache does not change this cost. The V-Cache enlarges each CCD's L3 but leaves the path between CCDs as it was, and the EPYC~7V73X in \cref{tab:core-to-core} is itself a V-Cache part. What a larger L3 can change is how often a thread needs data held elsewhere: if more of its working set fits on its own CCD, fewer of its accesses leave the die at all.
 
@@ -210,7 +198,7 @@ Naffziger \emph{et al.} give about 55\,GB/s of effective bandwidth per Rome IFOP
 
 \begin{table}[htbp]
   \centering
-  \caption{Total CCD--IOD link bandwidth against peak memory bandwidth (55\,GB/s per link \cite{naffziger2020chiplet}; 8 channels of DDR4-3200).}
+  \caption[Total CCD--IOD link bandwidth against peak memory bandwidth]{Total CCD--IOD link bandwidth against peak memory bandwidth (55\,GB/s per link \cite{naffziger2020chiplet}; 8 channels of DDR4-3200).}
   \label{tab:bandwidth-balance}
   \small
   \begin{tabular}{@{}ccccc@{}}
@@ -231,7 +219,7 @@ Naffziger \emph{et al.} give about 55\,GB/s of effective bandwidth per Rome IFOP
 With two CCDs the links, not the memory, are the bottleneck; at four the two sides are roughly matched, which is AMD's rule of thumb; at eight, the memory channels limit, and each core's share of memory bandwidth halves. The last column is the point that connects Part~\ref{part:chiplets} to Part~\ref{part:stacked-cache}: the more cores share a socket's memory channels, the more valuable it is to satisfy requests from a large on-package cache instead.
 
 \subsubsection*{Scaling beyond one socket}
-The same links extend to two sockets. Two identical EPYC~7003 processors connect through their external Global Memory Interconnect (xGMI) Infinity Fabric links, which use the same physical connections as the PCIe lanes \cite{amd2022epyc7003}. Each link uses 16 lanes, so a socket that devotes four links to the other socket gives up 64 of its 128 lanes, leaving $2 \times 64 = 128$ lanes for the whole system; a designer who uses three links instead frees $128 - 48 = 80$ lanes per socket, 160 in total, at the cost of inter-socket bandwidth \cite{amd2022epyc7003}. A dual-socket system has sixteen memory channels and can be configured with between 1 and 16 NUMA domains. The trade between I/O lanes and inter-processor bandwidth is the package-level version of the trade between link width and die area seen within the package (\cref{sec:packaging-options}). \Cref{fig:two-socket} shows the two configurations.
+The same links extend to two sockets. Two identical EPYC~7003 processors connect through their external Global Memory Interconnect (xGMI) Infinity Fabric links, which use the same physical connections as the PCIe lanes \cite{amd2022epyc7003}. Each link uses 16 lanes, so a socket that devotes four links to the other socket gives up 64 of its 128 lanes, leaving $2 \times 64 = 128$ lanes for the whole system. A designer who uses three links instead frees $128 - 48 = 80$ lanes per socket, 160 in total, at the cost of inter-socket bandwidth \cite{amd2022epyc7003}. A dual-socket system has sixteen memory channels and can be configured with between 1 and 16 NUMA domains. The trade between I/O lanes and inter-processor bandwidth is the package-level version of the trade between link width and die area seen within the package (\cref{sec:packaging-options}). \Cref{fig:two-socket} shows the two configurations.
 
 \input{"../initial-draft-2/figures/two-socket.tex"}
 
@@ -247,7 +235,7 @@ Chiplets can be joined in three broad ways, which differ mainly in how finely th
 
 \begin{table}[htbp]
   \centering
-  \caption{Die-to-die connection methods, with AMD's interconnect pitch targets \cite[slide~13]{lambertHeterogenousIntegrationHigh2025} and AMD examples.}
+  \caption[Die-to-die connection methods]{Die-to-die connection methods, with AMD's interconnect pitch targets \cite[slide~13]{lambertHeterogenousIntegrationHigh2025} and AMD examples.}
   \label{tab:packaging-levels}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
@@ -265,7 +253,7 @@ AMD's choice for its chiplet CPUs was deliberate. Naffziger \emph{et al.} contra
 
 \input{"../initial-draft-2/figures/packaging-timeline.tex"}
 
-2.5D integration is nevertheless part of AMD's wider packaging history (\cref{fig:packaging-timeline}). Its own timeline runs from 2.5D HBM (2015) through the multi-chip module (2017), chiplets (2019) and 3D chiplets (2021) to a 2.5D bridge (AMD's label, EFB), 2.5D high-performance fan-out (2022) and ``3.5D'' chiplets (2023) \cite[slide~5]{lambertHeterogenousIntegrationHigh2025}. The Instinct MI300 accelerator combines both: dies hybrid-bonded on top of I/O dies, which sit side by side on a 2.5D silicon interposer \cite[slide~10]{lambertHeterogenousIntegrationHigh2025}. Among Zen-based processors, the Ryzen~AI~Max~PRO~300 series uses 2.5D fan-out packaging, which AMD describes as a ``continued strategic use of 2.5D advanced packaging to reduce die-to-die power and latency'' \cite[slide~8]{lambertHeterogenousIntegrationHigh2025}. Swaminathan names the parameters that decide between these options: cost and volume, \emph{bandwidth density} (the area spent on die-to-die communication) and \emph{energy per bit} \cite[slide~7]{swaminathanAdvancedPackagingEnabling2021}. The organic substrate wins on cost and reach, 2.5D on bandwidth density and energy, and 3D on both of the latter at the price of the thermal and manufacturing issues of \cref{sec:thermal}.
+2.5D integration is nevertheless part of AMD's wider packaging history (\cref{fig:packaging-timeline}). Its own timeline runs from 2.5D HBM (2015) through the multi-chip module (2017), chiplets (2019) and 3D chiplets (2021) to a 2.5D bridge (labelled EFB on AMD's slide), 2.5D high-performance fan-out (2022) and ``3.5D'' chiplets (2023) \cite[slide~5]{lambertHeterogenousIntegrationHigh2025}. The Instinct MI300 accelerator combines both: dies hybrid-bonded on top of I/O dies, which sit side by side on a 2.5D silicon interposer \cite[slide~10]{lambertHeterogenousIntegrationHigh2025}. Among Zen-based processors, the Ryzen~AI~Max~PRO~300 series uses 2.5D fan-out packaging, which AMD describes as a ``continued strategic use of 2.5D advanced packaging to reduce die-to-die power and latency'' \cite[slide~8]{lambertHeterogenousIntegrationHigh2025}. Swaminathan names the parameters that decide between these options: cost and volume, \emph{bandwidth density} (the area spent on die-to-die communication) and \emph{energy per bit} \cite[slide~7]{swaminathanAdvancedPackagingEnabling2021}. The organic substrate wins on cost and reach, 2.5D on bandwidth density and energy, and 3D on both of the latter at the price of the thermal and manufacturing issues of \cref{sec:thermal}.
 
 \section{Yield, Process-Node Specialisation and Cost}
 \label{sec:process-specialisation}
@@ -308,7 +296,7 @@ The flexibility gain is easier to document. AMD describes three chiplets ``lever
 
 \begin{table}[htbp]
   \centering
-  \caption{One compute die, many products: Zen~2 and Zen~3 desktop processors \cite{advancedmicrodevicesinc.AMDRyzen30002022} and Zen~4 server processors \cite{advancedmicrodevicesinc.AMDEPYC90042023}. CCDs $\times$ active cores inferred from the L3 size (32\,MB per CCD, 96\,MB with V-Cache), except where stated; the rule fails when L3 is partly disabled, as on the EPYC~9224 (24 cores, 64\,MB).}
+  \caption[One compute die, many products]{One compute die, many products: Zen~2 and Zen~3 desktop processors \cite{advancedmicrodevicesinc.AMDRyzen30002022} and Zen~4 server processors \cite{advancedmicrodevicesinc.AMDEPYC90042023}. CCDs $\times$ active cores inferred from the L3 size (32\,MB per CCD, 96\,MB with V-Cache), except where stated; the rule fails when L3 is partly disabled, as on the EPYC~9224 (24 cores, 64\,MB).}
   \label{tab:product-matrix}
   \small
   \begin{tabular}{@{}lccccc@{}}
@@ -344,7 +332,7 @@ Zen~3 offers something close to a natural experiment. The same core appears in t
 
 \begin{table}[htbp]
   \centering
-  \caption{Zen~3 with and without the chiplet split: Cezanne (monolithic) against Vermeer and Milan (chiplet). Values come from different tools, memory settings and processors, as stated in each cell; they are not a controlled comparison.}
+  \caption[Zen~3 with and without the chiplet split: Cezanne against Vermeer and Milan]{Zen~3 with and without the chiplet split: Cezanne (monolithic) against Vermeer and Milan (chiplet). Values come from different tools, memory settings and processors, as stated in each cell; they are not a controlled comparison.}
   \label{tab:cezanne-vermeer}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
@@ -362,9 +350,9 @@ Zen~3 offers something close to a natural experiment. The same core appears in t
   \end{tabularx}
 \end{table}
 
-\textbf{L3 latency does not depend on the split.} The monolithic Cezanne and the chiplet-based Milan reach their L3 in about the same number of cycles, 47 against 47.5 by pointer chasing, although Cezanne's L3 is half the size \cite{7-cpu.comAMDZen3,cozmaAMDsVCacheTested2022}; AIDA64 gives a similar match, about 50 cycles on the 5700G at 4\,GHz against about 53 on the 5800X \cite{devtechprofileWhomCezanneCould2021,justiceAMDRyzen72021}. This is what the organisation predicts: in both designs the L3 sits beside the cores on the same die, so the chiplet boundary lies beyond it. The 7-cpu measurements also show where the cycles go on Cezanne: about 40 cycles to the nearest of the eight L3 slices, plus up to 20 more for the farthest \cite{7-cpu.comAMDZen3}, the slice-and-ring structure of \cref{fig:l3-slices}. Halving the capacity of each slice did not shorten the trip around the ring.
+\textbf{L3 latency does not depend on the split.} The monolithic Cezanne and the chiplet-based Milan reach their L3 in about the same number of cycles, 47 against 47.5 by pointer chasing, although Cezanne's L3 is half the size \cite{7-cpu.comAMDZen3,cozmaAMDsVCacheTested2022}. AIDA64 gives a similar match, about 50 cycles on the 5700G at 4\,GHz against about 53 on the 5800X \cite{devtechprofileWhomCezanneCould2021,justiceAMDRyzen72021}. This is what the organisation predicts: in both designs the L3 sits beside the cores on the same die, so the chiplet boundary lies beyond it. The 7-cpu measurements also show where the cycles go on Cezanne: about 40 cycles to the nearest of the eight L3 slices, plus up to 20 more for the farthest \cite{7-cpu.comAMDZen3}, the slice-and-ring structure of \cref{fig:l3-slices}. Halving the capacity of each slice did not shorten the trip around the ring.
 
-\textbf{Memory latency: no advantage for the single die.} Measured with the same tool, AIDA64, the monolithic 5700G took 76.1\,ns to reach memory and the chiplet-based 5800X 61.8\,ns \cite{devtechprofileWhomCezanneCould2021,justiceAMDRyzen72021}. That is the opposite of what removing the die-to-die hop would suggest, but the 5700G ran with slower memory (DDR4-3200 against DDR4-3600), a slower fabric clock (1600 against 1800\,MHz) and a lower core clock (4.0 against about 4.85\,GHz), and CapFrameX notes that the core clock affects AIDA64's latency result and that AIDA64's absolute values have been criticised as too low \cite{devtechprofileWhomCezanneCould2021}. The difference therefore cannot be credited to the organisation. The one comparison with matched memory and clocks, by CapFrameX, found the 5700G's memory latency ``very similar'' to that of a chiplet-based Zen~2 part with one CCD active \cite{devtechprofileWhomCezanneCould2021}. CapFrameX offers an explanation from an annotated die photograph: even on Cezanne's single die, the memory controller is reached from the L3's ring of slices through the Infinity Fabric, and the transition from ring to fabric costs extra cycles \cite{devtechprofileWhomCezanneCould2021}. If that is right, putting everything on one die removes the package link but not the fabric, and the package link is the smaller part: AMD gives a round trip of 13 fabric clocks, under 9\,ns (\cref{fig:l3-miss-path}), roughly a tenth of a memory access of 60 to 90\,ns. The sources thus show no memory-latency advantage for the monolithic die, though none measures the two designs under identical conditions.
+\textbf{Memory latency: no advantage for the single die.} Measured with the same tool, AIDA64, the monolithic 5700G took 76.1\,ns to reach memory and the chiplet-based 5800X 61.8\,ns \cite{devtechprofileWhomCezanneCould2021,justiceAMDRyzen72021}. That is the opposite of what removing the die-to-die hop would suggest, but the 5700G ran with slower memory (DDR4-3200 against DDR4-3600), a slower fabric clock (1600 against 1800\,MHz) and a lower core clock (4.0 against about 4.85\,GHz). CapFrameX notes that the core clock affects AIDA64's latency result and that AIDA64's absolute values have been criticised as too low \cite{devtechprofileWhomCezanneCould2021}. The difference therefore cannot be credited to the organisation. The one comparison with matched memory and clocks, by CapFrameX, found the 5700G's memory latency ``very similar'' to that of a chiplet-based Zen~2 part with one CCD active \cite{devtechprofileWhomCezanneCould2021}. CapFrameX offers an explanation from an annotated die photograph: even on Cezanne's single die, the memory controller is reached from the L3's ring of slices through the Infinity Fabric, and the transition from ring to fabric costs extra cycles \cite{devtechprofileWhomCezanneCould2021}. If that is right, putting everything on one die removes the package link but not the fabric, and the package link is the smaller part: AMD gives a round trip of 13 fabric clocks, under 9\,ns (\cref{fig:l3-miss-path}), roughly a tenth of a memory access of 60 to 90\,ns. The sources thus show no memory-latency advantage for the monolithic die, though none measures the two designs under identical conditions.
 
 \textbf{Performance favours the chiplet part.} In TechSpot's tests the 5700G trailed the 5800X by about 10\% in multi-threaded applications and by 11\% on average in games, with the gap reaching 20\% in one title \cite{waltonAMDRyzen72021}. TechSpot does not report the clocks reached during its runs. The rated boost clocks differ by only about 2\% (4.6 against 4.7\,GHz), but measured clocks may differ more: CapFrameX saw the 5700G at 4.5--4.55\,GHz in games, and the 5800X ran at about 4.85\,GHz in The FPS Review's AIDA64 run, a gap of up to about 8\% \cite{devtechprofileWhomCezanneCould2021,justiceAMDRyzen72021}. Clock speed is nevertheless unlikely to explain most of the gaming gap: CapFrameX found that raising the 5700G's clock by more than 10\%, from a fixed 4\,GHz to its stock boost, gained only 3.22\% in games on average \cite{devtechprofileWhomCezanneCould2021}. Other differences remain: the 5700G has half the L3, a 65\,W rather than 105\,W TDP, and PCIe~3.0 rather than 4.0, and TechSpot measured about 15\% less power at the wall for the whole system \cite{waltonAMDRyzen72021}. The power limit can explain much of the multi-threaded gap, but games load fewer cores and are less limited by power. The reviewer's tentative reading is that, in CPU-limited gaming, ``it appears'' that cache capacity matters more than having all cores on one die; the reviewer also notes that at 1440p or higher, with a less extreme graphics card, there would be basically no difference between the two \cite{waltonAMDRyzen72021}. That reading matches the working-set argument of Part~\ref{part:stacked-cache} and the size of the V-Cache gains in games (\cref{fig:lam-ipc}).
 
@@ -379,6 +367,6 @@ Applying the paper's three-part test to chiplets:
 \begin{itemize}
   \item \textbf{Bottleneck addressed.} Die size beyond the reticle limit, falling yield with area, and the poor scaling of analog and I/O circuits on advanced nodes (\cref{sec:monolithic-limits}).
   \item \textbf{Benefit.} Core counts that would be impractical on one die, much better silicon yield, I/O on a cheaper node, and, within each generation, one compute die reused across a wide range of products. On Zen~3 it spans 6-core desktop parts to 64-core servers. In the Zen~4 server products of \cref{tab:product-matrix} it spans 16 to 96 cores with 4 to 48\,MB of L3 per core (\cref{sec:product-flexibility}) \cite{naffziger2020chiplet,suggs2019zen2}.
-  \item \textbf{New trade-offs.} An extra die-to-die hop on every L3 miss. Sharing between CCDs takes about 4.5 times as long as within one, in the one measurement available (\cref{sec:cross-ccd}). Further costs are per-link bandwidth limits, interconnect power (estimated at about 2\% of a Genoa processor's power budget for memory traffic alone, \cref{sec:chiplet-power}), NUMA effects that software may need to manage, and more complex package design and test.
+  \item \textbf{New trade-offs.} An extra die-to-die hop on every L3 miss. Sharing between CCDs takes about 4.5 times as long as within one (\cref{sec:cross-ccd}). Further costs are per-link bandwidth limits, interconnect power (estimated at about 2\% of a Genoa processor's power budget for memory traffic alone, \cref{sec:chiplet-power}), NUMA effects that software may need to manage, and more complex package design and test.
 \end{itemize}
 One limit is untouched: each CCD still carries its own planar L3. Growing that cache runs into the same area, yield and wire-length costs at the scale of the compute die, which is the problem Part~\ref{part:stacked-cache} takes up.

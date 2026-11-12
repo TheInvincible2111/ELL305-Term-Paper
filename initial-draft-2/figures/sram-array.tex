@@ -2,8 +2,8 @@
 \centering
 \begin{tikzpicture}[x=1cm,y=1cm,
   wire/.style={draftblue,thick},
-  tr/.style={draw=draftblue,fill=white,minimum width=0.5cm,minimum height=0.36cm,font=\tiny},
-  cell/.style={draw=draftblue,fill=draftlight,minimum width=1.05cm,minimum height=0.62cm,font=\tiny,align=center},
+  tr/.style={draw=draftblue,fill=white,minimum width=0.5cm,minimum height=0.36cm,font=\scriptsize},
+  cell/.style={draw=draftblue,fill=draftlight,minimum width=1.05cm,minimum height=0.62cm,font=\scriptsize,align=center},
   blk/.style={draw=draftblue,fill=white,font=\scriptsize,align=center},
   lab/.style={font=\scriptsize}]
 % ---------- (a) 6T cell ----------
@@ -44,6 +44,6 @@
 \node[font=\small\bfseries,text=draftblue] at (3.0,3.95) {(b) Array of SRAM cells};
 \end{scope}
 \end{tikzpicture}
-\caption{(a) A six-transistor SRAM cell: the word line (WL) turns on the access transistors W1 and W2, connecting the cross-coupled inverters to the complementary bit lines. (b) Cells are arranged in a two-dimensional array; a decoder raises one word line, every cell in that row drives its bit lines, and a column multiplexer and sense amplifiers select and read the bits required. Redrawn after Sarangi \cite[sec.~7.4.1, Figs.~7.26--7.27]{sarangi2025basic}.}
+\caption[SRAM cell and array]{(a) A six-transistor SRAM cell: the word line (WL) turns on the access transistors W1 and W2, connecting the cross-coupled inverters to the complementary bit lines. (b) Cells are arranged in a two-dimensional array; a decoder raises one word line, every cell in that row drives its bit lines, and a column multiplexer and sense amplifiers select and read the bits required. Redrawn after Sarangi \cite[sec.~7.4.1, Figs.~7.26--7.27]{sarangi2025basic}.}
 \label{fig:sram-array}
 \end{figure}

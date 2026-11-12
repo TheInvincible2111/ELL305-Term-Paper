@@ -1,7 +1,7 @@
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[x=1cm,y=1cm,
-  nd/.style={circle,draw=draftblue,fill=draftlight,minimum size=0.42cm,inner sep=0pt,font=\tiny},
+  nd/.style={circle,draw=draftblue,fill=draftlight,minimum size=0.42cm,inner sep=0pt,font=\scriptsize},
   hub/.style={rectangle,draw=draftblue,fill=draftblue!25,minimum width=1.0cm,minimum height=0.6cm,font=\scriptsize},
   ln/.style={draftblue,thick},
   ttl/.style={font=\small\bfseries,text=draftblue}]
@@ -27,6 +27,6 @@
 \node[font=\scriptsize,align=center] at (0,-2.05) {any two dies 2 links apart;\\all traffic through the hub};
 \end{scope}
 \end{tikzpicture}
-\caption{Three topologies. The ring and mesh follow Sarangi's definitions \cite[sec.~12.6.3]{sarangi2025basic}; the star is the arrangement of Rome's eight CCDs around one I/O die (\cref{sec:ccd-iod}). Within a CCD, Zen~3 and Zen~4 connect cores to L3 slices by a ring \cite{cozmaDeepDivingZen2022,lamAMDs7950X3DZen2023}.}
+\caption[Three topologies]{Three topologies. The ring and mesh follow Sarangi's definitions \cite[sec.~12.6.3]{sarangi2025basic}; the star is the arrangement of Rome's eight CCDs around one I/O die (\cref{sec:ccd-iod}). Within a CCD, Zen~3 and Zen~4 connect cores to L3 slices by a ring \cite{cozmaDeepDivingZen2022,lamAMDs7950X3DZen2023}.}
 \label{fig:topologies}
 \end{figure}

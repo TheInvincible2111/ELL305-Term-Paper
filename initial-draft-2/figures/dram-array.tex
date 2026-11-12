@@ -2,7 +2,7 @@
 \centering
 \begin{tikzpicture}[x=1cm,y=1cm,
   wire/.style={draftblue,thick},
-  cell/.style={draw=draftblue,fill=draftlight,minimum width=1.05cm,minimum height=0.62cm,font=\tiny,align=center},
+  cell/.style={draw=draftblue,fill=draftlight,minimum width=1.05cm,minimum height=0.62cm,font=\scriptsize,align=center},
   blk/.style={draw=draftblue,fill=white,font=\scriptsize,align=center},
   lab/.style={font=\scriptsize}]
 % ---------- (a) 1T1C cell ----------
@@ -10,7 +10,7 @@
 \draw[wire] (0.6,0) -- (0.6,3.0) node[above,lab]{BL (bit line)};
 \draw[wire] (-0.3,2.5) -- (3.6,2.5) node[right,lab]{WL};
 % access transistor (box symbol, as in the SRAM figure)
-\node[draw=draftblue,fill=white,minimum width=0.5cm,minimum height=0.36cm,font=\tiny] (t) at (1.5,1.6) {T};
+\node[draw=draftblue,fill=white,minimum width=0.5cm,minimum height=0.36cm,font=\scriptsize] (t) at (1.5,1.6) {T};
 \draw[wire] (0.6,1.6) -- (t.west);
 \draw[wire] (1.5,2.5) -- (t.north);
 \draw[wire] (t.east) -- (2.4,1.6) -- (2.4,1.1);
@@ -35,13 +35,14 @@
 \foreach \c in {0,1,2,3}{\draw[draftblue!60] (1.3+\c*1.2,3.0) -- (1.3+\c*1.2,0.35);}
 \node[blk,minimum width=4.75cm,minimum height=0.42cm,fill=draftlight] at (3.55,0.05) {sense amplifiers (hold the open row)};
 \node[blk,minimum width=4.75cm,minimum height=0.42cm] at (3.55,-0.5) {column multiplexer};
-\node[blk,minimum width=1.0cm,minimum height=0.42cm] at (6.75,0.05) {refresh};
+\node[blk,minimum width=1.0cm,minimum height=0.42cm] (rf) at (6.75,0.05) {refresh};
+\draw[thick,draftblue] (rf.west) -- (5.93,0.05);
 \draw[-{Stealth},thick,draftblue] (-0.5,1.65) -- (dec.west) node[pos=0,above,lab]{address};
 \draw[-{Stealth},thick,draftblue] (3.55,-0.72) -- (3.55,-1.15) node[below,lab]{data};
 \node[lab] at (3.55,3.25) {one bit line per column};
 \node[font=\small\bfseries,text=draftblue] at (3.0,3.95) {(b) Array of DRAM cells};
 \end{scope}
 \end{tikzpicture}
-\caption{(a) A DRAM cell: one access transistor, switched by the word line, connects a capacitor to a single bit line; a charged capacitor stores a 1. (b) Compared with the SRAM array of \cref{fig:sram-array}, a DRAM array has one bit line per column instead of two, a refresh circuit that writes the data back after every read and periodically, and sense amplifiers placed before the column multiplexer, where they hold the whole open row so that further accesses to it are fast. Redrawn after Sarangi \cite[sec.~7.4.3, Figs.~7.30--7.31]{sarangi2025basic}.}
+\caption[DRAM cell and array]{(a) A DRAM cell: one access transistor, switched by the word line, connects a capacitor to a single bit line; a charged capacitor stores a 1. (b) Compared with the SRAM array of \cref{fig:sram-array}, a DRAM array has one bit line per column instead of two, a refresh circuit that writes the data back after every read and periodically, and sense amplifiers placed before the column multiplexer, where they hold the whole open row so that further accesses to it are fast. Redrawn after Sarangi \cite[sec.~7.4.3, Figs.~7.30--7.31]{sarangi2025basic}.}
 \label{fig:dram-array}
 \end{figure}

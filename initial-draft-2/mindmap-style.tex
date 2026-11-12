@@ -35,5 +35,5 @@
 \newcommand{\mapfigure}[4][\textwidth]{% [#1 = width], #2 = tikz body, #3 = caption, #4 = label
   \begin{figure}[htbp]\centering
   \resizebox{#1}{!}{\begin{tikzpicture}#2\end{tikzpicture}}
-  \caption{#3}\label{#4}\end{figure}}
+  \caption#3\label{#4}\end{figure}}
 \let\mindmapfigure\mapfigure

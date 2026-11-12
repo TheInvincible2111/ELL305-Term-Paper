@@ -1,6 +1,6 @@
 % Part V -- AMD case study and quantitative analysis (target: about 25 pages)
-% Method: analysis of published research and benchmarks, plus a controlled
-% software model (sec:sim-study), compared with the group's Ryzen 5 5600X (app:5600x).
+% Method: analysis of published research and benchmarks, plus a
+% simulation (sec:sim-study), compared with the group's Ryzen 5 5600X (app:5600x).
 \clearpage
 \part{AMD Case Study and Quantitative Analysis}
 \label{part:case-study}
@@ -28,7 +28,7 @@ Each source is recorded with: the processors compared; clock frequencies (fixed 
 
 \begin{table}[htbp]
   \centering
-  \caption{L3 organisation per compute die across the generations studied (AMD-published figures).}
+  \caption[L3 organisation per compute die across the generations studied]{L3 organisation per compute die across the generations studied (AMD-published figures).}
   \label{tab:zen-progression}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
@@ -70,7 +70,7 @@ Two later generations extend the same pattern (\cref{tab:later-x3d}). With Zen~4
 
 \begin{table}[htbp]
   \centering
-  \caption{3D V-Cache across Zen generations (AMD-published figures unless noted).}
+  \caption[3D V-Cache across Zen generations]{3D V-Cache across Zen generations (AMD-published figures unless noted).}
   \label{tab:later-x3d}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
@@ -95,7 +95,7 @@ The comparisons in this part rely on pairs of processors that differ mainly in L
 
 \begin{table}[htbp]
   \centering
-  \caption{Processor pairs that differ mainly in L3 capacity.}
+  \caption[Processor pairs that differ mainly in L3 capacity]{Processor pairs that differ mainly in L3 capacity.}
   \label{tab:config-pairs}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{1.1cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.6cm}@{}}
@@ -117,7 +117,7 @@ The evidence falls into two groups: AMD-reported results (\cref{tab:amd-reported
 
 \begin{table}[htbp]
   \centering
-  \caption{AMD-reported performance figures relevant to this study (vendor claims, not independent measurements).}
+  \caption[AMD-reported performance figures relevant to this study]{AMD-reported performance figures relevant to this study (vendor claims, not independent measurements).}
   \label{tab:amd-reported}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{2.0cm}@{}}
@@ -136,7 +136,7 @@ The evidence falls into two groups: AMD-reported results (\cref{tab:amd-reported
 
 \begin{table}[htbp]
   \centering
-  \caption{Independent measurements of the effect of 3D V-Cache.}
+  \caption[Independent measurements of the effect of 3D V-Cache]{Independent measurements of the effect of 3D V-Cache.}
   \label{tab:independent}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{1.5cm}@{}}
@@ -160,28 +160,7 @@ The independent results agree with AMD's on direction but not on size: they show
 
 \subsection{The evidence ledger}
 \label{sec:evidence-ledger}
-The method of \cref{sec:evidence-method} asks that every source be recorded with its systems, clocks, memory, metric and independence. \Cref{tab:evidence-ledger} is that record for the independent sources used in this part. It complements \cref{tab:confound-grid}, which grades only which confounding factors each comparison controls.
-
-\begin{table}[htbp]
-  \centering
-  \caption{Evidence ledger: the independent sources on the stacked cache, with the conditions each one states.}
-  \label{tab:evidence-ledger}
-  \footnotesize
-  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}X@{}}
-    \toprule
-    \textbf{Source; type} & \textbf{Systems compared} & \textbf{Clock and memory} & \textbf{Metric} & \textbf{Workloads; notes} \\
-    \midrule
-    Lam 2023 \cite{lamAMDs7950X3DZen2023}; technical article & the two CCDs of one Ryzen~9 7950X3D & both CCDs fixed at 4.2\,GHz, boost off; same memory; GPU clock fixed & IPC and L3 hit rate from performance counters & four games, libx264, 7-Zip; one Call of Duty scenario not exactly repeatable (multiplayer) \\
-    Domke \emph{et al.} 2023 \cite{domkeLocusPerformanceQuantifying2023}; peer-reviewed & dual-socket EPYC~7773X vs 7763, 64 cores per socket & clocks not fixed (base 2.20 vs 2.45\,GHz); same 280\,W TDP and 16-channel DDR4 & runtime-based performance & MiniFE across problem sizes $100^3$ to $400^3$ \\
-    Lawenda \emph{et al.} 2025 \cite{lawendaEvaluatingImpactL32025}; preprint & seven dual-socket platforms, Rome to Genoa-X and Bergamo & turbo on, SMT off; clocks measured as ranges & FVOPS (cells solved per second); L3 miss rate from AMD \textmu Prof & OpenFOAM motorBike (eight meshes) and an urban air-pollution case; each test repeated five times \\
-    Cozma 2022a \cite{cozmaAMDsVCacheTested2022}; technical article & Milan and Milan-X cloud instances & not fixed; Milan-X observed boosting higher in this test & load latency (cycles, ns) & pointer-chasing latency sweep \\
-    Cozma 2022b \cite{cozmaDeepDivingZen2022}; technical article & Milan-X vs Milan, one CCD each, cloud instances & clocks estimated (Milan-X about 5\% lower) & runtime; latency & gem5, libx264, 7-Zip; latency with 4\,KB and 2\,MB pages \\
-    Cozma 2024 \cite{cozmaAMDs9800X3D2nd2024}; technical article & Ryzen~7 9800X3D (sample supplied by AMD) & stock & L3 latency; clock behaviour; SPEC CPU 2017 & microbenchmarks; observed clocks; SPEC subtests \\
-    Larabel 2022 \cite{larabelAMDRyzen72022}; benchmark article & Ryzen~7 5800X3D vs 5800X & stock clocks; memory not restated per test & each benchmark's own metric & 420 Linux benchmarks; 350 with a significant difference \\
-    Reguly 2023 \cite{regulyComparativeEvaluationBandwidthbound2023}; paper & EPYC~7V73X (Milan-X) against two Intel Xeons & cloud virtual machine; SMT off & bandwidth; core-to-core latency & BabelStream; message-passing test; bandwidth-bound applications \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
+The method of \cref{sec:evidence-method} asks that every source be recorded with its systems, clocks, memory, metric and independence. \Cref{tab:evidence-ledger} in \cref{app:evidence-ledger} is that record for the independent sources used in this part. It complements \cref{tab:confound-grid}, which grades only which confounding factors each comparison controls.
 
 Two patterns stand out. Only one source, Lam's, holds clock, core design, memory and the rest of the system equal, and it covers only six workloads. The sources with many workloads (Larabel) or with systematic problem-size sweeps (Domke, Lawenda) let the clock float, so their results combine the cache with a clock difference of 5--10\%. The detailed reading below therefore starts with Lam, then uses the sweeps to show how the effect depends on working-set size.
 
@@ -201,7 +180,7 @@ Lam's measurements are the best-controlled evidence available (\cref{sec:confoun
 
 \begin{table}[htbp]
   \centering
-  \caption{Lam's per-CCD measurements on the Ryzen~9 7950X3D, both CCDs at 4.2\,GHz \cite{lamAMDs7950X3DZen2023}. Hit rates and IPC read from the article's charts (IPC to two decimals); IPC gains as stated in the text where given (Call of Duty: computed from the chart; the text says ``over 19\%''); MPKI on the plain CCD as stated in the text. Lam counts L3 accesses from the L3's side, including speculative accesses and prefetches. The Cyberpunk run was limited by the graphics card, which is why Lam compares IPC rather than frame rates.}
+  \caption[Lam's per-CCD measurements on the Ryzen~9 7950X3D, both CCDs at 4.2\,GHz]{Lam's per-CCD measurements on the Ryzen~9 7950X3D, both CCDs at 4.2\,GHz \cite{lamAMDs7950X3DZen2023}. Hit rates and IPC read from the article's charts (IPC to two decimals); IPC gains as stated in the text where given (Call of Duty: computed from the chart; the text says ``over 19\%''); MPKI on the plain CCD as stated in the text. Lam counts L3 accesses from the L3's side, including speculative accesses and prefetches. The Cyberpunk run was limited by the graphics card, which is why Lam compares IPC rather than frame rates.}
   \label{tab:lam-detail}
   \footnotesize
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X cccc c@{}}
@@ -227,7 +206,7 @@ Lam's measurements are the best-controlled evidence available (\cref{sec:confoun
 
 \begin{table}[htbp]
   \centering
-  \caption{Cycles saved per removed L3 miss, derived from \cref{tab:lam-detail} with four extra cycles per L3 access (approximate; see text).}
+  \caption[Cycles saved per removed L3 miss]{Cycles saved per removed L3 miss, derived from \cref{tab:lam-detail} with four extra cycles per L3 access (approximate; see text).}
   \label{tab:lam-per-miss}
   \small
   \begin{tabular}{@{}lccccc@{}}
@@ -243,7 +222,7 @@ Lam's measurements are the best-controlled evidence available (\cref{sec:confoun
   \end{tabular}
 \end{table}
 
-The pattern in \cref{tab:lam-per-miss} is that the more misses a workload has, the less each removed miss appears to be worth. The overlap of misses in \cref{sec:mlp} would produce this: a workload with many outstanding misses hides more of each one, so removing a miss saves less of its latency. It is not the only possible explanation: because Lam's counters include prefetches, a workload whose counted misses include more of them would also show a smaller apparent saving (\cref{sec:tradeoff-example}). The values are therefore \emph{apparent cycles saved per counted miss}, and they inherit the caveats of \cref{sec:tradeoff-example}, including the 15\% difference in L3 accesses per instruction between the two CCDs found for DCS. The figures are approximate. The IPC values are read to two decimals, so for GHPC the chart's 1.15 and 1.27 give a 10.4\% gain against the 9.67\% in the text, which would raise its figure to about 53 cycles; the calculation assumes that all the IPC change comes from L3 misses and latency; and each workload was measured in one scenario. The ordering, however, is not sensitive to these errors, because the three values differ by more than a factor of two.
+The pattern in \cref{tab:lam-per-miss} is that the more misses a workload has, the less each removed miss appears to be worth. The overlap of misses in \cref{sec:mlp} would produce this: a workload with many outstanding misses hides more of each one, so removing a miss saves less of its latency. Prefetches counted as misses would have the same effect (\cref{sec:tradeoff-example}). The values are therefore \emph{apparent cycles saved per counted miss}, and they inherit the caveats of \cref{sec:tradeoff-example}, including the 15\% difference in L3 accesses per instruction between the two CCDs found for DCS. The figures are approximate. The IPC values are read to two decimals, so for GHPC the chart's 1.15 and 1.27 give a 10.4\% gain against the 9.67\% in the text, which would raise its figure to about 53 cycles. The calculation also assumes that all the IPC change comes from L3 misses and latency; and each workload was measured in one scenario. The ordering, however, is not sensitive to these errors, because the three values differ by more than a factor of two.
 
 \textbf{What else limits the gain.} Call of Duty shows that the cache is not the only bottleneck even in a miss-heavy game. Lam's breakdown of pipeline slots shows the V-Cache cutting the share of slots lost to the back end, which waits for data, from 29.7\% to 24.2\%, while the share lost to the front end, which supplies instructions, stayed at about 42--43\% \cite{lamAMDs7950X3DZen2023}. Lam concludes that most of the hit-rate gain came from data-side misses. The game's IPC of 0.85 with V-Cache is still the lowest of the six, so the 19.7\% gain is large in relative terms but leaves the core mostly waiting on instruction supply.
 
@@ -287,7 +266,7 @@ Three articles from one independent outlet, Chips and Cheese, measured the same 
 
 \begin{table}[htbp]
   \centering
-  \caption{Cross-check of independent results for the same program or quantity on different generations.}
+  \caption[Cross-check of independent results across generations]{Cross-check of independent results for the same program or quantity on different generations.}
   \label{tab:cross-check}
   \small
   \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.3cm}@{}}
@@ -344,7 +323,7 @@ A difference in measured performance between two processors can rarely be attrib
 
 \begin{table}[htbp]
   \centering
-  \caption{Which confounding factors each available comparison controls (\checkmark{} = controlled, $\times$ = not controlled, $\sim$ = estimated and normalised, ? = not stated; AMD-reported rows above the line, independent below).}
+  \caption[Which confounding factors each available comparison controls]{Which confounding factors each available comparison controls (\checkmark{} = controlled, $\times$ = not controlled, $\sim$ = estimated and normalised, ? = not stated; AMD-reported rows above the line, independent below).}
   \label{tab:confound-grid}
   \small
   \begin{tabular}{@{}p{5.6cm}cccc@{}}
@@ -374,7 +353,7 @@ Where clocks were not fixed, a rough correction is possible if the clocks during
 
 \begin{table}[htbp]
   \centering
-  \caption{Speedups bounded by a clock correction (corrected = measured $\div$ clock ratio).}
+  \caption[Speedups bounded by a clock correction]{Speedups bounded by a clock correction (corrected = measured $\div$ clock ratio).}
   \label{tab:clock-correction}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.2cm}cc@{}}
@@ -405,7 +384,7 @@ The Ryzen~9 7950X3D makes the trade-off concrete, because its two CCDs differ on
 
 \begin{table}[htbp]
   \centering
-  \caption{IPC gain of the V-Cache CCD at equal clock \cite{lamAMDs7950X3DZen2023} against the plain CCD's 7\% clock advantage (net $= (1 + \text{gain})/1.07 - 1$).}
+  \caption[IPC gain of the V-Cache CCD against the clock gap]{IPC gain of the V-Cache CCD at equal clock \cite{lamAMDs7950X3DZen2023} against the plain CCD's 7\% clock advantage (net $= (1 + \text{gain})/1.07 - 1$).}
   \label{tab:cache-vs-clock}
   \small
   \begin{tabular}{@{}lccc@{}}
@@ -426,14 +405,14 @@ The linear rule overstates the plain CCD's advantage, because memory-bound progr
 
 \subsection{Refining the rule: memory time does not shrink with clock}
 \label{sec:cache-clock-model}
-The linear rule treats every cycle as if it shrank in proportion to clock frequency. A memory access does not: its latency is set mainly by the DRAM and by the path through the I/O die, and is roughly fixed in nanoseconds (\cref{sec:clock-correction}). Splitting the time per thousand instructions into a part that scales with clock and a part that does not gives
+The linear rule\index{break-even (cache against clock)} treats every cycle as if it shrank in proportion to clock frequency. A memory access does not: its latency is set mainly by the DRAM and by the path through the I/O die, and is roughly fixed in nanoseconds (\cref{sec:clock-correction}). Splitting the time per thousand instructions into a part that scales with clock and a part that does not gives
 \begin{equation}
   T(f) \;=\; \frac{C + A\,\Delta t_{\mathrm{L3}}}{f} \;+\; (M - \Delta M)\,s,
   \label{eq:cache-clock-model}
 \end{equation}
 where $C$ is the number of cycles per thousand instructions not spent waiting for memory, and $A$ and $M$ are the L3 accesses and L3 misses per thousand instructions on the plain CCD. $\Delta t_{\mathrm{L3}}$ is the added L3 latency (zero on the plain CCD, four cycles on the stacked one), $\Delta M$ is the number of misses the larger cache removes, and $s$ is the effective stall per miss in nanoseconds. \Cref{eq:cache-clock-model} combines \cref{eq:perf,eq:vcache-tradeoff}; the only new assumption is that $s$ does not depend on the core clock.
 
-\Cref{app:cache-clock} calibrates the model on Lam's libx264 run ($C \approx 543$ cycles, $s \approx 31$\,ns, clocks of 4.8 and 5.15\,GHz) and tabulates the result in \cref{tab:cache-clock-model}; at equal clocks it reproduces Lam's 4.9\% gain to within rounding (5.2\%).
+\Cref{app:cache-clock} calibrates the model on Lam's libx264 run ($C \approx 543$ cycles, $s \approx 31$\,ns, clocks of 4.8 and 5.15\,GHz) and tabulates the result in \cref{tab:cache-clock-model}; at equal clocks it gives a 5.2\% gain, against 5.1\% from Lam's chart IPCs and the 4.9\% Lam states.
 
 \input{"../initial-draft-2/figures/cache-clock-model.tex"}
 
@@ -448,7 +427,7 @@ The model is trace-driven and functional. It follows every memory access through
 
 \begin{table}[htbp]
   \centering
-  \caption{The simulation experiments, the factor each one changes, and what each is compared with. S0, S3 and S4 are compared with measurements their inputs are fitted to, except for the 5600X check in S0; S1 is compared in shape only.}
+  \caption[The simulation experiments]{The simulation experiments, the factor each one changes, and what each is compared with. S0, S3 and S4 are compared with measurements their inputs are fitted to, except for the 5600X check in S0; S1 is compared in shape only.}
   \label{tab:sim-plan}
   \small
   \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.3cm}@{}}
@@ -472,13 +451,13 @@ The model is trace-driven and functional. It follows every memory access through
 
 \input{"../initial-draft-2/figures/sim-latency.tex"}
 
-\textbf{A comparison with the group's Ryzen~5 5600X.} The comparison with Milan cannot test the model, because its inputs come from the same kind of measurement. The group's own Ryzen~5 5600X provides data the model was not built from. It has one CCD with the same 32\,MB Zen~3 L3, and its latency was measured at the machine's own 4.61\,GHz with the kit described in \cref{app:5600x}, whose programs and raw results are on GitHub. \Cref{fig:m5600x-latency} sets the two side by side. The model's cache capacities and level latencies are inputs, so on each plateau its output is its input: the comparison there shows how close another Zen~3 chip's published latencies are to this one's, not how good the model is. The L1 and L2 latencies, 4 and 12 cycles, agree with the measured 4.0 and 12.1 cycles; the other two inputs differ by about 20\% or less. The measured L3 plateau is 51--55 cycles against the assumed 47, close to the about 53 cycles reported for the Ryzen~7 5800X (\cref{tab:cezanne-vermeer}), and the latency at 1\,GB is 98.6\,ns against the model's 82\,ns, a difference consistent with different memory and with the virtual machine (Windows Subsystem for Linux, WSL2) in which the measurements ran. The model's own behaviour, how hits and misses mix as a cache fills, is exercised only between the plateaus, and there the unfitted model differs from the measurement by up to 2.4 times (at 32\,MB). Fitting the L3 and memory latencies to this machine, 54 cycles and 90\,ns beyond the L3 (against the default 74\,ns), is a calibration: it aligns the plateaus and the 1\,GB value by construction (within 5\% and 1\%), but it does not remove the differences near the capacity edges, which remain 1.2--2.1 times between 19 and 38\,MB and 1.1--1.3 times between 45 and 108\,MB. The comparison therefore shows two things: the published Zen~3 latencies the model uses are within about a fifth of this machine's, and close to each cache's capacity the model's latency is too low.
+\textbf{A comparison with the group's Ryzen~5 5600X.} The comparison with Milan cannot test the model, because its inputs come from the same kind of measurement. The group's own Ryzen~5 5600X provides data the model was not built from. It has one CCD with the same 32\,MB Zen~3 L3, and its latency was measured at the machine's own 4.61\,GHz with the kit described in \cref{app:5600x}, whose programs and raw results are on GitHub. \Cref{fig:m5600x-latency} sets the two side by side. The model's cache capacities and level latencies are inputs, so on each plateau its output is its input: the comparison there shows how close another Zen~3 chip's published latencies are to this one's, not how good the model is. The L1 and L2 latencies, 4 and 12 cycles, agree with the measured 4.0 and 12.1 cycles; the other two inputs differ by about 20\% or less. The measured L3 plateau is 51--55 cycles against the assumed 47, close to the about 53 cycles reported for the Ryzen~7 5800X (\cref{tab:cezanne-vermeer}), and the latency at 1\,GB is 98.6\,ns against the model's 82\,ns, a difference consistent with different memory and with the virtual machine (Windows Subsystem for Linux, WSL2) in which the measurements ran. The model's own behaviour, how hits and misses mix as a cache fills, is exercised only between the plateaus, and there the unfitted model differs from the measurement by up to 2.4 times (at 32\,MB). Fitting the L3 and memory latencies to this machine, 54 cycles and 90\,ns beyond the L3 (against the default 74\,ns), is a calibration: it aligns the plateaus and the 1\,GB value by construction (within 5\% and 1\%). It does not remove the differences near the capacity edges, which remain 1.2--2.1 times between 19 and 38\,MB and 1.1--1.3 times between 45 and 108\,MB. The comparison therefore shows two things: the published Zen~3 latencies the model uses are within about a fifth of this machine's, and close to each cache's capacity the model's latency is too low.
 
 \input{"../initial-draft-2/figures/m5600x-latency.tex"}
 
 \textbf{Where the shapes differ.} Near each capacity edge the model and the hardware differ, on the 5600X as on Milan, in two ways (\cref{app:5600x-shapes}). Just above each capacity the measured latency is higher than the model's, partly because a latency sweep visits its lines in a fixed cycle, which the model's random accesses do not reproduce (\cref{tab:sim-policy}); and the measured L3 starts to slow down at about 16--20\,MB, before it is full, for reasons these tests cannot separate. Both make the smaller cache slower in a latency sweep than in the model, so for a latency sweep the measured gain of a 96\,MB over a 32\,MB L3 is larger than the model's from about 20 to about 64\,MB, and smaller close to 96\,MB. How far this carries over to real programs depends on their order of access.
 
-The overlap factor has to be fitted to measurements. Lam's libx264 run saved about 36 cycles per thousand instructions net while removing 0.40 misses and making 3.85 L3 accesses (\cref{sec:tradeoff-example}). Because the model also overlaps the four extra L3 cycles, the factor that reproduces this net saving solves an equation given in \cref{app:sim-setup}: it is 0.335. In the model a removed miss then saves about 103 cycles, fewer than the 130 apparent cycles of \cref{sec:tradeoff-example}, which charge the four extra cycles in full. \Cref{tab:sim-calibration} gives the same calculation for Cyberpunk~2077 and GHPC, which need 0.202 and 0.105. The experiments below use 0.335, and the sensitivity analyses use the other two values to cover the range Lam's workloads span. All three are fitted values, and they inherit the caveat of \cref{sec:tradeoff-example}: Lam's counters include prefetches and speculative L3 accesses, so the savings they imply are apparent ones.
+The overlap factor has to be fitted to measurements. Lam's libx264 run saved about 36 cycles per thousand instructions net while removing 0.40 misses and making 3.85 L3 accesses (\cref{sec:tradeoff-example}). Because the model also overlaps the four extra L3 cycles, the factor that reproduces this net saving solves an equation given in \cref{app:sim-setup}: it is 0.335. In the model a removed miss then saves about 103 cycles, fewer than the 130 apparent cycles of \cref{sec:tradeoff-example}, which charge the four extra cycles in full. \Cref{tab:sim-calibration} gives the same calculation for Cyberpunk~2077 and GHPC, which need 0.202 and 0.105. The experiments below use 0.335, and the sensitivity analyses use the other two values to cover the range Lam's workloads span. All three are fitted values and inherit the caveat of \cref{sec:tradeoff-example}: the savings they imply are apparent ones.
 
 \input{"../initial-draft-2/figures/sim-table-calibration.tex"}
 
@@ -514,18 +493,18 @@ The cache die beside the CCD is modelled as a 64\,MB L4 that is looked up after 
 
 \subsection{S3: Cache against clock}
 \label{sec:sim-clock}
-To estimate an effect on time, S3 uses an access mix fitted to Lam's libx264 run (\cref{app:sim-setup}). Most accesses hit a 16\,KB hot region in the L1, a small share go to a cold region whose size is swept, and a smaller share go to a far region that misses in both caches, so that the V-Cache CCD keeps about 1.04 misses per thousand instructions, as Lam's V-Cache CCD kept about 1.08. Three inputs of the mix are assumptions, not measurements: one memory access per three instructions, the textbook's typical figure \cite[sec.~11.1.1]{sarangi2025basic}; one cycle for an L1 hit, standing for loads the pipeline hides; and 0.48 cycles of other work per access, chosen so that the plain CCD runs at about 730 cycles per thousand instructions, as libx264 did. The plain CCD runs at 5.15\,GHz and the V-Cache CCD at a lower clock, and the cold region grows from 32 to 96\,MB so that the larger cache removes more and more misses. \Cref{fig:sim-cache-clock} plots the result against the number of misses removed, and \cref{tab:sim-breakeven} reads off the break-even for each clock gap.
+To estimate an effect on time, S3 uses an access mix fitted to Lam's libx264 run (\cref{app:sim-setup}). Most accesses hit a 16\,KB hot region in the L1, a small share go to a cold region whose size is swept, and a smaller share go to a far region that misses in both caches, so that the V-Cache CCD keeps about 1.04 misses per thousand instructions, as Lam's V-Cache CCD kept about 1.08. Three inputs of the mix are assumptions, not measurements. They are one memory access per three instructions, the textbook's typical figure \cite[sec.~11.1.1]{sarangi2025basic}; one cycle for an L1 hit, standing for loads the pipeline hides; and 0.48 cycles of other work per access, chosen so that the plain CCD runs at about 730 cycles per thousand instructions, as libx264 did. The plain CCD runs at 5.15\,GHz and the V-Cache CCD at a lower clock, and the cold region grows from 32 to 96\,MB so that the larger cache removes more and more misses. \Cref{fig:sim-cache-clock} plots the result against the number of misses removed, and \cref{tab:sim-breakeven} reads off the break-even for each clock gap.
 
 \input{"../initial-draft-2/figures/sim-cache-clock.tex"}
 \input{"../initial-draft-2/figures/sim-table-breakeven.tex"}
 
-The simulation is consistent with the main result of \cref{sec:cache-clock-model}: the clock gap, not the extra latency, sets the break-even. Away from equal clocks the two agree closely, within 0.05 misses per thousand instructions at every gap from 2 to 10\%; at Lam's 7.3\% gap the V-Cache CCD needs 0.38 misses removed per thousand instructions in the simulation and 0.35 in the analytical model. This agreement is expected rather than independent, since both are built on the same calibration and the same structure. At equal clocks the two disagree, 0.04 against 0.10 when both use 5.15\,GHz (the analytical model gives 0.12 at the 4.2\,GHz of \cref{sec:cache-clock-model}). Most of the difference, a factor of about 2.4, comes from one assumption: the model's overlap factor hides two thirds of the four extra L3 cycles as well as of each memory access, while the analytical model charges all four cycles. Neither has been measured.
+The simulation is consistent with the main result of \cref{sec:cache-clock-model}: the clock gap, not the extra latency, sets the break-even. Away from equal clocks the two agree closely, within 0.05 misses per thousand instructions at every gap from 2 to 10\%; at Lam's 7.3\% gap the V-Cache CCD needs 0.38 misses removed per thousand instructions in the simulation and 0.35 in the analytical model. This agreement is expected rather than independent, since both are built on the same calibration and the same structure. At equal clocks the two disagree, 0.04 against 0.10 when both use 5.15\,GHz (the analytical model gives 0.12 at the 4.2\,GHz of \cref{sec:cache-clock-model}). Most of the difference, a factor of about 2.4, comes from one assumption: the simulation's overlap factor hides two thirds of the four extra L3 cycles as well as of each memory access, while the analytical model charges all four cycles. Neither has been measured.
 
-\Cref{tab:sim-s3-sensitivity} shows how far the break-even depends on the inputs. At equal clocks it hardly moves, 0.03 to 0.05. In the model the overlap factor scales both the saving of a removed miss and the cost of the four extra cycles, so it cancels, and only the memory latency moves the equal-clock break-even. At the realistic 7.3\% gap it is far more sensitive. With the overlap factors fitted to Cyberpunk~2077 and GHPC it rises to 0.58 and 1.05, and with no overlap it falls to 0.17, so across the overlap factors fitted to Lam's workloads, with the libx264 mix held fixed, it changes about threefold. The break-even at a realistic gap is therefore known only to within that range, and it depends most on how much of a miss a core hides.
+\Cref{tab:sim-s3-sensitivity} shows how far the break-even depends on the inputs. At equal clocks it hardly moves, 0.03 to 0.05. In the simulation the overlap factor scales both the saving of a removed miss and the cost of the four extra cycles, so it cancels, and only the memory latency moves the equal-clock break-even. At the realistic 7.3\% gap it is far more sensitive. With the overlap factors fitted to Cyberpunk~2077 and GHPC it rises to 0.58 and 1.05, and with no overlap it falls to 0.17, so across the overlap factors fitted to Lam's workloads, with the libx264 mix held fixed, it changes about threefold. The break-even at a realistic gap is therefore known only to within that range, and it depends most on how much of a miss a core hides.
 
 \input{"../initial-draft-2/figures/sim-table-s3-sensitivity.tex"}
 
-As a check on the mix, the simulation was run at equal clocks of 4.2\,GHz at the point where the V-Cache CCD removes 0.40 misses per thousand instructions, as Lam's libx264 run did. There the plain CCD makes 3.78 L3 accesses and 1.44 misses per thousand instructions and takes 729 cycles, and the V-Cache CCD gains 5.2\%, against the 4.9\% Lam measured. Because the mix and the overlap factor are both fitted to this one measurement, the agreement shows that the construction is consistent; it is not a test of the model.
+As a check on the mix, the simulation was run at equal clocks of 4.2\,GHz at the point where the V-Cache CCD removes 0.40 misses per thousand instructions, as Lam's libx264 run did. There the plain CCD makes 3.78 L3 accesses and 1.44 misses per thousand instructions and takes 729 cycles, and the V-Cache CCD gains 5.2\%, against 5.1\% from Lam's chart IPCs (Lam states 4.9\%). Because the mix and the overlap factor are both fitted to this one measurement, the agreement shows that the construction is consistent; it is not a test of the model.
 
 \subsection{S4: The cost of the chiplet split}
 \label{sec:sim-chiplet}
@@ -578,7 +557,7 @@ The model has clear limits, which bound how its results may be used:
   \item Its workloads are synthetic. Traces of real programs through Valgrind were tried but were too slow to finish (several hundred times slowdown), so none is reported.
   \item It maps each working set contiguously and accesses it at random, so it has no conflict misses below capacity and keeps some hits that a cyclic access pattern would lose. It is therefore optimistic near each capacity edge, as the 5600X measurement shows; for a latency sweep it understates the gain from about 20 to 64\,MB and overstates it close to 96\,MB (S0).
   \item Its L3 is filled on every miss; the sources used here do not state how Zen's L3 is filled, and real fill policies may differ. Its link-bandwidth limit is switched off in every experiment.
-  \item Its key inputs are fitted or assumed: the overlap factor and the 37\,ns hop are fitted to measurements, and the latencies of the planar 96\,MB L3 and of the side die are assumptions. Each is varied above where it matters.
+  \item Its key inputs are fitted or assumed: the overlap factor is fitted to measurements and the 37\,ns hop to a measured ratio, and the latencies of the planar 96\,MB L3 and of the side die are assumptions. Each is varied above where it matters.
   \item Its energy model has placeholder values and is not used in this paper.
 \end{itemize}
 Within these limits, the model's role is the one set out at the start of this section: a controlled illustration of the published evidence, not a substitute for it. What the 5600X measurements add is set out in S0 (\cref{sec:sim-calibration}).

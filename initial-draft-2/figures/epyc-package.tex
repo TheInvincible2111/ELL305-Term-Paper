@@ -2,7 +2,7 @@
 \centering
 \begin{tikzpicture}[x=1cm,y=1cm,
   ccd/.style={draw=ccdcore!70!black,thick,fill=ccdcore,text=white,minimum width=1.75cm,minimum height=0.95cm,font=\sffamily\scriptsize\bfseries,align=center,inner sep=1pt},
-  mc/.style={draw=ccdl2!70!black,fill=ccdl2,text=white,minimum width=0.62cm,minimum height=0.38cm,font=\sffamily\tiny\bfseries,inner sep=0pt},
+  mc/.style={draw=ccdl2!70!black,fill=ccdl2,text=white,minimum width=0.62cm,minimum height=0.38cm,font=\sffamily\scriptsize\bfseries,inner sep=0pt},
   lnk/.style={ccdif!80!black,line width=1.6pt,rounded corners=2pt},
   lbl/.style={font=\scriptsize,align=left}]
 % package outline
@@ -37,6 +37,6 @@
 \node[mc] at (-6.55,-3.75) {MC};
 \node[lbl,anchor=west] at (-6.1,-3.75) {memory controller / channel (eight in EPYC~7003)};
 \end{tikzpicture}
-\caption{Schematic of an AMD EPYC 7002/7003-style package: eight CCDs in two-deep columns around a central I/O die, each with its own link to the I/O die \cite{naffziger2020chiplet,amd2022epyc7003}. Positions, link routes and memory-controller placement are illustrative, not an actual AMD floorplan.}
+\caption[Schematic of an AMD EPYC 7002/7003-style package]{Schematic of an AMD EPYC 7002/7003-style package: eight CCDs in two-deep columns around a central I/O die, each with its own link to the I/O die \cite{naffziger2020chiplet,amd2022epyc7003}. Positions, link routes and memory-controller placement are illustrative, not an actual AMD floorplan.}
 \label{fig:epyc-package}
 \end{figure}

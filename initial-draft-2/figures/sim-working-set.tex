@@ -32,6 +32,6 @@
 \addplot[draftgray,thin] coordinates {(2,1) (256,1)};
 \end{axis}
 \end{tikzpicture}
-\caption{S1: the effect of tripling the L3 against the size of the working set, all else equal (one thread; overlap factor 0.335; mean of five seeds). (a) The L3 hit rate. (b) The model's memory-system time (exposed latency plus one cycle of other work per access) with 32\,MB divided by that with 96\,MB; values below 1 are the four extra cycles. The gain is confined to working sets between the two capacities (shaded) and fades beyond 96\,MB, the three regimes of \cref{fig:working-set}. Because almost every access in these synthetic workloads reaches the L3 or memory once the working set is well above the L2, the speed-ups are those of the memory system, not of a program.}
+\caption[S1: the effect of tripling the L3 against working-set size]{S1: the effect of tripling the L3 against the size of the working set, all else equal (one thread; overlap factor 0.335; mean of five seeds). (a) The L3 hit rate. (b) The model's memory-system time (exposed latency plus one cycle of other work per access) with 32\,MB divided by that with 96\,MB; values below 1 are the four extra cycles. The gain is confined to working sets between the two capacities (shaded) and fades beyond 96\,MB, the three regimes of \cref{fig:working-set}. Because almost every access in these synthetic workloads reaches the L3 or memory once the working set is well above the L2, the speed-ups are those of the memory system, not of a program.}
 \label{fig:sim-working-set}
 \end{figure}

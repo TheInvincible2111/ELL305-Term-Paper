@@ -18,7 +18,7 @@ The model is trace-driven and functional: it follows every memory access through
 
 \begin{table}[htbp]
   \centering
-  \caption{Default model parameters and their sources.}
+  \caption[Default model parameters and their sources]{Default model parameters and their sources.}
   \label{tab:sim-parameters}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}X@{}}
@@ -43,7 +43,7 @@ The model is trace-driven and functional: it follows every memory access through
 \end{table}
 
 \subsection*{Calibration of the overlap factor}
-Lam's libx264 measurement gives, per thousand instructions, 3.85 L3 accesses, 0.40 misses removed by the V-Cache and a net saving of about 36 cycles (\cref{sec:tradeoff-example}). In the model, a removed miss saves $\omega\,(L3 + t_{\mathrm{mem}} - L3_{\mathrm{stacked}})$ cycles and each L3 access costs $4\omega$ more, where $\omega$ is the overlap factor, because the model overlaps the four extra cycles too. Requiring $0.40 \times 306.8\,\omega - 3.85 \times 4\,\omega = 36$ at 4.2\,GHz gives $\omega = 0.335$; the same equation gives 0.202 for Cyberpunk~2077 and 0.105 for GHPC. These are fitted values. They inherit the caveats of the 130-cycle estimate, in particular that Lam's counters include prefetch and speculative L3 accesses.
+Lam's libx264 measurement gives, per thousand instructions, 3.85 L3 accesses, 0.40 misses removed by the V-Cache and a net saving of about 36 cycles (\cref{sec:tradeoff-example}). In the model, a removed miss saves $\omega\,(L3 + t_{\mathrm{mem}} - L3_{\mathrm{stacked}})$ cycles and each L3 access costs $4\omega$ more, where $\omega$ is the overlap factor, because the model overlaps the four extra cycles too. Requiring $0.40 \times 306.8\,\omega - 3.85 \times 4\,\omega = 36$ at 4.2\,GHz gives $\omega = 0.335$; the same equation gives 0.202 for Cyberpunk~2077 and 0.105 for GHPC. These are fitted values. They inherit the caveats of the 130-cycle estimate (\cref{sec:tradeoff-example}).
 
 \subsection*{Workloads}
 \emph{Random} accesses lines uniformly at random within the working set. A latency sweep instead follows a cyclic chain through its working set: within a cache's capacity the two give the same latency, but above it the random workload keeps some hits that a cyclic chase loses (\cref{sec:sim-calibration,tab:sim-policy}). \emph{Hot/cold} sends a fixed share of accesses to a small hot region, and the rest to the whole working set or, optionally, to a separate far region beyond it. \emph{Sequential} streams through private data. \emph{Ping-pong} has two cores write one line in turn.
@@ -57,7 +57,7 @@ The S3 mix is built to match Lam's libx264 run:
   \item L1 hits are charged one cycle, standing for loads the pipeline hides (an assumption);
   \item each access adds 0.48 cycles of other work (an assumption), chosen so that the plain CCD runs at about 730 cycles per thousand instructions at Lam's operating point, against the 735 measured.
 \end{itemize}
-At that operating point the mix gives about 3.8 L3 accesses and 1.44 misses per thousand instructions on the plain CCD. Because the mix and the overlap factor are both fitted to the same measurement, its agreement with Lam's 4.9\% gain at equal clocks (\cref{sec:sim-clock}) is a check of the construction, not an independent test.
+At that operating point the mix gives about 3.8 L3 accesses and 1.44 misses per thousand instructions on the plain CCD. Because the mix and the overlap factor are both fitted to the same measurement, its agreement with Lam's gain at equal clocks (5.2\% against 5.1\% from the chart IPCs; \cref{sec:sim-clock}) is a check of the construction, not an independent test.
 
 \subsection*{How to repeat the study}
 After cloning the GitHub repository, on Linux or WSL with a C++ compiler and Python~3:

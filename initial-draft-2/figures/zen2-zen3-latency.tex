@@ -6,7 +6,7 @@
   ymode=log, ymin=0.5, ymax=150, log ticks with fixed point, log origin=infty,
   ylabel={Latency (ns, log scale)},
   symbolic x coords={L1,L2,L3,Memory}, xtick=data,
-  nodes near coords, nodes near coords style={font=\tiny},
+  nodes near coords, nodes near coords style={font=\scriptsize},
   point meta=rawy,
   ymajorgrids, grid style={draftgray!25}, axis x line*=bottom, axis y line*=left,
   legend style={at={(0.5,1.03)},anchor=south}, legend cell align=left, legend style={font=\scriptsize,draw=draftgray!50},
@@ -17,6 +17,6 @@
 \addlegendentry{Ryzen~7 5800X (Zen~3, one 32\,MB L3 per CCD)}
 \end{axis}
 \end{tikzpicture}
-\caption{AIDA64 cache and memory latency of a Zen~2 and a Zen~3 eight-core processor with identical DDR4-3600 CL16 memory and the same 1800\,MHz fabric clock, from The FPS Review \cite{justiceAMDRyzen72021}. Unifying the L3 made it slower by about a nanosecond, while memory latency fell by 7\,ns; the 5800X also runs at a higher clock, so the nanosecond values mix the cache change with the clock change.}
+\caption[AIDA64 latency of a Zen~2 and a Zen~3 eight-core processor]{AIDA64 cache and memory latency of a Zen~2 and a Zen~3 eight-core processor with identical DDR4-3600 CL16 memory and the same 1800\,MHz fabric clock, from The FPS Review \cite{justiceAMDRyzen72021}. Unifying the L3 made it slower by about a nanosecond, while memory latency fell by 7\,ns; the 5800X also runs at a higher clock, so the nanosecond values mix the cache change with the clock change.}
 \label{fig:zen2-zen3-latency}
 \end{figure}

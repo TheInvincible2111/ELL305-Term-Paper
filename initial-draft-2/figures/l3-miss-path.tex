@@ -37,6 +37,6 @@
 \draw[req] (8.6,-1.55) -- (9.2,-1.55) node[right,font=\scriptsize,text=black]{request};
 \draw[rsp] (8.6,-1.95) -- (9.2,-1.95) node[right,font=\scriptsize,text=black]{data returned};
 \end{tikzpicture}
-\caption{The path of a load that misses in the L3 of a chiplet processor. The request leaves the compute die, crosses the package link to the I/O die, where the memory controllers sit, and the data returns the same way. Times from AMD for Rome \cite{naffziger2020chiplet} and from AIDA64 measurements of the Ryzen~7 5800X \cite{justiceAMDRyzen72021}; the figures come from different processors and are shown for scale only.}
+\caption[The path of a load that misses in the L3 of a chiplet processor]{The path of a load that misses in the L3 of a chiplet processor. The request leaves the compute die, crosses the package link to the I/O die, where the memory controllers sit, and the data returns the same way. Times from AMD for Rome \cite{naffziger2020chiplet} and from AIDA64 measurements of the Ryzen~7 5800X \cite{justiceAMDRyzen72021}; the figures come from different processors and are shown for scale only.}
 \label{fig:l3-miss-path}
 \end{figure}

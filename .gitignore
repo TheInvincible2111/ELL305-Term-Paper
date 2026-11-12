@@ -15,6 +15,9 @@ notes/.obsidian/workspace-mobile.json
 notes/Term Paper ELL305/
 AGENTS.md
 
+# gem5: source/build live in WSL ~/gem5; keep only small files here
+Gem5/results/
+Gem5/*.lnk
 
 # cache simulator build output and local results
 tools/cachesim/cachesim

@@ -40,7 +40,7 @@ Smaller chiplets yield better, so the denominator grows with $k$, while the over
 
 \subsection{Silicon across a product line}
 \label{app:product-line}
-This example supports the summary in \cref{sec:manufacturing}. Suppose a fraction $p$ of the parts a company sells needs 96\,MB of L3 and the rest needs 32\,MB, and compare three ways of building the line, using the silicon per good part from \cref{tab:stack-yield} and a bonding yield of 95\% (an assumed value; at 99\% each stacked part would cost about 140.7\,mm$^2$ instead of 146.6\,mm$^2$):
+This calculation supports the summary in \cref{sec:manufacturing}. Suppose a fraction $p$ of the parts a company sells needs 96\,MB of L3 and the rest needs 32\,MB, and compare three ways of building the line, using the silicon per good part from \cref{tab:stack-yield} and a bonding yield of 95\%. The bonding yield is an assumed value; at 99\% each stacked part would cost about 140.7\,mm$^2$ instead of 146.6\,mm$^2$. The three ways are:
 \begin{itemize}
   \item \textbf{(A) One planar die for everything.} Every part uses the 122\,mm$^2$ die with 96\,MB, so every part costs 154\,mm$^2$ of silicon.
   \item \textbf{(B) Two planar dies.} A 32\,MB die (94.8\,mm$^2$ per good part) and a 96\,MB die (154\,mm$^2$), each designed, verified and made separately.
@@ -49,7 +49,7 @@ This example supports the summary in \cref{sec:manufacturing}. Suppose a fractio
 
 \begin{table}[htbp]
   \centering
-  \caption{Average silicon per good part across a product line in which a fraction $p$ of parts needs 96\,MB (from \cref{tab:stack-yield}; bonding yield 95\%, assumed; thinning, bonding and test costs not included).}
+  \caption[Average silicon per good part across a product line]{Average silicon per good part across a product line in which a fraction $p$ of parts needs 96\,MB (from \cref{tab:stack-yield}; bonding yield 95\%, assumed; thinning, bonding and test costs not included).}
   \label{tab:product-line-silicon}
   \small
   \begin{tabular}{@{}lccc@{}}
@@ -67,7 +67,7 @@ This example supports the summary in \cref{sec:manufacturing}. Suppose a fractio
 
 \subsection{Good dies per wafer}
 \label{app:dies-per-wafer}
-This example supports the summary in \cref{sec:process-specialisation}. Yield is only half of the cost story; the other half is how many dies fit on a wafer. Dong and Xie estimate the number of dies per wafer as
+This calculation supports the summary in \cref{sec:process-specialisation}. Yield is only half of the cost story; the other half is how many dies fit on a wafer. Dong and Xie estimate the number of dies per wafer as
 \begin{equation}
   N_{\mathrm{die}} \;=\; \frac{\pi\,(\phi_{\mathrm{wafer}}/2)^2}{A_{\mathrm{die}}} \;-\; \frac{\pi\,\phi_{\mathrm{wafer}}}{\sqrt{2\,A_{\mathrm{die}}}},
   \label{eq:dies-per-wafer}
@@ -76,7 +76,7 @@ where $\phi_{\mathrm{wafer}}$ is the wafer diameter and $A_{\mathrm{die}}$ the d
 
 \begin{table}[htbp]
   \centering
-  \caption{Dies and good dies per 300\,mm wafer ($D_0 = 0.2$\,cm$^{-2}$, $Y_{\mathrm{wafer}} = 1$; illustrative).}
+  \caption[Dies and good dies per 300\,mm wafer]{Dies and good dies per 300\,mm wafer ($D_0 = 0.2$\,cm$^{-2}$, $Y_{\mathrm{wafer}} = 1$; illustrative).}
   \label{tab:dies-per-wafer}
   \small
   \begin{tabular}{@{}lcccc@{}}

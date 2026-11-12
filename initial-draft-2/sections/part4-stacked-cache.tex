@@ -63,7 +63,7 @@ A side-by-side die does not automatically push the CCD farther from the IOD: the
 
 The more important comparison is therefore not the CCD-to-IOD distance but the latency and bandwidth of the path \emph{between the cores and the additional cache}.
 
-AMD's own framing of the choice matches this analysis. Its ISSCC~2022 presentation illustrates a hypothetical processor whose large cache is split off onto a side-by-side chiplet, and states that ``2.5D chiplets can provide product flexibility and reduce cost'' but that ``3D can be even better'', because it improves effective memory latency, reduces long-datapath and I/O dynamic power, and ``fits more transistors within a given package cavity size'' \cite[slide~7]{wuu2022vcache}.
+AMD's own framing of the choice matches this analysis. Its ISSCC~2022 presentation illustrates a hypothetical processor whose large cache is split off onto a side-by-side chiplet. It states that ``2.5D chiplets can provide product flexibility and reduce cost'' but that ``3D can be even better'', because it improves effective memory latency, reduces long-datapath and I/O dynamic power, and ``fits more transistors within a given package cavity size'' \cite[slide~7]{wuu2022vcache}.
 
 \subsection{Stacking the cache die on the compute die}
 Vertical stacking changes the trade-off:
@@ -75,7 +75,7 @@ Vertical stacking changes the trade-off:
 
 \begin{table}[htbp]
   \centering
-  \caption{Qualitative comparison of side-by-side and vertically stacked cache dies.}
+  \caption[Qualitative comparison of side-by-side and vertically stacked cache dies]{Qualitative comparison of side-by-side and vertically stacked cache dies.}
   \label{tab:horizontal-vs-vertical}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
@@ -97,7 +97,7 @@ Vertical stacking changes the trade-off:
 \label{sec:hybrid-bonding}
 
 \subsection{The Zen~3 3D V-Cache stack}
-This paper calls the arrangement of the Zen~3 and Zen~4 V-Cache parts, with the cache die on top of the CCD, the \emph{cache-on-top stack}; \cref{sec:thermal-evidence} explains why AMD's generation labels are avoided. AMD's Hot Chips~33 presentation describes the Zen~3 stack as a 64\,MB L3 cache die attached to an up-to-eight-core Zen~3 CCD by a direct copper-to-copper bond, with \glspl{tsv} carrying signals and power through the CCD \cite{swaminathanAdvancedPackagingEnabling2021}. AMD's EPYC~7003 documentation states that the L3 cache tiles are stacked on the central L3 portion of the base CCX \cite{amd2022epyc7003}. The ISSCC~2022 presentation describes the three components of the stack and how they are assembled \cite[slides~10--12, 14, 16--17]{wuu2022vcache}:
+This paper calls the arrangement of the Zen~3 and Zen~4 V-Cache parts, with the cache die on top of the CCD, the \emph{cache-on-top stack}\index{3D V-Cache!cache-on-top stack}; \cref{sec:thermal-evidence} explains why AMD's generation labels are avoided. AMD's Hot Chips~33 presentation describes the Zen~3 stack as a 64\,MB L3 cache die attached to an up-to-eight-core Zen~3 CCD by a direct copper-to-copper bond, with \glspl{tsv} carrying signals and power through the CCD \cite{swaminathanAdvancedPackagingEnabling2021}. AMD's EPYC~7003 documentation states that the L3 cache tiles are stacked on the central L3 portion of the base CCX \cite{amd2022epyc7003}. The ISSCC~2022 presentation describes the three components of the stack and how they are assembled \cite[slides~10--12, 14, 16--17]{wuu2022vcache}:
 \begin{itemize}
   \item the Zen~3 CCD, built on TSMC's 7\,nm process with eight cores sharing 32\,MB of L3 in an area of 81\,mm$^2$, with V-Cache support designed in ``from Day~1'';
   \item the extended L3 die (L3D in AMD's slides, which the following paragraphs describe; the cache die elsewhere in this paper), also 7\,nm, carrying 64\,MB of L3 in 41\,mm$^2$, roughly half the CCD area;
@@ -108,7 +108,7 @@ The CCD is mounted face-down on the package substrate through conventional C4 bu
 \input{"../initial-draft-2/figures/vcache-stack.tex"}
 
 \subsection{Hybrid bonding versus micro-bumps}
-Earlier 3D stacking typically joined dies with solder \glspl{micro-bump}. \Gls{hybrid-bonding} instead bonds aligned copper pads and surrounding dielectric directly. AMD reports, from its internal engineering analysis \cite{swaminathanAdvancedPackagingEnabling2021}:\index{hybrid bonding}
+Earlier 3D stacking typically joined dies with solder \glspl{micro-bump}\index{micro-bump}. \Gls{hybrid-bonding} instead bonds aligned copper pads and surrounding dielectric directly. AMD reports, from its internal engineering analysis \cite{swaminathanAdvancedPackagingEnabling2021}:\index{hybrid bonding}
 \begin{itemize}
   \item a hybrid-bond pitch of 9\,\textmu m, compared with 50 to 36\,\textmu m for micro-bump 3D;
   \item more than 15$\times$ the interconnect density of micro-bump 3D;
@@ -134,11 +134,7 @@ The architectural meaning becomes clear from the area involved. Suppose, for ill
 
 \subsection{How a hybrid bond is made}
 \label{sec:bond-process}
-The chemistry matters here for one architectural reason: it is what lets the dies join without solder, and solder is what limits the pitch of micro-bumps (\cref{sec:hybrid-bonding}). Hybrid bonding joins two surfaces that each contain both dielectric and copper. AMD's packaging engineers describe the dielectric part as \emph{fusion bonding} \cite[slide~9]{alam2ndGeneration3D2024}. The oxide surfaces are prepared so that they end in silanol (Si--OH) groups. When the two dies are brought together at room temperature, these groups hold the surfaces together with weak hydrogen bonds. Annealing then converts them into strong siloxane bonds,
-\[
-  \text{Si--OH} \;+\; \text{HO--Si} \;\longrightarrow\; \text{Si--O--Si} \;+\; \text{H}_2\text{O},
-\]
-releasing water vapour \cite[slide~9]{alam2ndGeneration3D2024}. In hybrid bonding the copper pads start slightly recessed (``dished'') below the oxide, so that the oxide surfaces bond first; during the anneal the copper diffuses across the interface and joins the pads \cite[slide~9]{alam2ndGeneration3D2024}. No solder is involved, which is why the pitch can be so much finer than with micro-bumps.
+Hybrid bonding joins two surfaces that each contain both oxide and copper pads. The oxide surfaces bond first; the copper pads start slightly recessed, and during the anneal the copper diffuses across the interface and joins them \cite[slide~9]{alam2ndGeneration3D2024}. No solder is involved, and solder is what limits the pitch of micro-bumps (\cref{sec:hybrid-bonding}), which is why the pitch can be so much finer.
 
 \Cref{fig:bond-interface} shows one connection. In the Zen~3 stack, the copper pads on each die are called bond-pad metal (BPM). On the CCD, the BPM sits on the end of a TSV; on the L3D, a bond-pad via (BPV) connects the BPM to the die's top copper layer, M13 \cite[slide~16]{wuu2022vcache}. The L3D has thirteen copper layers and one aluminium layer \cite[slide~11]{wuu2022vcache}. For Zen~4, AMD changed this detail: the stack became explicitly face-to-back, with a 7\,nm cache die on a 5\,nm CCD, and the BPV lands on the top aluminium pad instead of the top copper layer \cite[slides~11--12]{alam2ndGeneration3D2024}. The process is TSMC's SoIC \cite[slide~16]{wuu2022vcache}.
 
@@ -168,14 +164,14 @@ Lam's fixed-frequency measurements of the Ryzen~9 7950X3D give enough data to ap
   \item \textbf{Cycles added.} Every L3 access pays four more cycles: $3.85 \times 4 \approx 15$ cycles per thousand instructions.
   \item \textbf{Net effect.} About 25 to 105 cycles saved per thousand instructions.
 \end{enumerate}
-At an IPC of 1.36, a thousand instructions take $1000/1.36 \approx 735$ cycles, so the model predicts 3--14\% fewer cycles. The measurement lies inside that range: at an IPC of 1.43 the same work takes about 699 cycles, 4.9\% fewer. \Cref{fig:libx264-waterfall} shows how this change divides between the two effects.
+At an IPC of 1.36, a thousand instructions take $1000/1.36 \approx 735$ cycles, so the model predicts 3--14\% fewer cycles. The measurement lies inside that range: at an IPC of 1.43 the same work takes about 699 cycles, 4.9\% fewer (an IPC gain of 5.1\% from the rounded chart values; Lam states 4.9\%). \Cref{fig:libx264-waterfall} shows how this change divides between the two effects.
 
 \input{"../initial-draft-2/figures/libx264-waterfall.tex"}
 
 
 The measurement can also be turned around. The observed saving of about 36 cycles per thousand instructions, plus the 15 cycles of added L3 latency, implies that each removed miss saved about $(36 + 15)/0.40 \approx 130$ cycles. That is at the low end of the textbook's 100--300-cycle range, which is expected if an out-of-order core overlaps some memory misses with other work (\cref{sec:mlp}): removing a miss then saves less than its full latency.
 
-The 130 cycles should be read as an \emph{apparent} saving per counted miss, for two reasons. First, Lam counts L3 accesses from the L3's side, including speculative accesses and without separating prefetches from demand requests \cite{lamAMDs7950X3DZen2023}. A removed prefetch miss need not have stalled the core at all, so prefetching is a second explanation, besides overlap, for a saving below the full latency. Second, the calculation rests on four assumptions besides the textbook's latency range: that all of the IPC change comes from L3 misses and L3 latency; that every L3 access pays all four extra cycles; that both CCDs make the same number of L3 accesses per thousand instructions; and that the counted misses are the ones the core waits for. The third can be checked on the one workload for which Lam states both MPKIs, the flight simulator DCS discussed next. Its 0.35 misses at a 10.9\% miss rate imply 3.2 L3 accesses per thousand instructions on the plain CCD, but 0.28 at 7.6\% imply 3.7 on the V-Cache CCD, about 15\% more; the method would have predicted 0.24 MPKI with V-Cache rather than the 0.28 measured. The 130 cycles is therefore an estimate with an uncertainty of this order, not a measured stall.
+The 130 cycles should be read as an \emph{apparent} saving per counted miss, for two reasons. First, Lam counts L3 accesses from the L3's side, including speculative accesses and without separating prefetches from demand requests \cite{lamAMDs7950X3DZen2023}. A removed prefetch miss need not have stalled the core at all, so prefetching is a second explanation, besides overlap, for a saving below the full latency. Second, the calculation rests on four assumptions besides the textbook's latency range. They are that all of the IPC change comes from L3 misses and L3 latency; that every L3 access pays all four extra cycles; that both CCDs make the same number of L3 accesses per thousand instructions; and that the counted misses are the ones the core waits for. The third can be checked on the one workload for which Lam states both MPKIs, the flight simulator DCS discussed next. Its 0.35 misses at a 10.9\% miss rate imply 3.2 L3 accesses per thousand instructions on the plain CCD, but 0.28 at 7.6\% imply 3.7 on the V-Cache CCD, about 15\% more; the method would have predicted 0.24 MPKI with V-Cache rather than the 0.28 measured. The 130 cycles is therefore an estimate with an uncertainty of this order, not a measured stall.
 
 The same arithmetic explains the small loss Lam observed in a flight simulator with only 0.35 MPKI, falling to 0.28 with V-Cache \cite{lamAMDs7950X3DZen2023}. Removing 0.07 misses per thousand instructions saves at most 7--21 cycles, which can be outweighed by four extra cycles on each of its L3 hits. The model's range brackets the measurement, and both agree with the miss-class argument of \cref{sec:why-cache-capacity}.
 
@@ -251,7 +247,7 @@ while for wafer-to-wafer bonding the die yields multiply:
 
 \begin{table}[htbp]
   \centering
-  \caption{Silicon consumed per good part for a planar 96\,MB CCD and the stacked design (Murphy model, $D_0 = 0.2$\,cm$^{-2}$; illustrative).}
+  \caption[Silicon consumed per good part for a planar 96\,MB CCD and the stacked design]{Silicon consumed per good part for a planar 96\,MB CCD and the stacked design (Murphy model, $D_0 = 0.2$\,cm$^{-2}$; illustrative).}
   \label{tab:stack-yield}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{4.0cm}@{}}

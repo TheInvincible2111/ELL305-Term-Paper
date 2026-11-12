@@ -4,16 +4,16 @@
 \begin{tikzpicture}[x=1cm,y=1cm,
   frame/.style={draw=ccdframe,line width=3pt,fill=ccdframe!35},
   core/.style={draw=ccdcore!70!black,fill=ccdcore,text=white,font=\sffamily\scriptsize\bfseries,align=center,minimum width=1.25cm,minimum height=0.78cm,inner sep=1pt},
-  l2/.style={draw=ccdl2!70!black,fill=ccdl2,text=white,font=\sffamily\tiny,align=center,minimum width=0.62cm,minimum height=0.78cm,inner sep=0.5pt},
+  l2/.style={draw=ccdl2!70!black,fill=ccdl2,text=white,font=\sffamily\scriptsize,align=center,minimum width=0.62cm,minimum height=0.78cm,inner sep=0.5pt},
   l3/.style={draw=ccdl3!60!black,fill=ccdl3,text=white,font=\sffamily\small\bfseries,align=center},
   fab/.style={draw=ccdif!70!black,fill=ccdif,text=white,font=\sffamily\scriptsize\bfseries,minimum height=0.36cm},
   ttl/.style={font=\sffamily\Large\bfseries}]
 % one core with its L2: #1 = x of the left edge, #2 = y centre, #3 = core label, #4 = 1 if L2 on the left
 \providecommand{\corepair}[4]{%
   \ifnum#4=1
-    \node[l2] at (#1+0.31,#2) {L2\\512\,KB}; \node[core] at (#1+1.25,#2) {#3\\Core};
+    \node[l2] at (#1+0.31,#2) {L2}; \node[core] at (#1+1.25,#2) {#3\\Core};
   \else
-    \node[core] at (#1+0.625,#2) {#3\\Core}; \node[l2] at (#1+1.56,#2) {L2\\512\,KB};
+    \node[core] at (#1+0.625,#2) {#3\\Core}; \node[l2] at (#1+1.56,#2) {L2};
   \fi}
 % ---------- Zen 2 ----------
 \begin{scope}
@@ -51,11 +51,11 @@
 \draw[fill=ccdl3!55!white,draw=ccdl3!60!black,line width=1.2pt,dashed] (2.1,0.2) rectangle (4.2,3.45);
 \node[font=\sffamily\small\bfseries,text=ccdl3!50!black,align=center] at (3.15,2.15) {+64\,MB\\cache die};
 \node[font=\sffamily\scriptsize,text=ccdl3!50!black,align=center] at (3.15,1.05) {stacked on\\the 32\,MB L3\\(96\,MB in all)};
-\node[font=\sffamily\tiny,align=center,fill=white,inner sep=1pt] at (1.06,1.82) {structural\\silicon\\over cores};
-\node[font=\sffamily\tiny,align=center,fill=white,inner sep=1pt] at (5.24,1.82) {structural\\silicon\\over cores};
+\node[font=\sffamily\scriptsize,align=center,fill=white,inner sep=2pt,minimum width=1.45cm,minimum height=1.6cm] at (1.06,1.82) {structural\\silicon\\over cores};
+\node[font=\sffamily\scriptsize,align=center,fill=white,inner sep=2pt,minimum width=1.45cm,minimum height=1.6cm] at (5.24,1.82) {structural\\silicon\\over cores};
 \node[font=\sffamily\scriptsize,align=center] at (3.15,-0.45) {seen from above: cache die over the L3 only};
 \end{scope}
 \end{tikzpicture}}
-\caption{Compute die (CCD) organisation from Zen~2 to Zen~3 and Zen~3 with 3D V-Cache: cores (orange), private L2 caches (blue), L3 (purple) and the Infinity Fabric interface (green). Zen~2 splits the CCD into two four-core complexes with 16\,MB of L3 each; Zen~3 gives all eight cores one 32\,MB L3; V-Cache stacks a 64\,MB cache die over the central L3 and covers the cores only with structural silicon. Drawn from AMD's descriptions \cite{suggs2019zen2,amd2022epyc7003,wuu2022vcache}; a schematic, not a floorplan, and not to scale.}
+\caption[Compute die organisation from Zen~2 to Zen~3 and Zen~3 with 3D V-Cache]{Compute die (CCD) organisation from Zen~2 to Zen~3 and Zen~3 with 3D V-Cache: cores (orange), private 512\,KB L2 caches (blue), L3 (purple) and the Infinity Fabric interface (green). Zen~2 splits the CCD into two four-core complexes with 16\,MB of L3 each; Zen~3 gives all eight cores one 32\,MB L3; V-Cache stacks a 64\,MB cache die over the central L3 and covers the cores only with structural silicon. Drawn from AMD's descriptions \cite{suggs2019zen2,amd2022epyc7003,wuu2022vcache}; a schematic, not a floorplan, and not to scale.}
 \label{fig:zen-ccd-evolution}
 \end{figure}

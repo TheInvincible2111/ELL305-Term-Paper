@@ -1,0 +1,25 @@
+\clearpage
+\section{Evidence Ledger}
+\label{app:evidence-ledger}
+This appendix records, for each independent source on the stacked cache used in Part~\ref{part:case-study}, the systems it compares, the conditions it states and what it measures (\cref{sec:evidence-ledger}).
+
+\begin{table}[htbp]
+  \centering
+  \caption[Evidence ledger of the independent sources on the stacked cache]{Evidence ledger: the independent sources on the stacked cache, with the conditions each one states.}
+  \label{tab:evidence-ledger}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    \textbf{Source; type} & \textbf{Systems compared} & \textbf{Clock and memory} & \textbf{Metric} & \textbf{Workloads; notes} \\
+    \midrule
+    Lam 2023 \cite{lamAMDs7950X3DZen2023}; technical article & the two CCDs of one Ryzen~9 7950X3D & both CCDs fixed at 4.2\,GHz, boost off; same memory; GPU clock fixed & IPC and L3 hit rate from performance counters & four games, libx264, 7-Zip; one Call of Duty scenario not exactly repeatable (multiplayer) \\
+    Domke \emph{et al.} 2023 \cite{domkeLocusPerformanceQuantifying2023}; peer-reviewed & dual-socket EPYC~7773X vs 7763, 64 cores per socket & clocks not fixed (base 2.20 vs 2.45\,GHz); same 280\,W TDP and 16-channel DDR4 & runtime-based performance & MiniFE across problem sizes $100^3$ to $400^3$ \\
+    Lawenda \emph{et al.} 2025 \cite{lawendaEvaluatingImpactL32025}; preprint & seven dual-socket platforms, Rome to Genoa-X and Bergamo & turbo on, SMT off; clocks measured as ranges & FVOPS (cells solved per second); L3 miss rate from AMD \textmu Prof & OpenFOAM motorBike (eight meshes) and an urban air-pollution case; each test repeated five times \\
+    Cozma 2022a \cite{cozmaAMDsVCacheTested2022}; technical article & Milan and Milan-X cloud instances & not fixed; Milan-X observed boosting higher in this test & load latency (cycles, ns) & pointer-chasing latency sweep \\
+    Cozma 2022b \cite{cozmaDeepDivingZen2022}; technical article & Milan-X vs Milan, one CCD each, cloud instances & clocks estimated (Milan-X about 5\% lower) & runtime; latency & gem5, libx264, 7-Zip; latency with 4\,KB and 2\,MB pages \\
+    Cozma 2024 \cite{cozmaAMDs9800X3D2nd2024}; technical article & Ryzen~7 9800X3D (sample supplied by AMD) & stock & L3 latency; clock behaviour; SPEC CPU 2017 & microbenchmarks; observed clocks; SPEC subtests \\
+    Larabel 2022 \cite{larabelAMDRyzen72022}; benchmark article & Ryzen~7 5800X3D vs 5800X & stock clocks; memory not restated per test & each benchmark's own metric & 420 Linux benchmarks; 350 with a significant difference \\
+    Reguly 2023 \cite{regulyComparativeEvaluationBandwidthbound2023}; paper & EPYC~7V73X (Milan-X) against two Intel Xeons & cloud virtual machine; SMT off & bandwidth; core-to-core latency & BabelStream; message-passing test; bandwidth-bound applications \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

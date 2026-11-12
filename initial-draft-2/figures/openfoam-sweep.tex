@@ -19,6 +19,6 @@
 \addplot[draftgray,thin] coordinates {(800,1)(500000,1)};
 \end{axis}
 \end{tikzpicture}
-\caption{OpenFOAM motorBike: speed-up of a dual-socket EPYC~7773X (Milan-X) system over a dual-socket EPYC~7763 (Milan) system by mesh size, read from Lawenda \emph{et al.}'s Fig.~4, with cells per core from their Table~3 \cite{lawendaEvaluatingImpactL32025}. The gain peaks where the working set fits the larger L3 but not the smaller one, and falls on the largest mesh, which exceeds both. The figure labels the xhigh gain 1.22$\times$ while the article's text gives 1.24$\times$. For the three smallest meshes the figure gives no ratio; the article's Table~6 gives a lowest value of 0.81$\times$. Clocks were not fixed (\cref{tab:clock-correction}).}
+\caption[OpenFOAM speed-up of Milan-X over Milan by mesh size]{OpenFOAM motorBike: speed-up of a dual-socket EPYC~7773X (Milan-X) system over a dual-socket EPYC~7763 (Milan) system by mesh size, read from Lawenda \emph{et al.}'s Fig.~4, with cells per core from their Table~3 \cite{lawendaEvaluatingImpactL32025}. The gain peaks where the working set fits the larger L3 but not the smaller one, and falls on the largest mesh, which exceeds both. The figure labels the xhigh gain 1.22$\times$ while the article's text gives 1.24$\times$. For the three smallest meshes the figure gives no ratio; the article's Table~6 gives a lowest value of 0.81$\times$. Clocks were not fixed (\cref{tab:clock-correction}).}
 \label{fig:openfoam-sweep}
 \end{figure}

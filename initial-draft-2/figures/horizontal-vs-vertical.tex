@@ -1,33 +1,34 @@
 \begin{figure}[htbp]
 \centering
+\resizebox{0.6\textwidth}{!}{%
 \begin{tikzpicture}[
-  die/.style={draw=draftblue,thick,fill=draftlight,align=center,font=\scriptsize},
-  sram/.style={draw=draftblue,thick,fill=white,pattern=north east lines,pattern color=draftblue!35,align=center,font=\scriptsize},
+  die/.style={draw=draftblue,thick,fill=draftlight,align=center,font=\tiny},
+  sram/.style={draw=draftblue,thick,fill=white,pattern=north east lines,pattern color=draftblue!35,align=center,font=\tiny},
   lab/.style={font=\small\bfseries,text=draftblue}]
 % (a) Horizontal
 \node[draw=draftgray,dashed,minimum width=6.2cm,minimum height=3.4cm] (pkgA) at (0,0) {};
 \node[die,minimum width=1.8cm,minimum height=1.6cm] (ccdA) at (-1.6,0.55) {CCD\\cores + L3};
 \node[sram,minimum width=1.8cm,minimum height=1.6cm] (cacheA) at (1.5,0.55) {};
-\node[font=\scriptsize,align=center,fill=white,inner sep=1pt] at (cacheA) {extra\\SRAM die};
+\node[font=\tiny,align=center,fill=white,inner sep=1pt] at (cacheA) {extra\\SRAM die};
 \node[die,fill=white,minimum width=4.6cm,minimum height=0.6cm] (iodA) at (0,-1.15) {IOD};
 \draw[thick,draftblue,{Stealth}-{Stealth}] (ccdA) -- node[above,font=\tiny]{package link} (cacheA);
 \draw[thick,draftblue,{Stealth}-{Stealth}] (ccdA.south) -- (ccdA.south |- iodA.north);
 \node[lab,above=0.1cm of pkgA] {(a) Cache die placed beside the CCD (top view)};
-\node[font=\scriptsize,text=draftgray,below=0.1cm of pkgA,text width=6cm,align=center] {Larger package footprint; cache traffic crosses a side-by-side die-to-die interface.};
+\node[font=\tiny,text=draftgray,below=0.1cm of pkgA,text width=6cm,align=center] {Larger package footprint; cache traffic crosses a side-by-side die-to-die interface.};
 % (b) Vertical
-\begin{scope}[xshift=7.8cm]
+\begin{scope}[yshift=-5.2cm]
 \node[draw=draftgray,dashed,minimum width=5.6cm,minimum height=3.4cm] (pkgB) at (0,0) {};
 \node[sram,minimum width=2.0cm,minimum height=0.55cm] (cacheB) at (0,1.05) {};
-\node[font=\scriptsize,fill=white,inner sep=1pt] at (cacheB) {extra SRAM die};
+\node[font=\tiny,fill=white,inner sep=1pt] at (cacheB) {extra SRAM die};
 \node[die,minimum width=4.2cm,minimum height=0.75cm] (ccdB) at (0,0.05) {CCD: cores + base L3};
 \foreach \x in {-0.8,-0.5,...,0.8}{\draw[draftblue] (\x,0.78) -- (\x,0.43);}
-\node[font=\tiny,text=draftblue,anchor=west] at (1.1,0.6) {dense vertical bonds / TSVs};
+\node[font=\tiny,text=draftblue,anchor=west,text width=1.4cm,align=left] at (1.2,0.6) {dense vertical bonds / TSVs};
 \node[die,fill=white,minimum width=4.6cm,minimum height=0.6cm] (iodB) at (0,-1.15) {IOD (separate die)};
 \draw[thick,draftblue,{Stealth}-{Stealth}] (ccdB.south) -- (ccdB.south |- iodB.north);
 \node[lab,above=0.1cm of pkgB] {(b) Cache die stacked on the CCD (side view)};
-\node[font=\scriptsize,text=draftgray,below=0.1cm of pkgB,text width=5.6cm,align=center] {Little extra footprint; many short vertical connections; heat path from cores is altered.};
+\node[font=\tiny,text=draftgray,below=0.1cm of pkgB,text width=5.6cm,align=center] {Little extra footprint; many short vertical connections; heat path from cores is altered.};
 \end{scope}
-\end{tikzpicture}
-\caption{Two ways to add cache capacity to a compute die. Illustrative arrangements only; not actual AMD package layouts and not to scale.}
+\end{tikzpicture}}
+\caption[Two ways to add cache capacity to a compute die]{Two ways to add cache capacity to a compute die. Illustrative arrangements only; not actual AMD package layouts and not to scale.}
 \label{fig:horizontal-vs-vertical}
 \end{figure}

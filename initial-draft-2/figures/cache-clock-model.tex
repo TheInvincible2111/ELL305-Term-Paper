@@ -22,6 +22,6 @@
 \addplot[only marks,mark=o,mark size=2pt,todored] coordinates {(0.352,0) (0.118,0) (0.503,0)};
 \end{axis}
 \end{tikzpicture}
-\caption{Cache against clock for the libx264 profile of \cref{sec:tradeoff-example}, from \cref{eq:cache-clock-model}. Open circles mark the break-even points: about 0.12 misses removed per thousand instructions at equal clocks, 0.35 with the measured clock gap if memory time is fixed in nanoseconds, and 0.50 under the linear rule. Model calibrated on Lam's fixed-clock measurements \cite{lamAMDs7950X3DZen2023}; clocks are those Lam measured under an all-core L3-sized load, not during libx264 itself.}
+\caption[Cache against clock for the libx264 profile]{Cache against clock for the libx264 profile of \cref{sec:tradeoff-example}, from \cref{eq:cache-clock-model}. Open circles mark the break-even points: about 0.12 misses removed per thousand instructions at equal clocks, 0.35 with the measured clock gap if memory time is fixed in nanoseconds, and 0.50 under the linear rule. Model calibrated on Lam's fixed-clock measurements \cite{lamAMDs7950X3DZen2023}; clocks are those Lam measured under an all-core L3-sized load, not during libx264 itself.}
 \label{fig:cache-clock-model}
 \end{figure}

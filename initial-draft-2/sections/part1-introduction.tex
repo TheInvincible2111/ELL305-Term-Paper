@@ -35,7 +35,7 @@ Using AMD's Zen~2 dimensions, with the compute dies at 74\,mm$^2$ each and a mon
 
 \begin{table}[htbp]
   \centering
-  \caption{One die or eight: the 64-core thought experiment, answered from later sections (model results are illustrative).}
+  \caption[One die or eight: the 64-core thought experiment, answered from later sections]{One die or eight: the 64-core thought experiment, answered from later sections (model results are illustrative).}
   \label{tab:thought-experiment}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.7cm}@{}}
@@ -61,9 +61,9 @@ The answers are not all in favour of B. By AMD's account the full 64-core design
 
 The paper is organised around two related problems (\cref{fig:research-framework}).
 
-\textbf{Problem 1: scaling processor resources beyond a single die.} If a product needs more cores, memory channels and I/O than one economical die can hold, the processor can be partitioned into \glspl{chiplet}. AMD's Zen~2-based products separate eight-core compute dies (CCDs) built on a 7\,nm process from an I/O die (IOD) built on a mature 12\,nm process \cite{naffziger2020chiplet,suggs2019zen2}.
+\textbf{Problem 1: scaling processor resources beyond a single die.} If a product needs more cores, memory channels and I/O than one economical die can hold, the processor can be partitioned into \glspl{chiplet}\index{chiplet}. AMD's Zen~2-based products separate eight-core compute dies (CCDs) built on a 7\,nm process from an I/O die (IOD) built on a mature 12\,nm process \cite{naffziger2020chiplet,suggs2019zen2}.
 
-\textbf{Problem 2: scaling cache capacity without spending planar die area.} A larger \gls{llc} can reduce costly trips to main memory, but on a planar die every extra megabyte of SRAM enlarges the die, lowers yield and lengthens wires. AMD's \gls{v-cache} instead stacks an additional SRAM die on top of the compute die, expanding the Zen~3 L3 from 32\,MB to 96\,MB per CCD \cite{wuu2022vcache,amd2022epyc7003}.
+\textbf{Problem 2: scaling cache capacity without spending planar die area.} A larger \gls{llc} can reduce costly trips to main memory, but on a planar die every extra megabyte of SRAM enlarges the die, lowers yield and lengthens wires. AMD's \gls{v-cache}\index{3D V-Cache} instead stacks an additional SRAM die on top of the compute die, expanding the Zen~3 L3 from 32\,MB to 96\,MB per CCD \cite{wuu2022vcache,amd2022epyc7003}.
 
 The problems are linked: the chiplet organisation makes the CCD a small, self-contained compute die with its own L3, and that die is the natural host for a stacked cache. The paper therefore follows the argument in four steps:
 
@@ -99,7 +99,7 @@ For every technique the paper applies the same three-part test: \emph{which bott
 
 \begin{table}[htbp]
   \centering
-  \caption{Where the research questions are answered.}
+  \caption[Where the research questions are answered]{Where the research questions are answered.}
   \label{tab:rq-map}
   \small
   \begin{tabularx}{\textwidth}{@{}lX>{\raggedright\arraybackslash}p{4.2cm}@{}}
@@ -146,7 +146,7 @@ This paper differs from these works in three ways. It treats chiplets and stacke
 The study combines five kinds of evidence:
 
 \begin{enumerate}
-  \item \textbf{Textbook foundations.} Chapters 9--12 of Sarangi's \emph{Basic Computer Architecture} supply the models used throughout: the performance equation, pipelining limits, power and temperature, the memory hierarchy and average memory access time, and multicore coherence and interconnects \cite{sarangi2025basic}.
+  \item \textbf{Textbook foundations.} Chapters 7 and 9--12 of Sarangi's \emph{Basic Computer Architecture} supply the models used throughout. The topic maps mainly to Chapters 11 (the memory system) and 12 (multiprocessors), with foundations from Chapters 7, 9 and 10; all lie within Chapters 1--12, so the faculty advisor is Prof. Sumantra Dutta Roy. The models used are the performance equation, pipelining limits, power and temperature, the memory hierarchy and average memory access time, and multicore coherence and interconnects \cite{sarangi2025basic}.
   \item \textbf{Primary technical disclosures.} Peer-reviewed conference papers and vendor technical presentations describe what was built and why. Vendor presentations are attributed to the vendor and treated as engineering claims rather than independent measurements.
   \item \textbf{Published research and benchmarks.} Part~\ref{part:case-study} analyses published measurements of chiplet and stacked-cache processors. Apart from the one set of measurements on a single-CCD part described below, the paper performs no new measurements of these processors; its quantitative contribution lies in organising, normalising and critically comparing existing results (\cref{sec:evidence-method}).
   \item \textbf{A simulation.} A trace-driven model of the cache hierarchy, built by the group and calibrated against published measurements, changes one factor at a time where no published comparison does (\cref{sec:sim-study}). Its results are labelled as model outputs throughout.
@@ -179,7 +179,7 @@ The main findings, each developed in the part cited, are as follows.
   \item \textbf{A removed miss is worth less than a memory access.} In the measured workloads each counted miss removed was worth an apparent 50 to 130 cycles, well below the memory latency. Overlap of misses by out-of-order cores and the counting of prefetches as misses are two candidate explanations; the sources do not separate them (\cref{sec:tradeoff-example,sec:lam-detail}).
   \item \textbf{Clock speed is the hidden price.} In the first two generations the V-Cache parts clocked lower. A simple model calibrated on published measurements shows that a 7\% clock gap raises the number of misses the larger cache must remove to break even from about 0.1 to about 0.35 per thousand instructions. The simulation, built on the same calibration and so not an independent check, gives 0.38 at that gap (\cref{sec:cache-clock-model,sec:sim-clock}).
   \item \textbf{A simulation illustrates these mechanisms.} A trace-driven cache model, calibrated on the same measurements, reproduces the working-set window, the small latency cost and the weight of the clock gap with every other factor fixed. It also shows which inputs matter: across the overlap factors fitted to Lam's workloads the break-even at a realistic clock gap changes about threefold, and the two link round trips of one transfer between CCDs explain only part of the measured cost of sharing (\cref{sec:sim-study}). Its results are model outputs, not measurements.
-  \item \textbf{The group's own measurements check the model's inputs and expose its limits.} On a Ryzen~5 5600X, the published Zen~3 L1 and L2 latencies the model uses agree with the measured ones, its L3 and memory latencies are within about 20\%, and the core keeps at least sixteen misses in flight, enough for the overlap the calibration implies. Between the cache plateaus, where the model's own behaviour shows, its latency close to each cache's capacity is too low, by up to 2.4 times (at 32\,MB, measured under the Windows Subsystem for Linux, WSL2; \cref{sec:sim-calibration}).
+  \item \textbf{The group's own measurements check the model's inputs and expose its limits.} On a Ryzen~5 5600X, the published Zen~3 L1 and L2 latencies the model uses agree with the measured ones, and its L3 and memory latencies are within about 20\%. The core keeps at least sixteen misses in flight, enough for the overlap the calibration implies. Between the cache plateaus, where the model's own behaviour shows, its latency close to each cache's capacity is too low, by up to 2.4 times (at 32\,MB, measured under the Windows Subsystem for Linux, WSL2; \cref{sec:sim-calibration}).
 \end{itemize}
 
 \subsection{Organisation of the paper}

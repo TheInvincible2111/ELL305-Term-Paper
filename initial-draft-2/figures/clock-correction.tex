@@ -18,6 +18,6 @@
 \draw[todored,dashed] (axis cs:1,0.5) -- (axis cs:1,4.5);
 \end{axis}
 \end{tikzpicture}
-\caption{The comparisons of \cref{tab:clock-correction} before and after a linear clock correction. The correction moves every point to the right, because the V-Cache part ran at a lower clock in each test; MiniFE's smallest input moves to parity, while OpenFOAM's worst mesh stays clearly below it. The true per-clock effect lies between the two markers, since memory-bound code does not speed up in proportion to clock. Sources: \cite{lawendaEvaluatingImpactL32025,cozmaDeepDivingZen2022,domkeLocusPerformanceQuantifying2023}.}
+\caption[Comparisons before and after a linear clock correction]{The comparisons of \cref{tab:clock-correction} before and after a linear clock correction. The correction moves every point to the right, because the V-Cache part ran at a lower clock in each test; MiniFE's smallest input moves to parity, while OpenFOAM's worst mesh stays clearly below it. The true per-clock effect lies between the two markers, since memory-bound code does not speed up in proportion to clock. Sources: \cite{lawendaEvaluatingImpactL32025,cozmaDeepDivingZen2022,domkeLocusPerformanceQuantifying2023}.}
 \label{fig:clock-correction}
 \end{figure}

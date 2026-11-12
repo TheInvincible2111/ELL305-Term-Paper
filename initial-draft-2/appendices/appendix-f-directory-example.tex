@@ -6,13 +6,13 @@ This appendix holds three calculations whose results are summarised in the main 
 
 \subsection{A directory protocol, step by step}
 \label{app:directory-example}
-This example supports \cref{sec:multicore}.
+This calculation supports \cref{sec:multicore}.
 
 \Cref{tab:directory-example} repeats the five accesses of \cref{tab:msi-example} with a directory instead of a bus. The textbook specifies that caches send their requests to the directory, that the directory fetches a block from a cache that holds it before forwarding it to the requester, and that it sends invalidations only to the caches on the sharer list \cite[sec.~12.4.6]{sarangi2025basic}. It does not fix the exact messages, so the table counts them under three assumptions made for this example: each request goes to the directory; the directory sends one message to each cache that must act, and each such cache replies once; and the directory then answers the requester. The count is an illustration of the textbook's scheme, not a description of AMD's protocol.
 
 \begin{table}[htbp]
   \centering
-  \caption{The accesses of \cref{tab:msi-example} under a directory protocol (D is the directory; counting assumptions in the text).}
+  \caption[The five accesses of the MSI trace under a directory protocol]{The accesses of \cref{tab:msi-example} under a directory protocol (D is the directory; counting assumptions in the text).}
   \label{tab:directory-example}
   \small
   \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}Xc@{}}
@@ -34,11 +34,11 @@ The comparison with snooping shows what a directory buys and what it costs. On a
 
 \subsection{TLB reach against cache capacity}
 \label{app:tlb-reach}
-This example supports \cref{sec:virtual-memory}. The memory a TLB can translate without a miss, its \emph{reach}, is its number of entries times the page size. 7-cpu.com reports a 64-entry first-level and a 2048-entry second-level data TLB for Zen~3 \cite{7-cpu.comAMDZen3}, and Chips and Cheese also gives the 64-entry first level \cite{cozmaDeepDivingZen2022}. \Cref{tab:tlb-reach} compares the resulting reach with the cache capacities.
+This calculation supports \cref{sec:virtual-memory}. The memory a TLB can translate without a miss, its \emph{reach}, is its number of entries times the page size. 7-cpu.com reports a 64-entry first-level and a 2048-entry second-level data TLB for Zen~3 \cite{7-cpu.comAMDZen3}, and Chips and Cheese also gives the 64-entry first level \cite{cozmaDeepDivingZen2022}. \Cref{tab:tlb-reach} compares the resulting reach with the cache capacities.
 
 \begin{table}[htbp]
   \centering
-  \caption{Data-TLB reach of Zen~3 (entries from \cite{7-cpu.comAMDZen3}) against its cache capacities.}
+  \caption[Data-TLB reach of Zen~3 against its cache capacities]{Data-TLB reach of Zen~3 (entries from \cite{7-cpu.comAMDZen3}) against its cache capacities.}
   \label{tab:tlb-reach}
   \small
   \begin{tabular}{@{}lcc@{}}
@@ -57,11 +57,11 @@ The table multiplies entries by page size. 7-cpu.com's own page gives ``about 80
 
 \subsection{Calibration of the cache--clock model}
 \label{app:cache-clock}
-This example calibrates \cref{eq:cache-clock-model} of \cref{sec:cache-clock-model}. The libx264 example of \cref{sec:tradeoff-example} supplies every input. On the plain CCD, $A = 3.85$, $M = 1.48$ and an IPC of 1.36 give 735 cycles per thousand instructions; the apparent stall of about 130 cycles per removed miss at 4.2\,GHz gives $s \approx 130/4.2 \approx 31$\,ns and $C \approx 735 - 1.48 \times 130 \approx 543$ cycles. The clocks are those Lam measured under an all-core load on an L3-sized data set, 4.8\,GHz for the V-Cache CCD and 5.15\,GHz for the plain one, a ratio of 1.073 \cite{lamAMDs7950X3DZen2023}; Lam did not report the clocks during the libx264 run itself, so these are an assumption. At equal clocks and $\Delta M = 0.40$ the model gives a 5.2\% gain, against the 4.9\% Lam reports, a difference within the rounding of the inputs.
+This calculation calibrates \cref{eq:cache-clock-model} of \cref{sec:cache-clock-model}. The libx264 example of \cref{sec:tradeoff-example} supplies every input. On the plain CCD, $A = 3.85$, $M = 1.48$ and an IPC of 1.36 give 735 cycles per thousand instructions; the apparent stall of about 130 cycles per removed miss at 4.2\,GHz gives $s \approx 130/4.2 \approx 31$\,ns and $C \approx 735 - 1.48 \times 130 \approx 543$ cycles. The clocks are those Lam measured under an all-core load on an L3-sized data set, 4.8\,GHz for the V-Cache CCD and 5.15\,GHz for the plain one, a ratio of 1.073 \cite{lamAMDs7950X3DZen2023}; Lam did not report the clocks during the libx264 run itself, so these are an assumption. At equal clocks and $\Delta M = 0.40$ the model gives a 5.2\% gain, against 5.1\% from the chart IPCs and the 4.9\% Lam states.
 
 \begin{table}[htbp]
   \centering
-  \caption{Net speed-up of the V-Cache CCD over the plain CCD for the libx264 profile, from \cref{eq:cache-clock-model} (calibration and clocks as in the text).}
+  \caption[Net speed-up of the V-Cache CCD over the plain CCD for the libx264 profile]{Net speed-up of the V-Cache CCD over the plain CCD for the libx264 profile, from \cref{eq:cache-clock-model} (calibration and clocks as in the text).}
   \label{tab:cache-clock-model}
   \small
   \begin{tabular}{@{}cccc@{}}

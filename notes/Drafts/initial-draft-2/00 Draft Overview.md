@@ -206,3 +206,16 @@ Hot Chips 33 prototype details for the confound table.
 - **Simulation naming:** "controlled software model" is now "simulation"; sec. 28 is titled "Simulation".
 - **Mind maps:** all 13 are regenerated in the box-and-arrow style Ishan supplied. The generator is `tmp/gen_mindmaps.py`, and the originals are in `tmp/mindmap-orig/`. Captions now start "Overview of …", not "Mind map of …".
 - **Block diagrams:** `fig:zen-ccd-evolution` is redrawn as colour block diagrams of the Zen 2, Zen 3 and V-Cache CCDs; `fig:epyc-package` uses the same colours.
+
+## 10 November 2026 — final review v9 applied (152 pages)
+- Review: research/review-initial-draft-2-v9-final.md; response: `-v9-final-response.md`.
+- Applied: all P fixes except P2 (Appendices A and B need Ishan's plagiarism and readability results) and the submission date; the safe cuts; short captions; cuts of textbook-style worked examples.
+- **Submission file:** `python3 scripts/flatten-initial-draft-2.py build/submission-final/ELL305-Term-Paper.tex` merges the modular files into one self-contained `.tex`, with the bibliography and logo embedded. Edit the modular files as usual, then rerun the script; the build/submission-final copy is generated and is never edited by hand.
+- **Checked:** the merged file compiles alone in an empty folder, its text is identical to the modular PDF, and every float is referenced.
+
+
+## 11 November 2026 — final review v10 applied (151 pages)
+- Review: research/review-initial-draft-2-v10-final.md; response: `-v10-final-response.md`.
+- Applied Q1–Q9 (draft macros removed, two list captions, two map leaves, AMAT sentence, 5.1% wording, Fig. 31 enlarged, Fig. 43 labels, comma splice), K1–K3 (write policies, ordering example, virtual memory cut to essentials), Q15 (sec. 4.6 "Writes and inclusion") and Q14 (19 more index entries).
+- Paper is now 151 pages; the single `.tex` was regenerated, compiled alone, and its text is identical to the modular PDF.
+- Remaining before upload: Appendices A and B, `\draftdate`, remove `\todo`/`todored`, regenerate.
